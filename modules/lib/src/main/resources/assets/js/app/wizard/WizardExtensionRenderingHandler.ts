@@ -1,11 +1,9 @@
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
-import Q from 'q';
 import { $contentType } from '../../v6/pages/wizard/model/wizardContent.store';
 import { PreviewContextMenuElement } from '../../v6/shared/ui/PreviewContextMenu';
 import { capitalize } from '../../v6/shared/lib/format/capitalize';
 import { isLiveViewImageEditorWidget } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
-import { whenPreviewSettled } from '../../v6/widgets/preview-panel/model/previewResolution.store';
 import { type ContentSummary } from '../content/ContentSummary';
 import { type ViewExtensionEvent } from '../event/ViewExtensionEvent';
 import { RenderingMode } from '../rendering/RenderingMode';
@@ -77,13 +75,5 @@ export class WizardExtensionRenderingHandler extends ExtensionRenderingHandler {
 
     protected handleExtensionEvent(_event: ViewExtensionEvent) {
         // do nothing, we want to handle it in LiveFormPanel
-    }
-
-    public hasControllers(): Q.Promise<boolean> {
-        return Q(whenPreviewSettled()).then((result) => result?.hasControllers ?? false);
-    }
-
-    public hasPage(): Q.Promise<boolean> {
-        return Q(whenPreviewSettled()).then((result) => result?.hasPage ?? false);
     }
 }

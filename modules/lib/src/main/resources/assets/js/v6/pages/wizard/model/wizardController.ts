@@ -14,8 +14,6 @@ export type WizardSaveOptions = {
     renamed?: boolean;
     /** `false` leaves the page editor as it is; the caller reloads what it needs. */
     reloadPageEditor?: boolean;
-    /** Drops the page editor's inspection when it reloads. */
-    clearInspection?: boolean;
 };
 
 export type WizardController = {

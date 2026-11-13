@@ -87,6 +87,7 @@ import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayou
 import { ContentContext } from './ContentContext';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
 import { startWizardServerEvents } from '../../v6/pages/wizard/model/wizardServerEvents.service';
+import { isFrameRenderable, whenPreviewSettled } from '../../v6/widgets/preview-panel/model/previewResolution.store';
 import { openWizardLiveEdit, startWizardLayout } from '../../v6/pages/wizard/model/wizardLayout.service';
 import {
     loadDefaultModels,
@@ -101,8 +102,7 @@ import {
 } from '../../v6/pages/wizard/model/wizardSave.service';
 import { type WizardSaveOptions } from '../../v6/pages/wizard/model/wizardController';
 import { type DefaultModels } from './page/DefaultModels';
-import { LiveEditPageProxy } from './page/LiveEditPageProxy';
-import { LiveFormPanel, type LiveFormPanelConfig } from './page/LiveFormPanel';
+import { LiveFormPanel } from './page/LiveFormPanel';
 import { PageState } from './page/PageState';
 import { PageEventsManager } from './PageEventsManager';
 
@@ -113,8 +113,6 @@ import { PageEventsManager } from './PageEventsManager';
 //
 export class ContentWizardPanel extends Panel {
     private livePanel?: LiveFormPanel;
-
-    private liveEditPage?: LiveEditPageProxy;
 
     private readonly params: ContentWizardPanelParams;
 
@@ -127,8 +125,6 @@ export class ContentWizardPanel extends Panel {
     private leftPanelAndToolbar: Panel;
 
     private formMask?: LoadMask;
-
-    private liveMask?: LoadMask;
 
     private persistedItem: Content;
 
@@ -170,11 +166,7 @@ export class ContentWizardPanel extends Panel {
 
     private contentDeleted: boolean;
 
-    private debouncedEditorReload: (
-        clearInspection?: boolean,
-        toggleLiveEdit?: boolean,
-        skipConfirmation?: boolean,
-    ) => void;
+    private debouncedEditorReload: (toggleLiveEdit?: boolean, skipConfirmation?: boolean) => void;
 
     public static debug: boolean = false;
 
@@ -212,27 +204,24 @@ export class ContentWizardPanel extends Panel {
 
         this.contentUpdateDisabled = false;
 
-        this.debouncedEditorReload = AppHelper.debounce(
-            (clearInspection: boolean, toggleLiveEdit: boolean, skipConfirmation: boolean) => {
-                this.isRenderable().then((wasRenderable: boolean) => {
-                    this.livePanel.skipNextReloadConfirmation(skipConfirmation);
+        this.debouncedEditorReload = AppHelper.debounce((toggleLiveEdit: boolean, skipConfirmation: boolean) => {
+            this.isRenderable().then((wasRenderable: boolean) => {
+                this.livePanel.skipNextReloadConfirmation(skipConfirmation);
 
-                    this.livePanel
-                        .loadPage(clearInspection)
-                        .then((isRenderable) => {
-                            if (wasRenderable !== isRenderable) {
-                                return this.refreshLivePanel(this.getCurrentItem());
-                            }
-                        })
-                        .then(() => {
-                            if (toggleLiveEdit) {
-                                openWizardLiveEdit();
-                            }
-                        });
-                });
-            },
-            200,
-        );
+                this.livePanel
+                    .loadPage()
+                    .then((isRenderable) => {
+                        if (wasRenderable !== isRenderable) {
+                            return this.refreshLivePanel(this.getCurrentItem());
+                        }
+                    })
+                    .then(() => {
+                        if (toggleLiveEdit) {
+                            openWizardLiveEdit();
+                        }
+                    });
+            });
+        }, 200);
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
@@ -248,9 +237,7 @@ export class ContentWizardPanel extends Panel {
             if (this.formMask?.isVisible()) {
                 this.formMask.hide();
             }
-            if (this.liveMask?.isVisible()) {
-                this.liveMask.hide();
-            }
+            this.livePanel?.hideLoadMask();
         });
 
         this.formPanel.onAdded(() => {
@@ -452,8 +439,8 @@ export class ContentWizardPanel extends Panel {
                     this.toggleClass('form', !shown);
                     this.toggleClass('wizard-panel--live', shown);
 
-                    if (!shown && this.liveMask?.isVisible()) {
-                        this.liveMask.hide();
+                    if (!shown) {
+                        this.livePanel?.hideLoadMask();
                     }
                 },
                 applyMinimized: (minimized) => {
@@ -475,14 +462,7 @@ export class ContentWizardPanel extends Panel {
     }
 
     private createLivePanel(): LiveFormPanel {
-        this.liveEditPage = new LiveEditPageProxy(this.liveEditModel);
-
-        const liveFormPanel: LiveFormPanel = new LiveFormPanel({
-            contentWizardPanel: this,
-            contentType: this.contentType,
-            liveEditPage: this.liveEditPage,
-            liveEditModel: this.liveEditModel,
-        } as LiveFormPanelConfig);
+        const liveFormPanel: LiveFormPanel = new LiveFormPanel({ liveEditModel: this.liveEditModel });
 
         liveFormPanel.whenRendered(() => {
             if (ContentWizardPanel.debug) {
@@ -592,11 +572,6 @@ export class ContentWizardPanel extends Panel {
         // always create live panel because
         // JSON widget is always able to render content
         this.livePanel = this.createLivePanel();
-        // Scope the load mask to the frame contents (image editor + iframe wrapper) so
-        // the preview toolbar above them stays interactive while the preview is loading.
-        this.liveMask = new LoadMask(this.livePanel.getFrameContainer().getContents()).addClass(
-            'live-load-mask',
-        ) as LoadMask;
 
         this.assembleElements();
 
@@ -678,7 +653,7 @@ export class ContentWizardPanel extends Panel {
     }
 
     saveChanges(options: WizardSaveOptions = {}): Q.Promise<Content> {
-        const { clearInspection = false, reloadPageEditor = true, renamed = false } = options;
+        const { reloadPageEditor = true, renamed = false } = options;
         // save happens right after data loaded with new content
         // so layout is not done yet and livePanel is not present yet
         this.livePanel?.skipNextReloadConfirmation(true);
@@ -706,7 +681,7 @@ export class ContentWizardPanel extends Panel {
                         setWizardContent(this.getContent().getContentSummary());
 
                         if (reloadPageEditor && this.livePanel) {
-                            this.livePanel.loadPage(clearInspection).then(() => {
+                            this.livePanel.loadPage().then(() => {
                                 this.refreshLivePanel(currentContent).then(() => {
                                     resolve(currentContent);
                                 });
@@ -842,9 +817,9 @@ export class ContentWizardPanel extends Panel {
             // ! iframe — leaving the customized page visible. Force a reload
             // ! in that case; otherwise saveChanges handles it.
             if (this.getPersistedItem()?.getPage()) {
-                this.saveChanges({ clearInspection: true }).catch(DefaultErrorHandler.handle);
+                this.saveChanges().catch(DefaultErrorHandler.handle);
             } else {
-                void this.getLivePanel()?.loadPage(true);
+                void this.getLivePanel()?.loadPage();
             }
         });
 
@@ -860,7 +835,7 @@ export class ContentWizardPanel extends Panel {
         });
 
         PageEventsManager.get().onPageReloadRequested(() => {
-            this.getLivePanel()?.loadPage(false);
+            this.getLivePanel()?.loadPage();
         });
 
         let firstLoad = true;
@@ -966,7 +941,7 @@ export class ContentWizardPanel extends Panel {
         }
 
         if (this.isParentSiteUpdated(updatedContent)) {
-            this.debouncedEditorReload(false, true, false);
+            this.debouncedEditorReload(true, false);
             return;
         }
 
@@ -986,7 +961,7 @@ export class ContentWizardPanel extends Panel {
 
     private handleTemplateUpdate(template: ContentSummaryAndCompareStatus): void {
         if (this.isCurrentTemplateId(template.getContentId())) {
-            this.debouncedEditorReload(false, true, true);
+            this.debouncedEditorReload(true, true);
             return;
         }
 
@@ -1007,7 +982,7 @@ export class ContentWizardPanel extends Panel {
                     }
 
                     if (isAutoUpdated) {
-                        this.debouncedEditorReload(false, true, true);
+                        this.debouncedEditorReload(true, true);
                         return;
                     }
                 })
@@ -1043,12 +1018,12 @@ export class ContentWizardPanel extends Panel {
                 }
 
                 if (isCurrentTemplate || hasDefaultChanged) {
-                    this.debouncedEditorReload(false, true, true);
+                    this.debouncedEditorReload(true, true);
                 }
             })
             .catch((error: unknown) => {
                 if (isCurrentTemplate) {
-                    this.debouncedEditorReload(false, true, true);
+                    this.debouncedEditorReload(true, true);
                 }
 
                 DefaultErrorHandler.handle(error);
@@ -1192,10 +1167,6 @@ export class ContentWizardPanel extends Panel {
         return this.wizardActions.refreshActions();
     }
 
-    getLiveMask(): LoadMask {
-        return this.liveMask;
-    }
-
     private updateTabsElement(): void {
         setDraftPage(PageState.getState());
     }
@@ -1278,7 +1249,7 @@ export class ContentWizardPanel extends Panel {
         return !!this.contentExistsInParentProject;
     }
 
-    isRenderable(): Q.Promise<boolean> {
+    private isRenderable(): Q.Promise<boolean> {
         if (!this.livePanel) {
             // may happen if invoked before rendered
             if (ContentWizardPanel.debug) {
@@ -1286,28 +1257,7 @@ export class ContentWizardPanel extends Panel {
             }
             return Q.resolve(false);
         }
-        return this.livePanel.isRenderable().then((renderable: boolean) => {
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.isRenderable', renderable);
-            }
-            return renderable;
-        });
-    }
-
-    hasControllers(): Q.Promise<boolean> {
-        if (!this.livePanel) {
-            // may happen if invoked before rendered
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.hasControllers before rendered');
-            }
-            return Q.resolve(false);
-        }
-        return this.livePanel.hasControllers().then((hasControllers: boolean) => {
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.hasControllers', hasControllers);
-            }
-            return hasControllers ?? false;
-        });
+        return Q(whenPreviewSettled()).then(isFrameRenderable);
     }
 
     private getTemplateForCustomize(): Q.Promise<PageTemplate> {

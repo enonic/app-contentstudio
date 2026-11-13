@@ -3,9 +3,9 @@ import { type DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
 import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
-import type { default as Q } from 'q';
 import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
 import {
     start as startComponentInspectionService,
@@ -33,28 +33,21 @@ import {
 } from '../../../v6/widgets/inspectors/model/page-inspection.service';
 import { type Content } from '../../content/Content';
 import { type Site } from '../../content/Site';
-import { type ContentType } from '../../inputtype/schema/ContentType';
 import { type ComponentPath } from '../../page/region/ComponentPath';
 import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
 import { setWizardPageTemplateSource } from '../../../v6/pages/wizard/model/wizardPageTemplate.commands';
-import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { PageEventsManager } from '../PageEventsManager';
 import { type PageNavigationEvent } from '../PageNavigationEvent';
 import { type PageNavigationHandler } from '../PageNavigationHandler';
 import { PageNavigationMediator } from '../PageNavigationMediator';
 import { WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
 import { FrameContainer } from './FrameContainer';
-import { type LiveEditPageProxy } from './LiveEditPageProxy';
+import { LiveEditPageProxy } from './LiveEditPageProxy';
+import { getWizardController } from '../../../v6/pages/wizard/model/wizardController';
 import { PageState } from './PageState';
 import { toContentTypeName } from '../../../v6/shared/lib/cms/schema/contentTypeName';
 
 export interface LiveFormPanelConfig {
-    contentType: ContentType;
-
-    contentWizardPanel: ContentWizardPanel;
-
-    liveEditPage: LiveEditPageProxy;
-
     liveEditModel: LiveEditModel;
 }
 
@@ -73,9 +66,9 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
     private modifyPermissions: boolean;
 
-    private contentWizardPanel: ContentWizardPanel;
-
     private liveEditPageProxy?: LiveEditPageProxy;
+
+    private mask?: LoadMask;
 
     private widgetRenderingHandler: WizardExtensionRenderingHandler;
 
@@ -84,8 +77,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     constructor(config: LiveFormPanelConfig) {
         super('live-form-panel extension-preview-panel');
 
-        this.contentWizardPanel = config.contentWizardPanel;
-        this.liveEditPageProxy = config.liveEditPage;
+        this.liveEditPageProxy = new LiveEditPageProxy(config.liveEditModel);
         this.content = config.liveEditModel.getContent();
 
         this.widgetRenderingHandler = new WizardExtensionRenderingHandler(this);
@@ -113,7 +105,14 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     }
 
     getMask(): Mask {
-        return this.contentWizardPanel.getLiveMask();
+        return this.mask;
+    }
+
+    /** Hides the load mask when the page editor goes out of view while it is loading. */
+    hideLoadMask(): void {
+        if (this.mask?.isVisible()) {
+            this.mask.hide();
+        }
     }
 
     protected initElements(): void {
@@ -121,17 +120,13 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
             proxy: this.liveEditPageProxy,
         });
 
+        // Scoped to the frame contents (image editor + iframe wrapper), so the
+        // preview toolbar above them stays interactive while the preview is loading.
+        this.mask = new LoadMask(this.frameContainer.getContents()).addClass('live-load-mask') as LoadMask;
+
         this.frameContainer.getToolbar().setRefreshAction(() => this.refresh());
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
         this.addPageProxyLoadEventListeners();
-    }
-
-    hasControllers(): Q.Promise<boolean> {
-        return this.widgetRenderingHandler.hasControllers();
-    }
-
-    isRenderable(): Q.Promise<boolean> {
-        return this.widgetRenderingHandler.isItemRenderable();
     }
 
     private addPageProxyLoadEventListeners(): void {
@@ -148,9 +143,12 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     }
 
     private saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
+        const controller = getWizardController();
+        if (!controller) return;
+
         this.pageSkipReload = true;
-        this.contentWizardPanel
-            .saveChanges({ reloadPageEditor: false })
+        controller
+            .save({ reloadPageEditor: false })
             .then(() => {
                 if ($pageEditorLifecycle.get().inlineEditing) {
                     this.liveEditPageProxy?.loadComponent(path, existing);
@@ -158,7 +156,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
                 }
 
                 this.pageSkipReload = false;
-                void this.loadPage(false);
+                void this.loadPage();
             })
             .catch(DefaultErrorHandler.handle)
             .finally(() => {
@@ -255,7 +253,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
         this.widgetRenderingHandler.unRenderableChanged(listener);
     }
 
-    loadPage(clearInspection: boolean = true): Promise<boolean> {
+    loadPage(): Promise<boolean> {
         if (LiveFormPanel.debug) {
             console.debug('LiveFormPanel.loadPage at ' + new Date().toISOString());
         }
@@ -269,16 +267,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
             return this.widgetRenderingHandler.render(this.content, $activeWidget.get());
         }
 
-        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get()).then((loaded) => {
-            if (clearInspection) {
-                const clearInspectionFn = () => {
-                    PageEventsManager.get().unLoaded(clearInspectionFn);
-                };
-                PageEventsManager.get().onLoaded(clearInspectionFn);
-            }
-
-            return loaded;
-        });
+        return this.liveEditPageProxy.load(this.widgetRenderingHandler, $activeWidget.get());
     }
 
     isShown(): boolean {
