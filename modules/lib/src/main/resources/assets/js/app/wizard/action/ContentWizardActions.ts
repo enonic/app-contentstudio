@@ -279,10 +279,6 @@ export class ContentWizardActions extends WizardActions<Content> {
             });
     }
 
-    isOnline(): boolean {
-        return !!this.content && isOnline(this.content.getContentSummary());
-    }
-
     getPreviewAction(): Action {
         return this.previewAction;
     }

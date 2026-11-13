@@ -65,7 +65,8 @@ import {
     updateAiAppConfigs,
     whenAiReady,
 } from '../../v6/features/ai';
-import { ContentWizardToolbar } from '../browse/ContentWizardToolbar';
+import { ContentWizardToolbarElement } from '../../v6/pages/wizard/ui/ContentWizardToolbar';
+import { setWizardToolbarItem, startWizardToolbar } from '../../v6/pages/wizard/model/wizardToolbar.service';
 import { type CompareStatus } from '../content/CompareStatus';
 import { type Content } from '../content/Content';
 import { ContentIconUrlResolver } from '../content/ContentIconUrlResolver';
@@ -413,13 +414,11 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     protected createMainToolbar(): Toolbar<ToolbarConfig> {
-        return new ContentWizardToolbar({
-            actions: this.wizardActions,
-        }) as unknown as Toolbar<ToolbarConfig>;
-    }
+        const toolbar = new ContentWizardToolbarElement({ previewAction: this.wizardActions.getPreviewAction() });
+        toolbar.getHTMLElement().classList.remove('contents');
+        toolbar.onRemoved(startWizardToolbar());
 
-    public getContentWizardToolbar(): ContentWizardToolbar {
-        return super.getMainToolbar() as unknown as ContentWizardToolbar;
+        return toolbar as unknown as Toolbar<ToolbarConfig>;
     }
 
     private getWidgetToolbar(): PreviewToolbarElement {
@@ -548,7 +547,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 console.debug('ContentWizardPanel.doRenderOnDataLoaded continue at ' + new Date().toISOString());
             }
 
-            this.getContentWizardToolbar().setItem(this.getContent());
+            setWizardToolbarItem(this.getContent());
             this.isContentFormValid = this.isWizardContentValid();
             this.wizardActions.setContent(this.getContent()).refreshState();
 
@@ -980,7 +979,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.currentCompareStatus = updatedContent.getCompareStatus();
         this.currentPublishStatus = updatedContent.getPublishStatus();
         this.setPersistedContent(updatedContent);
-        this.getContentWizardToolbar().setItem(updatedContent);
+        setWizardToolbarItem(updatedContent);
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
 

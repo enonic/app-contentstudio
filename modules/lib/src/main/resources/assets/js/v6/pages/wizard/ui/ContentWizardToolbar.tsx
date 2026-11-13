@@ -18,6 +18,7 @@ import {
     openPluginDialog,
 } from '../../../features/ai';
 import { setInspectSave } from '../../../widgets/inspectors/model/inspect-panel.store';
+import { backToWizardProject, openWizardLayers, renameWizardContent } from '../model/wizardToolbar.service';
 import { $wizardToolbar } from '../model/wizardToolbar.store';
 import { formatContentFullPath } from '../../../shared/lib/cms/content/paths';
 import { getInitials } from '../../../shared/lib/format/initials';
@@ -32,9 +33,6 @@ import { $wizardActions } from '../model/wizardActions.store';
 import { $wizardContentPathExists, $wizardReadOnly } from '../model/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
-    onProjectBack?: () => void;
-    onLayersClick?: () => void;
-    onContentPathClick?: () => void;
     // Preview is switched on and off by the live edit, so it is still a legacy action.
     previewAction: Action;
     className?: string;
@@ -54,13 +52,7 @@ const PUBLISH_ACTION_IDS = [
     'createIssue',
 ] as const;
 
-export const ContentWizardToolbar = ({
-    onProjectBack,
-    onLayersClick,
-    onContentPathClick,
-    previewAction,
-    className,
-}: ContentWizardToolbarProps): ReactElement => {
+export const ContentWizardToolbar = ({ previewAction, className }: ContentWizardToolbarProps): ReactElement => {
     const {
         projectLabel,
         projectName,
@@ -196,7 +188,7 @@ export const ContentWizardToolbar = ({
                             <Button
                                 size="sm"
                                 variant="text"
-                                onClick={onProjectBack}
+                                onClick={backToWizardProject}
                                 className="size-9 min-w-fit p-0 sm:w-auto sm:px-3.5"
                                 aria-label={projectViewLabel}
                             >
@@ -230,7 +222,7 @@ export const ContentWizardToolbar = ({
                         <Toolbar.Item className="inline-flex shrink-0">
                             <LayerIndicator
                                 isLocalised={isContentLocalised}
-                                onClick={() => onLayersClick?.()}
+                                onClick={openWizardLayers}
                                 className="size-8"
                             />
                         </Toolbar.Item>
@@ -250,7 +242,7 @@ export const ContentWizardToolbar = ({
                                     variant="text"
                                     className="min-w-0 max-w-full px-1.5 md:px-2.75"
                                     disabled={!canRename}
-                                    onClick={onContentPathClick}
+                                    onClick={renameWizardContent}
                                 >
                                     <span
                                         data-component="ContentWizardToolbar.ContentName"
@@ -273,7 +265,7 @@ export const ContentWizardToolbar = ({
                                     icon={Link2}
                                     aria-label={contentNameLabel}
                                     disabled={!canRename}
-                                    onClick={onContentPathClick}
+                                    onClick={renameWizardContent}
                                     className="shrink-0 size-8"
                                 />
                             </Toolbar.Item>
