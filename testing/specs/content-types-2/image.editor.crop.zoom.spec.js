@@ -8,6 +8,7 @@ const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.pan
 const LiveViewImageEditor = require('../../page_objects/wizardpanel/liveview.image.editor');
 const ImageFormPanel = require('../../page_objects/wizardpanel/image.form.panel');
 const WizardVersionsWidget = require('../../page_objects/wizardpanel/details/wizard.versions.widget');
+const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 
 describe('image.content.crop.spec: tests for crop button', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -110,6 +111,7 @@ describe('image.content.crop.spec: tests for crop button', function () {
         await studioUtils.saveScreenshot('image_cropped_reopened');
         await imageEditor.waitForResetButtonDisplayed();
         await imageEditor.clickOnResetButton();
+        await new ConfirmationDialog().clickOnConfirmButton();
         // 4. Save the content:
         await contentWizard.waitAndClickOnSave();
         await imageEditor.waitForResetButtonNotDisplayed();

@@ -1,6 +1,9 @@
 import {
     type ReactElement,
     type ReactNode,
+    type RefObject,
+    type Dispatch,
+    type SetStateAction,
     createContext,
     useCallback,
     useContext,
@@ -33,8 +36,15 @@ type ImageUploaderContextValue = {
     enabled: boolean;
     mode?: Mode;
     setMode: (mode: Mode) => void;
+    cropButtonRef: RefObject<HTMLButtonElement>;
+    focusButtonRef: RefObject<HTMLButtonElement>;
+    transformButtonRef: RefObject<HTMLButtonElement>;
+    transformResetOrientationRef: RefObject<number>;
+    imageFrameRef: RefObject<HTMLDivElement>;
+    isPreviewReady: boolean;
+    finishEditing: () => void;
     orientation: number;
-    setOrientation: (orientation: number) => void;
+    setOrientation: Dispatch<SetStateAction<number>>;
     imageUrl?: string;
     setImageUrl: (url: string) => void;
     base64Image?: string;
@@ -65,7 +75,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const [contentId, setContentId] = useState<ContentId>();
     // the context project
     const [project, setProject] = useState<Readonly<Project>>();
-    // ready, crop, focus, loading, error
+    // ready, crop, focus, transform, loading, error
     const [mode, setMode] = useState<Mode>();
     // 1 to 8, combining both rotation and mirror
     const [orientation, setOrientation] = useState<number>(readOrientationFromPropertySet(value));
@@ -75,6 +85,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const [imageUrl, setImageUrl] = useState<string>();
     // the base64 encoded image
     const [base64Image, setBase64Image] = useState<string>();
+    const [isImageLoading, setIsImageLoading] = useState(false);
     // the dimensions of the image
     const [dimensions, setDimensions] = useState<Dimensions>();
     // the crop of the image.
@@ -89,6 +100,20 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     const focusInitializedRef = useRef(false);
     const prevCropRef = useRef<Crop | undefined>(undefined);
     const loadRequestIdRef = useRef(0);
+    const imageLoadingRef = useRef(false);
+    const cropButtonRef = useRef<HTMLButtonElement>(null);
+    const focusButtonRef = useRef<HTMLButtonElement>(null);
+    const transformButtonRef = useRef<HTMLButtonElement>(null);
+    const transformResetOrientationRef = useRef(readOrientationFromPropertySet(value));
+    const imageFrameRef = useRef<HTMLDivElement>(null);
+    const pendingFocusRef = useRef<{ button: HTMLButtonElement; source: Element | null }>(null);
+
+    const finishEditing = useCallback(() => {
+        const button = (mode === 'crop' ? cropButtonRef : mode === 'focus' ? focusButtonRef : transformButtonRef)
+            .current;
+        pendingFocusRef.current = button ? { button, source: button.ownerDocument.activeElement } : null;
+        setMode('ready');
+    }, [mode]);
 
     // ============================================================
     // Content & Project id initialization
@@ -109,22 +134,28 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     // ============================================================
     // Derived flag used as a dep so the effect re-runs when entering/leaving crop mode.
     const isCropEditing = mode === 'crop';
+    // The source image stays uncropped while its edges are being edited.
+    const imageCrop = isCropEditing ? null : crop;
 
     useEffect(() => {
         if (!imageUrl) return;
 
-        // Don't override edit mode (crop/focus) with loading/ready — those track user intent.
+        // Keep editing controls mounted and enabled while their preview loads.
         // Read via ref so setMode('loading') from within the effect doesn't invalidate the snapshot.
-        const isEditing = modeRef.current === 'crop' || modeRef.current === 'focus';
+        const isEditing = modeRef.current === 'crop' || modeRef.current === 'focus' || modeRef.current === 'transform';
 
         if (!isEditing) setMode('loading');
 
         const fetchedOrientation = orientation;
         const requestId = ++loadRequestIdRef.current;
+        imageLoadingRef.current = true;
+        setIsImageLoading(true);
 
-        getBase64Image(imageUrl, fetchedOrientation, isCropEditing ? null : crop)
+        getBase64Image(imageUrl, fetchedOrientation, imageCrop)
             .then(({ base64Image, dimensions }) => {
                 if (requestId !== loadRequestIdRef.current) return;
+                imageLoadingRef.current = false;
+                setIsImageLoading(false);
                 setBase64Image(base64Image);
                 setDimensions(dimensions);
                 setCommittedOrientation(fetchedOrientation);
@@ -132,9 +163,30 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             })
             .catch(() => {
                 if (requestId !== loadRequestIdRef.current) return;
-                setMode('error');
+                imageLoadingRef.current = false;
+                setIsImageLoading(false);
+                // A failed transform preview must still offer Cancel.
+                if (modeRef.current !== 'transform') setMode('error');
             });
-    }, [imageUrl, orientation, crop, isCropEditing]);
+    }, [imageUrl, orientation, imageCrop, isCropEditing]);
+
+    useEffect(() => {
+        const pending = pendingFocusRef.current;
+        if (!pending) return;
+        if (!enabled || mode === 'error') {
+            pendingFocusRef.current = null;
+            return;
+        }
+        // A pending edit-mode effect can run before the ready render; keep the request until its toolbar is enabled.
+        if (mode !== 'ready' || imageLoadingRef.current) return;
+
+        pendingFocusRef.current = null;
+        const { button, source } = pending;
+        const active = button.ownerDocument.activeElement;
+        if (button.isConnected && !button.disabled && (active === source || active === button.ownerDocument.body)) {
+            button.focus({ preventScroll: true });
+        }
+    }, [mode, enabled, base64Image, isImageLoading]);
 
     // ============================================================
     // Crop
@@ -155,10 +207,11 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     }, [crop, committedOrientation, dimensions]);
 
     useEffect(() => {
-        if (!crop || !dimensions || mode === 'crop') return;
+        if (!crop || !dimensions || mode !== 'ready' || imageLoadingRef.current || orientation !== committedOrientation)
+            return;
 
         setCropInPropertySet(value, cropForOrientation, dimensions);
-    }, [value, mode, cropForOrientation, committedOrientation, dimensions]);
+    }, [value, mode, cropForOrientation, orientation, committedOrientation, dimensions]);
 
     useEffect(() => {
         if (cropInitializedRef.current || !dimensions) return;
@@ -199,10 +252,17 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     }, [focus, committedOrientation, dimensions]);
 
     useEffect(() => {
-        if (!focus || !dimensions || mode === 'focus') return;
+        if (
+            !focus ||
+            !dimensions ||
+            mode !== 'ready' ||
+            imageLoadingRef.current ||
+            orientation !== committedOrientation
+        )
+            return;
 
         setFocusInPropertySet(value, focusForOrientation, dimensions);
-    }, [value, mode, focusForOrientation, committedOrientation, dimensions]);
+    }, [value, mode, focusForOrientation, orientation, committedOrientation, dimensions]);
 
     useEffect(() => {
         if (focusInitializedRef.current || !dimensions) return;
@@ -239,11 +299,11 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
     useEffect(() => {
         // Recenter focus after the crop is applied (mode transitions out of 'crop'),
         // not while the user is still drawing/adjusting the crop rectangle.
-        if (mode === 'crop') return;
-        if (!crop || !dimensions) return;
-
+        if (mode !== 'ready' || imageLoadingRef.current || orientation !== committedOrientation) return;
+        if (!dimensions) return;
         const prev = prevCropRef.current;
         prevCropRef.current = crop;
+        if (!crop) return;
 
         // Only recenter focus when the crop actually changed, not on every re-render.
         if (prev && prev.x1 === crop.x1 && prev.y1 === crop.y1 && prev.x2 === crop.x2 && prev.y2 === crop.y2) return;
@@ -259,7 +319,7 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
         const newFocus = adjustFocusToBaseOrientation(cropCenter, committedOrientation, dimensions);
         setFocus(newFocus);
         setFocusInPropertySet(value, newFocus, dimensions);
-    }, [crop, dimensions, committedOrientation, value, mode]);
+    }, [crop, dimensions, orientation, committedOrientation, value, mode]);
 
     // ============================================================
     // Reset (atomic, stable, no closure staleness)
@@ -292,6 +352,13 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             enabled,
             mode,
             setMode,
+            cropButtonRef,
+            focusButtonRef,
+            transformButtonRef,
+            transformResetOrientationRef,
+            imageFrameRef,
+            isPreviewReady: !isImageLoading && orientation === committedOrientation,
+            finishEditing,
             orientation,
             setOrientation,
             imageUrl,
@@ -312,9 +379,12 @@ export const ImageUploaderProvider = ({ values, enabled, children }: ImageUpload
             enabled,
             mode,
             setMode,
+            finishEditing,
             orientation,
+            committedOrientation,
             imageUrl,
             base64Image,
+            isImageLoading,
             dimensions,
             cropForOrientation,
             setCropToBaseOrientation,

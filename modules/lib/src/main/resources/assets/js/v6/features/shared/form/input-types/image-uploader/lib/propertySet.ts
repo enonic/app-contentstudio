@@ -42,36 +42,6 @@ export function resetPropertySet(value: Value): boolean {
     return true;
 }
 
-export function resetCropInPropertySet(value: Value): boolean {
-    if (!value || value.isNull()) return false;
-
-    const set = value.getPropertySet();
-
-    if (!set) return false;
-
-    set.removeProperty('cropPosition', 0);
-    set.removeProperty('zoomPosition', 0);
-
-    return true;
-}
-
-export function resetFocusInPropertySet(value: Value): boolean {
-    if (!value || value.isNull()) return false;
-
-    const set = value.getPropertySet();
-
-    if (!set) return false;
-
-    const crop = readNormalizedCropFromPropertySet(value);
-    const fx = crop ? (crop.x1 + crop.x2) / 2 : 0.5;
-    const fy = crop ? (crop.y1 + crop.y2) / 2 : 0.5;
-
-    set.setDoubleByPath('focalPoint.x', fx);
-    set.setDoubleByPath('focalPoint.y', fy);
-
-    return true;
-}
-
 export function setCropInPropertySet(value: Value, crop: Crop, dimensions: Dimensions): void {
     if (!value || value.isNull()) return;
 
@@ -108,42 +78,26 @@ export function setFocusInPropertySet(value: Value, focus: Point, dimensions: Di
     }
 }
 
-export function setRotationInPropertySet(value: Value): number {
-    if (!value || value.isNull()) return 1;
-
-    const set = value.getPropertySet();
-
-    if (!set) return 1;
-
-    const currentOrientation = set.getProperty('orientation')?.getLong() ?? 1;
-    const newOrientation = ROTATE_CW_MAP[currentOrientation] ?? 1;
-
-    if (newOrientation === 1) {
-        set.removeProperty('orientation', 0);
-    } else {
-        set.setLongByPath('orientation', newOrientation);
-    }
-
-    return newOrientation;
+export function rotateOrientation(orientation: number): number {
+    return ROTATE_CW_MAP[orientation] ?? 1;
 }
 
-export function setFlipInPropertySet(value: Value): number {
-    if (!value || value.isNull()) return 1;
+export function flipOrientation(orientation: number): number {
+    return MIRROR_MAP[orientation] ?? 1;
+}
+
+export function setOrientationInPropertySet(value: Value, orientation: number): void {
+    if (!value || value.isNull()) return;
 
     const set = value.getPropertySet();
 
-    if (!set) return 1;
+    if (!set) return;
 
-    const currentOrientation = set.getProperty('orientation')?.getLong() ?? 1;
-    const newOrientation = MIRROR_MAP[currentOrientation] ?? 1;
-
-    if (newOrientation === 1) {
+    if (orientation === 1) {
         set.removeProperty('orientation', 0);
     } else {
-        set.setLongByPath('orientation', newOrientation);
+        set.setLongByPath('orientation', orientation);
     }
-
-    return newOrientation;
 }
 
 export function readOrientationFromPropertySet(value: Value): number {

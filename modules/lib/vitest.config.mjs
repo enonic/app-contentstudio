@@ -18,8 +18,16 @@ export default defineConfig({
         },
         server: {
             deps: {
-                // Inline @enonic/ui and react-resizable-panels to avoid ESM/CJS interop issues with preact aliasing
-                inline: ['@enonic/ui', '@enonic/input-types', '@enonic/ui-utils', /react-resizable-panels/],
+                // Inline UI dependencies so their React imports also follow the Preact aliases.
+                inline: [
+                    '@enonic/ui',
+                    '@enonic/input-types',
+                    '@enonic/ui-utils',
+                    '@radix-ui/react-slot',
+                    '@radix-ui/react-compose-refs',
+                    'lucide-react',
+                    /react-resizable-panels/,
+                ],
             },
         },
     },
