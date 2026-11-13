@@ -22,7 +22,6 @@ import {
 import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
 import { ManagedActionManager } from '@enonic/lib-admin-ui/managedaction/ManagedActionManager';
 import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedActionState';
-import { Action } from '@enonic/lib-admin-ui/ui/Action';
 import Q from 'q';
 import { GetContentByPathRequest } from '../../resource/GetContentByPathRequest';
 import { GetContentPermissionsByIdRequest } from '../../resource/GetContentPermissionsByIdRequest';
@@ -33,9 +32,9 @@ import {
     type HasUnpublishedChildrenResult,
 } from '../../resource/HasUnpublishedChildrenResult';
 import { type ContentWizardPanel } from '../ContentWizardPanel';
+import { $activeWidget } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
 import { AccessControlHelper } from '../AccessControlHelper';
 import { ProjectHelper } from '../../settings/data/project/ProjectHelper';
-import { PreviewAction } from './PreviewAction';
 
 //
 // What is left of the legacy wizard actions. The state of the actions lives in
@@ -48,10 +47,6 @@ export class ContentWizardActions {
 
     private wizardPanel: ContentWizardPanel;
 
-    private previewAction: PreviewAction;
-
-    private closeAction: Action;
-
     private unsubscribers: (() => void)[] = [];
 
     private parentPermissionRequestId: number = 0;
@@ -61,13 +56,7 @@ export class ContentWizardActions {
     private hasCheckedUnpublishedChildren: boolean = false;
 
     constructor(wizardPanel: ContentWizardPanel) {
-        const previewAction = new PreviewAction(wizardPanel);
-        const closeAction = new Action('Close', 'alt+w', true);
-        closeAction.onExecuted(() => wizardPanel.close());
-
         this.wizardPanel = wizardPanel;
-        this.previewAction = previewAction;
-        this.closeAction = closeAction;
 
         ManagedActionManager.instance().onManagedActionStateChanged(
             (state: ManagedActionState, _executor: ManagedActionExecutor) => {
@@ -100,6 +89,7 @@ export class ContentWizardActions {
                 return Promise.resolve(this.refreshActions());
             },
             openTranslator: (language) => this.wizardPanel.openTranslatorDialog(language),
+            getActivePreviewWidget: () => $activeWidget.get(),
         });
     }
 
@@ -135,7 +125,6 @@ export class ContentWizardActions {
 
     enableActionsForNew() {
         patchWizardActionFacts({ persisted: undefined });
-        this.previewAction.setWritePermissions(true);
     }
 
     enableActionsForExisting(existing: Content): Q.Promise<void> {
@@ -154,7 +143,6 @@ export class ContentWizardActions {
             canPublish: AccessControlHelper.hasPermission(Permission.PUBLISH, permissions),
         });
 
-        this.previewAction.setWritePermissions(canModify);
         this.checkParentCreatePermission(existing);
 
         return Q();
@@ -264,18 +252,5 @@ export class ContentWizardActions {
                 this.hasCheckedUnpublishedChildren = false;
                 DefaultErrorHandler.handle(err);
             });
-    }
-
-    getPreviewAction(): Action {
-        return this.previewAction;
-    }
-
-    /** The actions that still bind their shortcuts through lib-admin-ui `KeyBindings`. */
-    getActions(): Action[] {
-        return [this.previewAction, this.closeAction];
-    }
-
-    getCloseAction(): Action {
-        return this.closeAction;
     }
 }

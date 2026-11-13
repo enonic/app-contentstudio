@@ -11,7 +11,10 @@ vi.mock('./wizardContent.store', async () => {
     };
 });
 
+import { $previewResolution } from '../../../widgets/preview-panel/model/previewResolution.store';
+import type { PreviewResult } from '../../../widgets/preview-panel/model/previewResolution.types';
 import {
+    $wizardActions,
     needsUnpublishedChildrenCheck,
     resolveSaveLabel,
     resolveWizardActions,
@@ -330,5 +333,47 @@ describe('needsUnpublishedChildrenCheck', () => {
         expect(needsUnpublishedChildrenCheck(noPublish, env())).toBe(true);
         expect(needsUnpublishedChildrenCheck(noPublish, env({ canRequestPublish: false }))).toBe(false);
         expect(needsUnpublishedChildrenCheck(noPublish, env({ contentState: 'invalid' }))).toBe(false);
+    });
+});
+
+describe('preview', () => {
+    const settle = (pending: boolean, kind?: string): void => {
+        $previewResolution.set({
+            request: undefined,
+            pending,
+            result: kind ? ({ kind } as unknown as PreviewResult) : undefined,
+        });
+    };
+
+    it('should be enabled only when the preview is resolved', () => {
+        expect(resolveWizardActions(facts(), env()).preview.enabled).toBe(false);
+        expect(resolveWizardActions(facts(), env({ previewReady: true })).preview.enabled).toBe(true);
+        expect(resolveWizardActions(facts(), env({ previewReady: true, stashed: true })).preview.enabled).toBe(true);
+    });
+
+    it('should follow the preview resolution', () => {
+        const unbind = $wizardActions.listen(() => undefined);
+        const enabled = (): boolean => $wizardActions.get().preview.enabled;
+
+        settle(false, 'ready');
+        expect(enabled()).toBe(true);
+
+        settle(true, 'ready');
+        expect(enabled()).toBe(false);
+
+        // a failed or cleared request leaves it off, as the pending one did
+        settle(false, 'error');
+        expect(enabled()).toBe(false);
+        settle(false);
+        expect(enabled()).toBe(false);
+
+        settle(false, 'ready');
+        expect(enabled()).toBe(true);
+
+        // clearing after a ready result does not switch it off
+        settle(false);
+        expect(enabled()).toBe(true);
+
+        unbind();
     });
 });

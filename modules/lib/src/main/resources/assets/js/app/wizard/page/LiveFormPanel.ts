@@ -3,7 +3,6 @@ import { type DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
 import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import type { default as Q } from 'q';
@@ -106,10 +105,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
     getChildrenContainer(): DivEl {
         return this.getFrameContainer().getWrapper();
-    }
-
-    getPreviewAction(): Action {
-        return this.contentWizardPanel.getWizardActions().getPreviewAction();
     }
 
     private refresh(): void {

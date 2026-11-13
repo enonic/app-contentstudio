@@ -4,8 +4,6 @@ import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { showFeedback, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import { Action } from '@enonic/lib-admin-ui/ui/Action';
-import { KeyBindings } from '@enonic/lib-admin-ui/ui/KeyBindings';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
@@ -204,7 +202,6 @@ export class ContentWizardPanel extends Panel {
         });
 
         this.loadData();
-        this.initBindings();
     }
 
     private initElements() {
@@ -238,13 +235,6 @@ export class ContentWizardPanel extends Panel {
         );
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
-    }
-
-    // Only Preview and Close are left here; the v6 wizard shell binds the shortcuts of the other actions.
-    private initBindings() {
-        const nextActions = this.wizardActions.getActions();
-        const currentKeyBindings = Action.getKeyBindings(nextActions);
-        KeyBindings.get().bindKeys(currentKeyBindings);
     }
 
     private initEventsListeners() {
@@ -425,7 +415,7 @@ export class ContentWizardPanel extends Panel {
     }
 
     private createMainToolbar(): ContentWizardToolbarElement {
-        const toolbar = new ContentWizardToolbarElement({ previewAction: this.wizardActions.getPreviewAction() });
+        const toolbar = new ContentWizardToolbarElement();
         toolbar.getHTMLElement().classList.remove('contents');
         toolbar.onRemoved(startWizardToolbar());
 

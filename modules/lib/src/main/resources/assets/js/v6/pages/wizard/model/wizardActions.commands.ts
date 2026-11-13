@@ -1,3 +1,4 @@
+import { PreviewActionHelper } from '../../../../app/action/PreviewActionHelper';
 import { CreateIssuePromptEvent } from '../../../../app/browse/CreateIssuePromptEvent';
 import { RequestContentPublishPromptEvent } from '../../../../app/browse/RequestContentPublishPromptEvent';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -9,7 +10,13 @@ import { openPublishDialog } from '../../../features/publish/model/publishDialog
 import { openUnpublishDialog } from '../../../features/unpublish/model/unpublishDialog.store';
 import { i18n } from '../../../shared/i18n';
 import { handleError, notifyWarning } from '../../../shared/notifications';
-import { $wizardActions, patchWizardActionActivity, type WizardActionId } from './wizardActions.store';
+import { getResolvedPreviewExtension } from '../../../widgets/preview-panel/model/previewResolution.store';
+import {
+    $wizardActionFacts,
+    $wizardActions,
+    patchWizardActionActivity,
+    type WizardActionId,
+} from './wizardActions.store';
 import { $wizardContentState, $wizardIsMarkedAsReady, setWizardMarkedAsReady } from './wizardContent.store';
 import { escalateVisibility } from './wizardValidation.store';
 import { getWizardController, type WizardController, type WizardSaveOptions } from './wizardController';
@@ -21,6 +28,10 @@ import { openWizardPublishRequest } from './wizardPublishRequest.service';
 //
 // Runs the wizard actions. What still lives in the legacy wizard panel (saving
 // and closing) is reached through the wizard controller.
+//
+// ! The shell binds the shortcuts with the application, so this file is loaded at
+// ! start-up. It must not import the preview widgets store, which fetches its data
+// ! on import, before the application is configured; the controller reads it instead.
 //
 
 type PublishCommand = {
@@ -96,6 +107,29 @@ function runPublishCommand(id: WizardActionId, command: PublishCommand, controll
         .finally(() => patchWizardActionActivity({ busy: undefined }));
 }
 
+let previewHelper: PreviewActionHelper | undefined;
+
+/** Opens the preview in a new window, saving first when the user may modify the content. */
+function previewWizardContent(controller: WizardController): void {
+    const extension = getResolvedPreviewExtension() ?? controller.getActivePreviewWidget();
+    const open = (content: ContentSummary | undefined): void => {
+        if (!content) return;
+
+        previewHelper ??= new PreviewActionHelper();
+        previewHelper.openWindow(content, extension);
+    };
+
+    const { persisted, canModify } = $wizardActionFacts.get();
+    // New content is always the user's own to save.
+    const maySave = persisted == null || canModify;
+
+    if (maySave && controller.hasUnsavedChanges()) {
+        controller.save().then(open).catch(handleError);
+    } else {
+        open(controller.getPersistedContent());
+    }
+}
+
 /** Saves the content the way the Save button does, whether or not the button is enabled. */
 export function saveWizardContent(options?: WizardSaveOptions): Promise<void> {
     const controller = getWizardController();
@@ -146,6 +180,9 @@ export function executeWizardAction(id: WizardActionId): void {
             break;
         case 'localize':
             localizeWizardContent();
+            break;
+        case 'preview':
+            previewWizardContent(controller);
             break;
     }
 }

@@ -93,6 +93,7 @@ describe('wizardInheritance.commands', () => {
             close: vi.fn(),
             replaceContent: vi.fn(() => Promise.resolve()),
             openTranslator: vi.fn(),
+            getActivePreviewWidget: () => undefined,
         };
         unregister();
         unregister = registerWizardController(controller);

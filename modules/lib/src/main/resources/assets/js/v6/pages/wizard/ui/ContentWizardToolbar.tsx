@@ -1,4 +1,3 @@
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Link2 } from 'lucide-react';
@@ -26,21 +25,20 @@ import { useElementVisibility } from '../../../shared/lib/hooks/useElementVisibi
 import { ContextToggle } from '../../../widgets/browse-toolbar/ContextToggle';
 import { OverflowActionRow } from '../../../widgets/browse-toolbar/OverflowActionRow';
 import { SplitActionButton } from '../../../widgets/browse-toolbar/SplitActionButton';
-import { useLegacyToolbarActions } from '../../../widgets/browse-toolbar/useLegacyToolbarActions';
 import { useWizardToolbarActions } from './useWizardToolbarActions';
 import { executeWizardAction } from '../model/wizardActions.commands';
 import { $wizardActions } from '../model/wizardActions.store';
 import { $wizardContentPathExists, $wizardReadOnly } from '../model/wizardContent.store';
 
 export type ContentWizardToolbarProps = {
-    // Preview is switched on and off by the live edit, so it is still a legacy action.
-    previewAction: Action;
     className?: string;
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
 
-const TOOLBAR_ACTION_IDS = ['save', 'reset', 'localize', 'archive', 'duplicate', 'move'] as const;
+const TOOLBAR_ACTION_IDS = ['save', 'reset', 'localize', 'archive', 'duplicate', 'move', 'preview'] as const;
+
+const PRIMARY_RANKS: Partial<Record<(typeof TOOLBAR_ACTION_IDS)[number], number>> = { preview: 1, save: 2 };
 
 const PUBLISH_ACTION_IDS = [
     'markAsReady',
@@ -52,7 +50,7 @@ const PUBLISH_ACTION_IDS = [
     'createIssue',
 ] as const;
 
-export const ContentWizardToolbar = ({ previewAction, className }: ContentWizardToolbarProps): ReactElement => {
+export const ContentWizardToolbar = ({ className }: ContentWizardToolbarProps): ReactElement => {
     const {
         projectLabel,
         projectName,
@@ -136,14 +134,9 @@ export const ContentWizardToolbar = ({ previewAction, className }: ContentWizard
     useEffect(() => () => setInspectSave(null), []);
 
     const storeToolbarActions = useWizardToolbarActions(TOOLBAR_ACTION_IDS);
-    const previewSources = useMemo(() => [{ id: 'preview', action: previewAction }], [previewAction]);
-    const [previewToolbarAction] = useLegacyToolbarActions(previewSources);
     const toolbarActions = useMemo(
-        () => [
-            ...storeToolbarActions.map((action) => (action.id === 'save' ? { ...action, primaryRank: 2 } : action)),
-            { ...previewToolbarAction, primaryRank: 1 },
-        ],
-        [previewToolbarAction, storeToolbarActions],
+        () => storeToolbarActions.map((action) => ({ ...action, primaryRank: PRIMARY_RANKS[action.id] })),
+        [storeToolbarActions],
     );
     const [desktopPathRef, isDesktopPathVisible] = useElementVisibility<HTMLDivElement>();
     const [mobilePathRef, isMobilePathVisible] = useElementVisibility<HTMLDivElement>();
@@ -354,7 +347,7 @@ export const ContentWizardToolbar = ({ previewAction, className }: ContentWizard
 ContentWizardToolbar.displayName = CONTENT_WIZARD_TOOLBAR_NAME;
 
 export class ContentWizardToolbarElement extends LegacyElement<typeof ContentWizardToolbar, ContentWizardToolbarProps> {
-    constructor(props: ContentWizardToolbarProps) {
+    constructor(props: ContentWizardToolbarProps = {}) {
         super({ className: '', ...props }, ContentWizardToolbar);
     }
 }
