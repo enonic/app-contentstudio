@@ -36,7 +36,7 @@ export const CustomSelectorInput = ({
 }: SelfManagedComponentProps<CustomSelectorConfig>): ReactElement => {
     const selection: string[] = useMemo(() => values.filter((v) => v.isNotNull()).map((v) => v.getString()), [values]);
     const [inputValue, setInputValue] = useState<string | undefined>();
-    const { allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load, onSelectionChange } =
+    const { allItems, filteredItems, isLoading, resolvedIds, hasError, hasMore, preLoad, load, onSelectionChange } =
         useCustomSelector({
             config,
             selection,
@@ -47,9 +47,13 @@ export const CustomSelectorInput = ({
     const selectedItems = useMemo(
         () =>
             selection
-                .map((id) => allItems.find((item) => item.id === id))
+                .map(
+                    (id) =>
+                        allItems.find((item) => item.id === id) ??
+                        (resolvedIds.has(id) ? { id, displayName: id } : null),
+                )
                 .filter((item): item is CustomSelectorItem => !!item),
-        [allItems, selection],
+        [allItems, selection, resolvedIds],
     );
     const selectedContents = useMemo(() => selectedItems.map(itemToContent), [selectedItems]);
 
@@ -84,10 +88,10 @@ export const CustomSelectorInput = ({
     const resolvedHasErrors = useSelectorInputHasError(occurrences, errors);
     const disabled = !enabled;
 
-    // Preload data based on the initial selection.
+    // Preload data for the selected items that are not loaded yet.
     useEffect(() => {
         void preLoad();
-    }, []);
+    }, [selection]);
 
     // Sequential debounced loads based on the input value.
     useEffect(() => {
