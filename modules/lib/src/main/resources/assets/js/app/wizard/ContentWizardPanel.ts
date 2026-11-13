@@ -969,6 +969,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         // The summary of the current content carries its children info, which
         // changes without an update event when descendants come and go.
+        let descendantsRefreshId = 0;
+
         const descendantsChangedHandler = (paths: ContentPath[]) => {
             const persistedItem = this.getPersistedItem();
             const persistedPath = persistedItem?.getPath();
@@ -977,10 +979,13 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 return;
             }
 
+            // Overlapping refreshes may resolve out of order, only the latest one counts.
+            const refreshId = ++descendantsRefreshId;
+
             this.contentFetcher
                 .fetch(persistedItem.getContentId())
                 .then((summary: ContentSummaryAndCompareStatus) => {
-                    if (!this.isCurrentContentId(summary.getContentId())) {
+                    if (refreshId !== descendantsRefreshId || !this.isCurrentContentId(summary.getContentId())) {
                         return;
                     }
 
