@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import { ReactElement } from 'react';
 import { CustomSelectorItem } from './CustomSelectorInput';
 import { ItemLabel } from '../../../../../shared/ui/ItemLabel';
-import { Tooltip } from '@enonic/ui';
+import { cn, Tooltip } from '@enonic/ui';
 
 export const CustomSelectorItemView = ({
     item,
@@ -29,13 +29,23 @@ const CustomSelectorItemListView = ({
 
     const Icon = hasIcon ? (
         icon ? (
-            <span dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(icon.data, { ADD_TAGS: ['use'] }) }} />
+            <span
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(icon.data, { ADD_TAGS: ['use'] }) }}
+                className="size-full [&>svg]:size-full"
+            />
         ) : (
-            <img src={iconUrl} alt={displayName} />
+            <img src={iconUrl} alt={displayName} className="size-full object-contain" />
         )
     ) : null;
 
-    return <ItemLabel icon={Icon} primary={displayName} secondary={description} className="w-full min-w-0" />;
+    return (
+        <ItemLabel
+            icon={Icon}
+            primary={displayName}
+            secondary={description}
+            className={cn('w-full min-w-0', hasIcon && '[&>div:first-child]:size-8')}
+        />
+    );
 };
 
 const CustomSelectorItemFlatView = ({
