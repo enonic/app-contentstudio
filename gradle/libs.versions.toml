@@ -10,7 +10,7 @@ nodeGradle = "7.1.0"
 
 # App
 commonsText = "1.15.0"
-libTextEncoding = "3.0.0"
+libTextEncoding = "3.0.1"
 libMustache = "3.0.0"
 libHttpClient = "4.0.1"
 libRouter = "4.0.1"
