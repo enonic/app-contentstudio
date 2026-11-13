@@ -66,7 +66,6 @@ import {
     whenAiReady,
 } from '../../v6/features/ai';
 import { ContentWizardToolbar } from '../browse/ContentWizardToolbar';
-import { type MovedContentItem } from '../browse/MovedContentItem';
 import { type CompareStatus } from '../content/CompareStatus';
 import { type Content } from '../content/Content';
 import { ContentIconUrlResolver } from '../content/ContentIconUrlResolver';
@@ -79,8 +78,6 @@ import { BeforeContentSavedEvent } from '../event/BeforeContentSavedEvent';
 import { ContentLanguageUpdatedEvent } from '../event/ContentLanguageUpdatedEvent';
 import { ContentSettingsUpdatedEvent } from '../event/ContentSettingsUpdatedEvent';
 import { ContentRequiresSaveEvent } from '../event/ContentRequiresSaveEvent';
-import { type ContentServerChangeItem } from '../event/ContentServerChangeItem';
-import { ContentServerEventsHandler } from '../event/ContentServerEventsHandler';
 import { ViewExtensionEvent } from '../event/ViewExtensionEvent';
 import { type ContentType } from '../inputtype/schema/ContentType';
 import { ImageErrorEvent } from '../inputtype/ui/selector/image/ImageErrorEvent';
@@ -88,13 +85,9 @@ import { PageControllerCustomizedEvent } from '../page/event/PageControllerCusto
 import { type PageUpdatedEvent } from '../page/event/PageUpdatedEvent';
 import { type Page } from '../page/Page';
 import { type PublishStatus } from '../publish/PublishStatus';
-import { RepositoryId } from '../repository/RepositoryId';
-import { ContentsExistRequest } from '../resource/ContentsExistRequest';
-import { type ContentsExistResult } from '../resource/ContentsExistResult';
 import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
 import { GetPageTemplateByKeyRequest } from '../resource/GetPageTemplateByKeyRequest';
 import { Router } from '../Router';
-import { ProjectDeletedEvent } from '../settings/event/ProjectDeletedEvent';
 import { SiteModel } from '../site/SiteModel';
 import { UrlAction } from '../UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
@@ -111,10 +104,10 @@ import {
     setWizardViewMode,
     shouldCollapseWizardContextInitially,
 } from '../../v6/pages/wizard/model/wizardLayout.store';
-import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
 import { ContentContext } from './ContentContext';
 import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
+import { startWizardServerEvents } from '../../v6/pages/wizard/model/wizardServerEvents.service';
 import {
     loadDefaultModels,
     loadNearestSite,
@@ -192,8 +185,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         skipConfirmation?: boolean,
     ) => void;
 
-    private isFirstUpdateAndRenameEventSkiped: boolean;
-
     public static debug: boolean = false;
 
     private contentFetcher: ContentSummaryAndCompareStatusFetcher;
@@ -225,7 +216,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
         this.isContentFormValid = false;
         this.contentUpdateDisabled = false;
-        this.isFirstUpdateAndRenameEventSkiped = false;
         this.displayNameResolver = new DisplayNameResolver();
 
         this.debouncedEditorReload = AppHelper.debounce(
@@ -702,7 +692,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.livePanel?.skipNextReloadConfirmation(true);
 
         this.contentUpdateDisabled = true;
-        this.isFirstUpdateAndRenameEventSkiped = false;
         new BeforeContentSavedEvent().fire();
         const previousPersistedItem = this.getPersistedItem();
 
@@ -869,10 +858,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         );
     }
 
-    private persistedItemPathIsDescendantOrEqual(path: ContentPath): boolean {
-        return this.getPersistedItem().getPath().isDescendantOf(path) || this.getPersistedItem().getPath().equals(path);
-    }
-
     private initListeners() {
         MaskContentWizardPanelEvent.on((event) => {
             if (this.getPersistedItem().getContentId().equals(event.getContentId())) {
@@ -948,228 +933,41 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     private listenToContentEvents() {
-        const serverEvents: ContentServerEventsHandler = ContentServerEventsHandler.getInstance();
+        const stop = startWizardServerEvents({
+            getPersistedContent: () => this.getPersistedItem() ?? undefined,
+            isSaving: () => this.contentUpdateDisabled,
+            applySummary: (summary) => this.handlePersistedContentUpdate(summary),
+            applySorted: (summary) => {
+                this.wizardActions.setContent(summary).refreshState();
+                setWizardContent(summary.getContentSummary());
+            },
+            otherContentUpdated: (summary) => {
+                this.handleOtherContentUpdate(summary);
 
-        const deleteHandler = (items: ContentServerChangeItem[]) => {
-            const deletedTemplateIds: ContentId[] = [];
-
-            for (const item of items) {
-                if (this.isCurrentContentId(item.getContentId())) {
-                    this.contentDeleted = true;
-                    this.close();
-                    return;
+                if (this.isParentSiteModified(summary.getContentId())) {
+                    Q(loadNearestSite(summary.getContentId()))
+                        .then(this.updateSiteModel.bind(this))
+                        .catch(DefaultErrorHandler.handle)
+                        .done();
                 }
+            },
+            templatesDeleted: (ids) => this.handleTemplateDelete(ids),
+            descendantsPublishChanged: () => this.wizardActions.resetUnpublishedChildrenCheck(),
+            publishStateChanged: () => this.wizardActions.refreshState(),
+            setExistsInParentProject: (exists) => {
+                this.contentExistsInParentProject = exists;
 
-                if (this.getPersistedItem() && isDeletedTemplateForContent(item.getPath(), this.getPersistedItem())) {
-                    deletedTemplateIds.push(item.getContentId());
+                if (!exists) {
+                    this.wizardActions.refreshState();
                 }
-            }
-
-            if (deletedTemplateIds.length > 0) {
-                this.handleTemplateDelete(deletedTemplateIds);
-            }
-        };
-
-        const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
-            const persistedPath = this.getPersistedItem()?.getPath();
-            let currentContentUpdated = false;
-            let descendantChanged = false;
-
-            contents.forEach((content) => {
-                if (this.isCurrentContentId(content.getContentId())) {
-                    this.updateWithContentSummary(content);
-                    currentContentUpdated = true;
-                } else if (persistedPath && content.getPath().isDescendantOf(persistedPath)) {
-                    descendantChanged = true;
-                }
-            });
-
-            // A descendant may be (un)published without the current content itself
-            // appearing in the event (e.g. publishing the tree of an already-online
-            // site). Its cached unpublished-children info would otherwise stay stale.
-            if (!currentContentUpdated && descendantChanged) {
-                this.wizardActions.resetUnpublishedChildrenCheck();
-            }
-
-            this.wizardActions.refreshState();
-        };
-
-        const updateHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
-            const contentId: ContentId = updatedContent.getContentId();
-
-            if (this.isCurrentContentId(contentId)) {
-                this.handlePersistedContentUpdate(updatedContent);
-            } else {
-                this.handleOtherContentUpdate(updatedContent);
-            }
-
-            // checks if parent site has been modified
-            if (this.isParentSiteModified(contentId)) {
-                Q(loadNearestSite(contentId))
-                    .then(this.updateSiteModel.bind(this))
-                    .catch(DefaultErrorHandler.handle)
-                    .done();
-            }
-        };
-
-        const updatePermissionsHandler = (updatedContent: ContentSummaryAndCompareStatus) => {
-            const isAlreadyUpdated: boolean = updatedContent.equals(this.getPersistedItem());
-
-            if (isAlreadyUpdated) {
-                return;
-            }
-
-            this.handlePersistedContentUpdate(updatedContent);
-        };
-
-        const sortedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            const currentItem: ContentSummaryAndCompareStatus = data.find((sorted: ContentSummaryAndCompareStatus) => {
-                return this.isCurrentContentId(sorted.getContentId());
-            });
-
-            if (currentItem) {
-                this.wizardActions.setContent(currentItem).refreshState();
-                setWizardContent(currentItem.getContentSummary());
-            }
-        };
-
-        const movedHandler = (movedItems: MovedContentItem[]) => {
-            const wasMoved: boolean = movedItems.some((movedItem: MovedContentItem) => {
-                return (
-                    this.isCurrentContentId(movedItem.item.getContentId()) ||
-                    this.persistedItemPathIsDescendantOrEqual(movedItem.oldPath)
-                );
-            });
-
-            if (wasMoved) {
-                updateHandler(movedItems[0].item);
-            }
-        };
-
-        const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
-            if (this.contentUpdateDisabled && !this.isFirstUpdateAndRenameEventSkiped) {
-                data.some((content) => {
-                    const isCurrentContent = this.isCurrentContentId(content.getContentId());
-                    if (isCurrentContent) {
-                        this.isFirstUpdateAndRenameEventSkiped = this.isContentUpdatedAndRenamed(content);
-                        return this.isFirstUpdateAndRenameEventSkiped;
-                    }
-                    return false;
-                });
-            } else if (!this.contentUpdateDisabled) {
-                data.forEach((updated: ContentSummaryAndCompareStatus) => {
-                    updateHandler(updated);
-                });
-            }
-        };
-
-        const contentPermissionsUpdatedHandler = (contentIds: ContentId[]) => {
-            if (this.contentUpdateDisabled || !this.getPersistedItem()) {
-                return;
-            }
-
-            const thisContentId: ContentId = this.getPersistedItem().getContentId();
-
-            if (!contentIds.some((id: ContentId) => id.equals(thisContentId))) {
-                return;
-            }
-
-            this.contentFetcher.fetch(thisContentId).then(updatePermissionsHandler).catch(DefaultErrorHandler.handle);
-        };
-
-        const contentRenamedHandler = (contents: ContentSummaryAndCompareStatus[], oldPaths: ContentPath[]) => {
-            contents.forEach((renamedContent: ContentSummaryAndCompareStatus, index: number) => {
-                if (this.isCurrentContentId(renamedContent.getContentId())) {
-                    this.handlePersistedContentUpdate(renamedContent);
-                } else if (this.getPersistedItem().getPath().isDescendantOf(oldPaths[index])) {
-                    this.contentFetcher.fetchByContent(this.getPersistedItem()).then((summaryAndStatus) => {
-                        this.handlePersistedContentUpdate(summaryAndStatus);
-                    });
-                }
-            });
-        };
-
-        const otherRepoDelete = (items: ContentServerChangeItem[]): void => {
-            if (!this.isItemPersisted() || !this.getPersistedItem().isInherited()) {
-                return;
-            }
-
-            const contextProject = getActiveProject();
-
-            if (!contextProject.hasParents()) {
-                return;
-            }
-
-            const thisContentId: ContentId = this.getPersistedItem().getContentId();
-            const thisContentIdAsString: string = this.getPersistedItem().getContentId().toString();
-
-            const deletedParent = contextProject.getParents().find((parent) => {
-                const parentProjectRepo = RepositoryId.fromProjectName(parent).toString();
-                return items.some((item: ContentServerChangeItem) => {
-                    return item.getContentId().equals(thisContentId) && item.getRepo() === parentProjectRepo;
-                });
-            });
-
-            if (deletedParent) {
-                void new ContentsExistRequest([thisContentIdAsString])
-                    .setRequestProjectName(deletedParent)
-                    .sendAndParse()
-                    .then((result: ContentsExistResult) => {
-                        this.contentExistsInParentProject = !!result.getContentsExistMap().get(thisContentIdAsString);
-
-                        if (!this.contentExistsInParentProject) {
-                            this.wizardActions.refreshState();
-                        }
-                    })
-                    .catch(DefaultErrorHandler.handle);
-            }
-        };
-
-        const archivedHandler = (items: ContentServerChangeItem[]) => {
-            if (!this.getPersistedItem()) {
-                return;
-            }
-
-            if (
-                items.some((item: ContentServerChangeItem) =>
-                    item.getContentId().equals(this.getPersistedItem().getContentId()),
-                )
-            ) {
+            },
+            closeDeleted: () => {
                 this.contentDeleted = true;
                 this.close();
-            }
-        };
-
-        serverEvents.onContentMoved(movedHandler);
-        serverEvents.onContentSorted(sortedHandler);
-        serverEvents.onContentUpdated(contentUpdatedHandler);
-        serverEvents.onContentPermissionsUpdated(contentPermissionsUpdatedHandler);
-        serverEvents.onContentPublished(publishOrUnpublishHandler);
-        serverEvents.onContentUnpublished(publishOrUnpublishHandler);
-        serverEvents.onContentRenamed(contentRenamedHandler);
-        serverEvents.onContentDeletedInOtherRepos(otherRepoDelete);
-        serverEvents.onContentArchived(archivedHandler);
-        serverEvents.onContentDeleted(deleteHandler);
-
-        this.onClosed(() => {
-            serverEvents.unContentMoved(movedHandler);
-            serverEvents.unContentSorted(sortedHandler);
-            serverEvents.unContentUpdated(contentUpdatedHandler);
-            serverEvents.unContentPermissionsUpdated(contentPermissionsUpdatedHandler);
-            serverEvents.unContentPublished(publishOrUnpublishHandler);
-            serverEvents.unContentUnpublished(publishOrUnpublishHandler);
-            serverEvents.unContentRenamed(contentRenamedHandler);
-            serverEvents.unContentDeletedInOtherRepos(otherRepoDelete);
-            serverEvents.unContentArchived(archivedHandler);
-            serverEvents.unContentDeleted(deleteHandler);
+            },
         });
 
-        ProjectDeletedEvent.on((event: ProjectDeletedEvent) => {
-            if (event.getProjectName() === getActiveProjectName()) {
-                this.contentDeleted = true;
-                this.close();
-            }
-        });
+        this.onClosed(stop);
     }
 
     private setAllowedActionsBasedOnPermissions() {
@@ -1186,33 +984,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.getWidgetToolbar().setItem(updatedContent);
         this.wizardActions.setContent(updatedContent).refreshState();
 
-        const isUpdatedAndRenamed = this.isContentUpdatedAndRenamed(updatedContent);
-        if (!isUpdatedAndRenamed || this.isFirstUpdateAndRenameEventSkiped) {
-            this.isFirstUpdateAndRenameEventSkiped = false;
-        }
-
         this.setAllowedActionsBasedOnPermissions();
-    }
-
-    private isContentUpdatedAndRenamed(updatedContent: ContentSummaryAndCompareStatus): boolean {
-        // When the content without displayName and name is saved with new
-        // names and became valid, the server will generate 2 sequential
-        // `NodeServerChangeType.UPDATE` events.
-        const noContent =
-            updatedContent == null || updatedContent.getContentSummary() == null || this.getPersistedItem() == null;
-
-        if (noContent) {
-            return false;
-        }
-
-        const oldItem = this.getPersistedItem();
-        const wasUnnamed = !oldItem.getDisplayName() && oldItem.getName() != null && oldItem.getName().isUnnamed();
-
-        const newContent = updatedContent.getContentSummary();
-        const hasName =
-            !!newContent.getDisplayName() && newContent.getName() != null && !newContent.getName().isUnnamed();
-
-        return wasUnnamed && hasName;
     }
 
     /*
