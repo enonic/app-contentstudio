@@ -1,11 +1,23 @@
 import { render } from '@testing-library/preact';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({ executeWizardAction: vi.fn() }));
+const mocks = vi.hoisted(() => ({ executeWizardAction: vi.fn(), close: vi.fn(), apple: false }));
 
 vi.mock('../model/wizardActions.commands', () => ({
     executeWizardAction: mocks.executeWizardAction,
 }));
+
+vi.mock('../model/wizardController', () => ({ getWizardController: () => ({ close: mocks.close }) }));
+vi.mock('../../../shared/lib/dom/keyboard', async (importOriginal) => {
+    const original = await importOriginal<typeof import('../../../shared/lib/dom/keyboard')>();
+
+    return {
+        ...original,
+        isApplePlatform: () => mocks.apple,
+        matchesShortcut: (event: KeyboardEvent, shortcut: string) =>
+            original.matchesShortcut(event, shortcut, mocks.apple),
+    };
+});
 
 import { useWizardShortcuts } from './useWizardShortcuts';
 
@@ -25,6 +37,8 @@ describe('useWizardShortcuts', () => {
 
     beforeEach(() => {
         mocks.executeWizardAction.mockReset();
+        mocks.close.mockReset();
+        mocks.apple = false;
         input = document.createElement('input');
         document.body.appendChild(input);
     });
@@ -70,5 +84,28 @@ describe('useWizardShortcuts', () => {
         press({ key: 's', code: 'KeyS', ctrlKey: true });
 
         expect(mocks.executeWizardAction).not.toHaveBeenCalled();
+    });
+    it('should preview with the platform shortcut', () => {
+        render(<Probe />);
+
+        press({ key: ' ', code: 'Space', altKey: true });
+        expect(mocks.executeWizardAction).not.toHaveBeenCalled();
+
+        press({ key: ' ', code: 'Space', altKey: true, ctrlKey: true });
+        expect(mocks.executeWizardAction).toHaveBeenCalledExactlyOnceWith('preview');
+
+        mocks.apple = true;
+        press({ key: ' ', code: 'Space', altKey: true });
+        expect(mocks.executeWizardAction).toHaveBeenCalledTimes(2);
+    });
+
+    it('should close the wizard, from an input too', () => {
+        render(<Probe />);
+
+        const event = press({ key: 'w', code: 'KeyW', altKey: true }, input);
+
+        expect(mocks.close).toHaveBeenCalledTimes(1);
+        expect(mocks.executeWizardAction).not.toHaveBeenCalled();
+        expect(event.defaultPrevented).toBe(true);
     });
 });

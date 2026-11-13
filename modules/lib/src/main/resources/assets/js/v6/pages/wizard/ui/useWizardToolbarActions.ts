@@ -31,6 +31,7 @@ const LABEL_KEYS: Record<WizardActionId, string> = {
     createIssue: 'action.createIssue',
     reset: 'action.reset',
     localize: 'action.translate',
+    preview: 'action.preview',
 };
 
 /** The wizard actions with the given ids, in that order, as toolbar actions. */

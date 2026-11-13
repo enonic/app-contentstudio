@@ -18,6 +18,8 @@ const mocks = vi.hoisted(() => ({
     setMarkedAsReady: vi.fn(),
     resetInheritance: vi.fn(),
     localize: vi.fn(),
+    openPreview: vi.fn(),
+    resolvedExtension: vi.fn(),
 }));
 
 const stores = vi.hoisted(
@@ -26,6 +28,7 @@ const stores = vi.hoisted(
             $wizardActions: ReturnType<typeof atom<Record<string, { enabled: boolean; visible: boolean }>>>;
             $wizardContentState: ReturnType<typeof atom<string | null>>;
             $wizardIsMarkedAsReady: ReturnType<typeof atom<boolean>>;
+            $wizardActionFacts: ReturnType<typeof atom<{ persisted?: object; canModify: boolean }>>;
         },
 );
 
@@ -63,7 +66,13 @@ vi.mock('./wizardActions.store', async () => {
     const { atom: createAtom } = await import('nanostores');
     stores.$wizardActions = createAtom({});
 
-    return { $wizardActions: stores.$wizardActions, patchWizardActionActivity: mocks.patchActivity };
+    stores.$wizardActionFacts = createAtom<{ persisted?: object; canModify: boolean }>({ canModify: true });
+
+    return {
+        $wizardActions: stores.$wizardActions,
+        $wizardActionFacts: stores.$wizardActionFacts,
+        patchWizardActionActivity: mocks.patchActivity,
+    };
 });
 
 vi.mock('./wizardContent.store', async () => {
@@ -79,6 +88,14 @@ vi.mock('./wizardContent.store', async () => {
     };
 });
 
+vi.mock('../../../../app/action/PreviewActionHelper', () => ({
+    PreviewActionHelper: class {
+        openWindow = mocks.openPreview;
+    },
+}));
+vi.mock('../../../widgets/preview-panel/model/previewResolution.store', () => ({
+    getResolvedPreviewExtension: mocks.resolvedExtension,
+}));
 vi.mock('./wizardValidation.store', () => ({ escalateVisibility: mocks.escalateVisibility }));
 vi.mock('./wizardPublishRequest.service', () => ({ openWizardPublishRequest: mocks.openPublishRequest }));
 vi.mock('./wizardInheritance.commands', () => ({
@@ -106,6 +123,7 @@ const ALL_IDS = [
     'createIssue',
     'reset',
     'localize',
+    'preview',
 ];
 
 const enableAll = (enabled = true): void => {
@@ -119,6 +137,7 @@ const createController = (overrides: Partial<WizardController> = {}): WizardCont
     close: vi.fn(),
     replaceContent: vi.fn(() => Promise.resolve()),
     openTranslator: vi.fn(),
+    getActivePreviewWidget: () => 'active-widget' as never,
     ...overrides,
 });
 
@@ -305,6 +324,62 @@ describe('wizardActions.commands', () => {
 
             register({ hasUnsavedChanges: () => true });
             expect(mustSaveBeforeWizardAction('publish')).toBe(true);
+        });
+    });
+
+    describe('preview', () => {
+        beforeEach(() => {
+            stores.$wizardActionFacts.set({ persisted: {}, canModify: true });
+        });
+
+        it('should open the persisted content in the resolved extension', () => {
+            mocks.resolvedExtension.mockReturnValue('resolved');
+            const controller = register();
+
+            executeWizardAction('preview');
+
+            expect(controller.save).not.toHaveBeenCalled();
+            expect(mocks.openPreview).toHaveBeenCalledWith(CONTENT, 'resolved');
+        });
+
+        it('should fall back to the active widget', () => {
+            register();
+
+            executeWizardAction('preview');
+
+            expect(mocks.openPreview).toHaveBeenCalledWith(CONTENT, 'active-widget');
+        });
+
+        it('should save unsaved changes first', async () => {
+            const saved = { id: 'saved' } as unknown as ContentSummary;
+            const controller = register({ hasUnsavedChanges: () => true, save: vi.fn(() => Promise.resolve(saved)) });
+
+            executeWizardAction('preview');
+            expect(mocks.openPreview).not.toHaveBeenCalled();
+            await flush();
+
+            expect(controller.save).toHaveBeenCalledTimes(1);
+            expect(mocks.openPreview).toHaveBeenCalledWith(saved, 'active-widget');
+        });
+
+        it('should not save for a user who may not modify the content', () => {
+            stores.$wizardActionFacts.set({ persisted: {}, canModify: false });
+            const controller = register({ hasUnsavedChanges: () => true });
+
+            executeWizardAction('preview');
+
+            expect(controller.save).not.toHaveBeenCalled();
+            expect(mocks.openPreview).toHaveBeenCalledWith(CONTENT, 'active-widget');
+        });
+
+        it('should save new content whatever the permissions say', async () => {
+            stores.$wizardActionFacts.set({ canModify: false });
+            const controller = register({ hasUnsavedChanges: () => true });
+
+            executeWizardAction('preview');
+            await flush();
+
+            expect(controller.save).toHaveBeenCalledTimes(1);
         });
     });
 

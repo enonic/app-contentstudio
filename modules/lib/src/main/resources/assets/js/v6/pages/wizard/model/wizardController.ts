@@ -1,3 +1,4 @@
+import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 
@@ -26,6 +27,8 @@ export type WizardController = {
     /** Takes the content after its inheritance was reset or it was localized, and locks or unlocks the wizard. */
     replaceContent: (content: Content, editable: boolean) => Promise<void>;
     openTranslator: (language: string) => void;
+    /** The preview widget selected in the page editor's toolbar. */
+    getActivePreviewWidget: () => Extension | undefined;
 };
 
 let controller: WizardController | undefined;

@@ -1,4 +1,5 @@
 import { atom, computed } from 'nanostores';
+import { $previewResolution } from '../../../widgets/preview-panel/model/previewResolution.store';
 import type { ContentState } from '../../../../app/content/ContentState';
 import { $contentType, $wizardContentPathExists, $wizardContentState, $wizardHasChanges } from './wizardContent.store';
 
@@ -24,7 +25,8 @@ export type WizardActionId =
     | 'openRequest'
     | 'createIssue'
     | 'reset'
-    | 'localize';
+    | 'localize'
+    | 'preview';
 
 export type WizardActionState = {
     enabled: boolean;
@@ -87,6 +89,8 @@ export type WizardActionEnvironment = {
     canRequestPublish: boolean;
     stashed: boolean;
     activity?: WizardActionActivity;
+    /** The preview of the content is resolved and can be opened. */
+    previewReady?: boolean;
 };
 
 const SAVING: ReadonlySet<WizardActionId> = new Set(['save', 'saveAndClose']);
@@ -106,6 +110,7 @@ const ACTION_IDS: readonly WizardActionId[] = [
     'createIssue',
     'reset',
     'localize',
+    'preview',
 ];
 
 // Held back while a long-running operation on the content is in progress.
@@ -180,6 +185,7 @@ export function resolveWizardActions(facts: WizardActionFacts, env: WizardAction
         createIssue: publishing,
         reset: canModify && canBeReset,
         localize: canModify && canBeLocalized,
+        preview: env.previewReady === true,
     };
 
     const visible: Partial<Record<WizardActionId, boolean>> = {
@@ -248,6 +254,17 @@ export function setWizardCanRequestPublish(canRequestPublish: boolean): void {
     $canRequestPublish.set(canRequestPublish);
 }
 
+// Preview is off while a preview request is pending and stays off when it fails.
+const $previewReady = atom(false);
+
+$previewResolution.subscribe(({ pending, result }) => {
+    if (pending) {
+        $previewReady.set(false);
+    } else if (result?.kind === 'ready') {
+        $previewReady.set(true);
+    }
+});
+
 export const $wizardActionEnvironment = computed(
     [
         $wizardHasChanges,
@@ -257,6 +274,7 @@ export const $wizardActionEnvironment = computed(
         $canRequestPublish,
         $wizardActionsStashed,
         $wizardActionActivity,
+        $previewReady,
     ],
     (
         hasChanges,
@@ -266,6 +284,7 @@ export const $wizardActionEnvironment = computed(
         canRequestPublish,
         stashed,
         activity,
+        previewReady,
     ): WizardActionEnvironment => ({
         hasChanges,
         pathExists: pathExists.exists,
@@ -274,6 +293,7 @@ export const $wizardActionEnvironment = computed(
         canRequestPublish,
         stashed,
         activity,
+        previewReady,
     }),
 );
 

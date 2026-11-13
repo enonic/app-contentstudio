@@ -43,7 +43,7 @@ const KEY_ALIASES: Record<string, string> = {
     space: ' ',
 };
 
-const isApplePlatform = (): boolean =>
+export const isApplePlatform = (): boolean =>
     typeof navigator !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform ?? '');
 
 /**

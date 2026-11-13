@@ -1,7 +1,6 @@
 import { type ViewItem } from '@enonic/lib-admin-ui/app/view/ViewItem';
 import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
@@ -26,8 +25,6 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
     protected debouncedSetItem: (item: ViewItem) => void;
     protected readonly contentRootPath: string;
     private extensionRenderingHandler: ExtensionRenderingHandler;
-
-    private previewAction: Action;
 
     constructor(contentRootPath?: string) {
         super('item-preview-panel content-item-preview-panel extension-preview-panel');
@@ -168,14 +165,6 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
     public getMask(): Mask {
         return this.mask;
-    }
-
-    public setPreviewAction(action: Action): void {
-        this.previewAction = action;
-    }
-
-    public getPreviewAction(): Action {
-        return this.previewAction;
     }
 
     public showMask() {
