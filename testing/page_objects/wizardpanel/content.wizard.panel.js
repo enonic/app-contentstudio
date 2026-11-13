@@ -1077,7 +1077,6 @@ class ContentWizardPanel extends Page {
     async clickOnMarkAsReadyButton() {
         try {
             await this.waitForMarkAsReadyButtonVisible();
-            await this.pause(300);
             await this.clickOnElement(this.markAsReadyButton);
             return await this.pause(500);
         } catch (err) {

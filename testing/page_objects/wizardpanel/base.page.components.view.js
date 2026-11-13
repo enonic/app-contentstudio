@@ -41,7 +41,6 @@ class BasePageComponentView extends Page {
         try {
             let contextMenuTrigger = this.container + xpath.contextMenuTrigger(name);
             await this.waitForElementDisplayed(contextMenuTrigger);
-            await this.pause(300);
             // Perform right click
             let element = await this.findElement(contextMenuTrigger);
             await element.click({ button: 2 });
@@ -156,7 +155,6 @@ class BasePageComponentView extends Page {
         try {
             let toggleButton = this.container + xpath.rowExpanderButton(componentName);
             await this.waitForElementDisplayed(toggleButton);
-            await this.pause(300);
             await this.clickOnElement(toggleButton);
             return await this.pause(500);
         } catch (err) {

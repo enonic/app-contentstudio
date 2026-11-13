@@ -210,7 +210,6 @@ module.exports = {
             let createRequestPublishDialog = new CreateRequestPublishDialog();
             await browsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
             await createRequestPublishDialog.waitForDialogLoaded();
-            await createRequestPublishDialog.pause(300);
             await createRequestPublishDialog.typeInTitleInput(text);
             return await createRequestPublishDialog.clickOnCreateRequestButton();
         } catch (err) {
@@ -317,8 +316,7 @@ module.exports = {
         await contentWizardPanel.clickOnMarkAsReadyButton();
         await contentWizardPanel.waitForNotificationMessage();
         await contentPublishDialog.waitForDialogOpened();
-        await this.doCloseWizardAndSwitchToGrid();
-        return await this.getBrowser().pause(1000);
+        return await this.doCloseWizardAndSwitchToGrid();
     },
     async doAddPublishedFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -330,8 +328,7 @@ module.exports = {
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
         await contentWizardPanel.waitForNotificationMessage();
-        await this.doCloseWizardAndSwitchToGrid();
-        return await this.getBrowser().pause(1000);
+        return await this.doCloseWizardAndSwitchToGrid();
     },
     async doAddFolder(folder) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -345,8 +342,7 @@ module.exports = {
         }
 
         // 3.Close the wizard:
-        await this.doCloseWizardAndSwitchToGrid();
-        return await this.getBrowser().pause(1000);
+        return await this.doCloseWizardAndSwitchToGrid();
     },
     async doCloseWizardAndSwitchToGrid() {
         await this.doCloseCurrentBrowserTab();
@@ -374,8 +370,7 @@ module.exports = {
             await contentWizardPanel.waitAndClickOnSave();
         }
         await this.doCloseCurrentBrowserTab();
-        await this.doSwitchToContentBrowsePanel();
-        return await this.getBrowser().pause(1000);
+        return await this.doSwitchToContentBrowsePanel();
     },
     async doAddReadySite(site) {
         let contentWizardPanel = new ContentWizardPanel();
@@ -383,8 +378,7 @@ module.exports = {
         await contentWizardPanel.typeData(site);
         await contentWizardPanel.clickOnMarkAsReadyButton();
         await this.doCloseCurrentBrowserTab();
-        await this.doSwitchToContentBrowsePanel();
-        return await this.getBrowser().pause(1000);
+        return await this.doSwitchToContentBrowsePanel();
     },
     doOpenSiteWizard() {
         return this.openContentWizard(appConst.contentTypes.SITE);
@@ -395,7 +389,6 @@ module.exports = {
         let contentWizardPanel = new ContentWizardPanel();
         await this.typeNameInFilterPanel(siteName);
         await browsePanel.waitForContentDisplayed(siteName);
-        await browsePanel.pause(300);
         await browsePanel.clickOnExpanderIcon(siteName);
         await browsePanel.clickCheckboxAndSelectRowByDisplayName('Templates');
         await browsePanel.clickOnNewButton();
@@ -417,8 +410,7 @@ module.exports = {
         await contentWizardPanel.waitForNotificationMessage();
         await this.saveScreenshot(template.displayName + '_created');
         await this.doCloseCurrentBrowserTab();
-        await this.doSwitchToContentBrowsePanel();
-        return await contentWizardPanel.pause(2000);
+        return await this.doSwitchToContentBrowsePanel();
     },
     //Clicks on Publish button on the toolbar then clicks on Publish button in the dialog
     async openDialogAndPublishSelectedContent() {
@@ -495,7 +487,6 @@ module.exports = {
             let browsePanel = new BrowsePanel();
             await this.typeNameInFilterPanel(displayName);
             await browsePanel.waitForContentByDisplayNameVisible(displayName);
-            await browsePanel.pause(200);
             await browsePanel.clickOnRowByDisplayName(displayName);
             await browsePanel.waitForSpinnerNotVisible(appConst.longTimeout);
             return await browsePanel.pause(300);
@@ -862,7 +853,6 @@ module.exports = {
     },
     async navigateToHomePage() {
         await this.getBrowser().url('http://localhost:8080/admin/');
-        await this.getBrowser().pause(500);
     },
     async doCloseAllWindowTabs(keepTitle1 = 'Enonic XP Admin', keepTitle2 = 'Settings') {
         const handles = await this.getBrowser().getWindowHandles();

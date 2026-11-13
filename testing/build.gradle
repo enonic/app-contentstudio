@@ -181,30 +181,16 @@ tasks.register( 'stopServer' ) {
     group = 'Test Setup'
 
     doLast {
-        if ( !project.hasProperty( 'process' ) ) {
+        if ( process == null || !process.alive ) {
             logger.warn( 'Server process not found - it might already be stopped' )
             return
         }
 
-        def os = DefaultNativePlatform.currentOperatingSystem
-        def pid = process.pid()
-
-        if ( os.isWindows() ) {
-            logger.lifecycle( "Stopping server process (PID: ${pid})..." )
-            exec {
-                commandLine 'taskkill', '/F', '/T', '/PID', pid.toString()
-                ignoreExitValue = true // Don't fail if the process is already gone
-            }
-        } else { // For macOS, Linux, and other Unix-like systems
-            logger.lifecycle( "Stopping server process (PID: ${pid})..." )
-            exec {
-                commandLine 'kill', '-9', pid.toString()
-                ignoreExitValue = true // Don't fail if the process is already gone
-            }
-        }
-
-        // Clean up the process property
-        project.ext.process = null
+        logger.lifecycle( "Stopping server process (PID: ${process.pid()})..." )
+        process.toHandle().descendants().forEach { it.destroyForcibly() }
+        process.destroyForcibly()
+        process.waitFor()
+        process = null
     }
 }
 
@@ -223,256 +209,48 @@ tasks.register('generateReport', PnpmTask) {
     finalizedBy tasks.named('cleanup')
 }
 
-// Test tasks
-tasks.register('testInputTypes', PnpmTask) {
-    group = 'verification'
-    description = 'Run input types tests'
+// Test tasks: name -> [pnpm script, config task]
+def suites = [
+    testInputTypes         : ['test_input_types:wdio_chrome', 'copyConfig'],
+    testInputTypes_2       : ['test_input_types_2:wdio_chrome', 'copyConfig'],
+    testModalDialog        : ['test_modal_dialog:wdio_chrome', 'copyConfig'],
+    testWizardsGrid        : ['test_wizards_grid:wdio_chrome', 'copyConfig'],
+    testPublishIssues      : ['test_publish_issues:wdio_chrome', 'copyConfig'],
+    testProjects           : ['test_project:wdio_chrome', 'copyConfig'],
+    testProjects_2         : ['test_project_2:wdio_chrome', 'copyConfig'],
+    testProjects_multi     : ['test_project_multi:wdio_chrome', 'copyProjectMultiConfig'],
+    testPageEditor         : ['test_page_editor:wdio_chrome', 'copyConfig'],
+    testExcludeDependencies: ['test_exclude_dependencies:wdio_chrome', 'copyCustomConfig'],
+    miscTests              : ['test_misc:wdio_chrome', 'copyConfig'],
+]
 
-    args = ['run-script', 'test_input_types:wdio_chrome']
+suites.each { name, settings ->
+    def (script, configTask) = settings
 
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
+    tasks.register( name, PnpmTask ) {
+        group = 'verification'
+        description = "Runs the ${name} UI tests on a fresh XP server"
+        args = ['run-script', script]
 
-tasks.register('testInputTypesLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
+        dependsOn tasks.named( 'pnpmInstall' )
+        dependsOn tasks.named( 'unpackDistro' )
+        dependsOn tasks.named( configTask )
+        dependsOn tasks.named( 'downloadApps' )
+        dependsOn tasks.named( 'deployApp' )
+        dependsOn tasks.named( 'startServer' )
+        dependsOn tasks.named( 'waitForServer' )
+        finalizedBy tasks.named( 'generateReport' )
+        finalizedBy tasks.named( 'stopServer' )
+    }
 
-    group = 'verification'
-    description = 'Run input types tests locally'
-    args = ['run-script', 'test_input_types:wdio_chrome']
-}
+    def localName = name.endsWith( '_2' ) ? "${name}_Local" : "${name}Local"
+    tasks.register( localName, PnpmTask ) {
+        group = 'verification'
+        description = "Runs the ${name} UI tests against the already running local XP"
+        args = ['run-script', script]
 
-tasks.register('testInputTypes_2', PnpmTask) {
-    group = 'verification'
-    description = 'Run input types 2 tests'
-    args = ['run-script', 'test_input_types_2:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testInputTypes_2_Local', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
-    group = 'verification'
-    description = 'Run input types 2 tests locally'
-    args = ['run-script', 'test_input_types_2:wdio_chrome']
-}
-
-tasks.register('testModalDialog', PnpmTask) {
-    group = 'verification'
-    description = 'Run modal dialog tests'
-
-    args = ['run-script', 'test_modal_dialog:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testModalDialogLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
-    group = 'verification'
-    description = 'Run modal dialog tests locally'
-    args = ['run-script', 'test_modal_dialog:wdio_chrome']
-}
-
-tasks.register('testWizardsGrid', PnpmTask) {
-    group = 'verification'
-    description = 'Run wizards grid tests'
-
-    args = ['run-script', 'test_wizards_grid:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testWizardsGridLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
-    group = 'verification'
-    description = 'Run wizards grid tests locally'
-    args = ['run-script', 'test_wizards_grid:wdio_chrome']
-}
-
-tasks.register('testPublishIssues', PnpmTask) {
-    group = 'verification'
-    description = 'Run publish issues tests'
-
-    args = ['run-script', 'test_publish_issues:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testPublishIssuesLocal', PnpmTask) {
-    group = 'verification'
-    description = 'Run publish issues tests locally'
-
-    args = ['run-script', 'test_publish_issues:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testProjects', PnpmTask) {
-    group = 'verification'
-    description = 'Run project tests'
-
-    args = ['run-script', 'test_project:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('miscTests', PnpmTask) {
-    group = 'verification'
-    description = 'Run miscellaneous tests'
-
-    args = ['run-script', 'test_misc:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testProjects_2', PnpmTask) {
-    group = 'verification'
-    description = 'Run project 2 tests'
-
-    args = ['run-script', 'test_project_2:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testProjects_multi', PnpmTask) {
-    group = 'verification'
-    description = 'Run multi-project tests'
-
-    args = ['run-script', 'test_project_multi:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named('copyProjectMultiConfig')
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testProjectsLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
-    group = 'verification'
-    description = 'Run project tests locally'
-    args = ['run-script', 'test_project:wdio_chrome']
-}
-
-tasks.register('testPageEditor', PnpmTask) {
-    group = 'verification'
-    description = 'Run page editor tests'
-
-    args = ['run-script', 'test_page_editor:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
-}
-
-tasks.register('testPageEditorLocal', PnpmTask) {
-    dependsOn tasks.named('pnpmInstall')
-
-    group = 'verification'
-    description = 'Run page editor tests locally'
-    args = ['run-script', 'test_page_editor:wdio_chrome']
-}
-
-tasks.register('testExcludeDependencies', PnpmTask) {
-    group = 'verification'
-    description = 'Run exclude dependencies tests'
-
-    args = ['run-script', 'test_exclude_dependencies:wdio_chrome']
-
-    dependsOn tasks.named( 'pnpmInstall' )
-    dependsOn tasks.named( 'unpackDistro' )
-    dependsOn tasks.named( 'copyCustomConfig' )
-    dependsOn tasks.named( 'downloadApps' )
-    dependsOn tasks.named( 'deployApp' )
-    dependsOn tasks.named( 'startServer' )
-    dependsOn tasks.named( 'waitForServer' )
-    finalizedBy tasks.named('generateReport')
-    finalizedBy tasks.named('stopServer')
+        dependsOn tasks.named( 'pnpmInstall' )
+    }
 }
 
 tasks.register( 'yolo' ) {

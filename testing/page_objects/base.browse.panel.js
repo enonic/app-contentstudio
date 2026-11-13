@@ -167,7 +167,6 @@ class BaseBrowsePanel extends Page {
 
     async clickOnNewButton() {
         await this.waitForNewButtonEnabled();
-        await this.pause(200);
         return await this.clickOnElement(this.newButton);
     }
 
