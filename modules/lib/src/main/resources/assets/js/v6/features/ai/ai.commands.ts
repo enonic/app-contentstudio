@@ -11,7 +11,6 @@ import type {
     PageContentData,
     PageContentSchema,
 } from '../../../app/ai/event/data/AiData';
-import type { CompareStatus } from '../../../app/content/CompareStatus';
 import type { Content } from '../../../app/content/Content';
 import type { ContentType } from '../../../app/inputtype/schema/ContentType';
 import type { Page } from '../../../app/page/Page';
@@ -20,14 +19,11 @@ import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBas
 import { LayoutComponent } from '../../../app/page/region/LayoutComponent';
 import type { Region } from '../../../app/page/region/Region';
 import { TextComponent } from '../../../app/page/region/TextComponent';
-import type { ContentWizardHeader } from '../../../app/wizard/ContentWizardHeader';
 import { $locales } from '../../entities/language';
 import {
     $aiAssignedPlugins,
-    $aiCompareStatus,
     $aiContent,
     $aiContentLanguage,
-    $aiContentHeader,
     $aiContentType,
     $aiCurrentData,
     $aiDataTree,
@@ -64,14 +60,6 @@ export function setAiLanguage(language: string): void {
 
 export function setAiDataTree(dataTree: PropertyTree | null): void {
     $aiDataTree.set(dataTree);
-}
-
-export function setAiContentHeader(header: ContentWizardHeader): void {
-    $aiContentHeader.set(header);
-}
-
-export function setAiCompareStatus(status: CompareStatus): void {
-    $aiCompareStatus.set(status);
 }
 
 export function setAiWizardBridge(bridge: AiWizardBridge): void {
