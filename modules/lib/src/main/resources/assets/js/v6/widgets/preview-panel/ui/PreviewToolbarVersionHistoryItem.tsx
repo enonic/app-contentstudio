@@ -26,7 +26,7 @@ export function PreviewToolbarVersionHistoryItem({
     mobile = false,
     showStatus = false,
 }: PreviewToolbarVersionHistoryItemProps): ReactElement {
-    const ariaLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
+    const versionHistoryLabel = useI18n('wcag.preview.toolbar.versionHistory.label');
 
     const publishStatus = calcTreePublishStatus(contentSummary);
     const primaryStatusKey = publishStatus === PublishStatus.PENDING ? 'status.scheduled' : 'status.published';
@@ -52,7 +52,7 @@ export function PreviewToolbarVersionHistoryItem({
                     mobile && 'px-2 gap-4',
                     !mobile && !showStatus && '@max-sm:p-0',
                 )}
-                aria-label={ariaLabel}
+                aria-label={`${buttonLabel}, ${versionHistoryLabel}`}
                 startIcon={History}
                 startIconClassName={mobile ? 'size-5 shrink-0' : 'shrink-0'}
                 onClick={handleShowVersionHistory}

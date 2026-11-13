@@ -32,7 +32,7 @@ const XPATH = {
     showSearchPanelButton: "//button[contains(@aria-label, 'Search Panel') and @aria-pressed='false']",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button", //'Assigned to Me' or 'Show Issues'
     markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
-    showIssuesButton: "//button[@aria-label='View project issues']",
+    showIssuesButton: BUTTONS.buttonAriaLabel('View project issues'),
     clearSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
