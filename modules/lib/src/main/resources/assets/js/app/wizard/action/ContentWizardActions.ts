@@ -38,8 +38,6 @@ import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { AccessControlHelper } from '../AccessControlHelper';
 import { ProjectHelper } from '../../settings/data/project/ProjectHelper';
 import { PreviewAction } from './PreviewAction';
-import { ShowFormAction } from './ShowFormAction';
-import { ShowLiveEditAction } from './ShowLiveEditAction';
 
 //
 // What is left of the legacy wizard actions. The state of the actions lives in
@@ -56,10 +54,6 @@ export class ContentWizardActions extends WizardActions<Content> {
 
     private closeAction: Action;
 
-    private showLiveEditAction: Action;
-
-    private showFormAction: Action;
-
     private unsubscribers: (() => void)[] = [];
 
     private parentPermissionRequestId: number = 0;
@@ -71,16 +65,12 @@ export class ContentWizardActions extends WizardActions<Content> {
     constructor(wizardPanel: ContentWizardPanel) {
         const previewAction = new PreviewAction(wizardPanel);
         const closeAction = new CloseAction(wizardPanel);
-        const showLiveEditAction = new ShowLiveEditAction(wizardPanel);
-        const showFormAction = new ShowFormAction(wizardPanel);
 
-        super(previewAction, closeAction, showLiveEditAction, showFormAction);
+        super(previewAction, closeAction);
 
         this.wizardPanel = wizardPanel;
         this.previewAction = previewAction;
         this.closeAction = closeAction;
-        this.showLiveEditAction = showLiveEditAction;
-        this.showFormAction = showFormAction;
 
         ManagedActionManager.instance().onManagedActionStateChanged(
             (state: ManagedActionState, _executor: ManagedActionExecutor) => {
@@ -285,13 +275,5 @@ export class ContentWizardActions extends WizardActions<Content> {
 
     getCloseAction(): Action {
         return this.closeAction;
-    }
-
-    getShowLiveEditAction(): Action {
-        return this.showLiveEditAction;
-    }
-
-    getShowFormAction(): Action {
-        return this.showFormAction;
     }
 }
