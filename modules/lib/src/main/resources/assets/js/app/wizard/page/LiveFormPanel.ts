@@ -36,7 +36,7 @@ import { type Site } from '../../content/Site';
 import { type ContentType } from '../../inputtype/schema/ContentType';
 import { type ComponentPath } from '../../page/region/ComponentPath';
 import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
-import { SaveAsTemplateAction } from '../action/SaveAsTemplateAction';
+import { setWizardPageTemplateSource } from '../../../v6/pages/wizard/model/wizardPageTemplate.commands';
 import { type ContentWizardPanel } from '../ContentWizardPanel';
 import { PageEventsManager } from '../PageEventsManager';
 import { type PageNavigationEvent } from '../PageNavigationEvent';
@@ -205,7 +205,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
               ? this.liveEditModel.getSiteModel().getSite()
               : null;
 
-        SaveAsTemplateAction.get().setContentSummary(this.content).setSite(site);
+        setWizardPageTemplateSource(this.content, site);
 
         this.liveEditPageProxy.setModel(liveEditModel);
 
