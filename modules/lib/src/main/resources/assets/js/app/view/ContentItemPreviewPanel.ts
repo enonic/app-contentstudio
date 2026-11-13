@@ -8,6 +8,7 @@ import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { cn } from '@enonic/ui';
 import Q from 'q';
+import { PREVIEW_FRAME_ATTRIBUTE } from '../../v6/shared/lib/dom/suppressInitialPreviewFocus';
 import { $activeWidget } from '../../v6/widgets/inspectors/model/liveViewWidgets.store';
 import { $previewRefreshRequested } from '../../v6/widgets/preview-panel/model/previewPanel.store';
 import { PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
@@ -34,6 +35,7 @@ export class ContentItemPreviewPanel extends Panel implements ExtensionRenderer 
 
         this.toolbar = this.createToolbar();
         this.frame = new IFrameEl();
+        this.frame.getEl().setAttribute(PREVIEW_FRAME_ATTRIBUTE, '');
         this.wrapper = new DivEl('wrapper');
         this.mask = new LoadMask(this.wrapper);
         this.wrapper.appendChild(this.frame);
