@@ -102,8 +102,8 @@ importers:
         specifier: ^0.7.7
         version: 0.7.7
       lucide-react:
-        specifier: ^1.67.0
-        version: 1.67.0(@types/react@19.2.14)(react@19.2.4)
+        specifier: ^1.72.0
+        version: 1.72.0(@types/react@19.2.14)(react@19.2.4)
       mousetrap:
         specifier: ^1.6.5
         version: 1.6.5
@@ -1264,7 +1264,6 @@ packages:
   image-size@0.5.4:
     resolution: {integrity: sha512-pZ6OFlgYPCzEwnTboIif0rzImqCGRqdyEXHkjnxXi0W7E0iQlL9xDF+RgIpLyIDWPxazxxjZ0dA++s+h/YchdQ==}
     engines: {node: '>=0.10.0'}
-    deprecated: Please migrate to image-size@2.x
     hasBin: true
 
   import-fresh@3.3.1:
@@ -1354,8 +1353,8 @@ packages:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
     hasBin: true
 
-  lucide-react@1.67.0:
-    resolution: {integrity: sha512-z7kd21YNm/Gw3E7mTnq5dTuvV+yc+OEwA//oDENSG1SbZ/NVgKdjxALJFNdGoC0Ji7HaJR2Dha9ev7VUPxy9CQ==}
+  lucide-react@1.72.0:
+    resolution: {integrity: sha512-fbF5i1GU8GODETa3Q7rXqrJrcx3iPYrQtxthom103zGx+Z0BGwKYAW9s+9435ohYJ7hQm0av0PoZcqI1CRwNrg==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -1983,7 +1982,7 @@ snapshots:
       '@enonic/ui-types': 0.7.0
       '@enonic/ui-utils': 0.7.0(neverthrow@8.2.0)
       focus-trap-react: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      lucide-react: 1.67.0(@types/react@19.2.14)(react@19.2.4)
+      lucide-react: 1.72.0(@types/react@19.2.14)(react@19.2.4)
     optionalDependencies:
       preact: 10.29.8
       react: 19.2.4
@@ -2000,7 +1999,7 @@ snapshots:
       '@enonic/ui': 1.6.0(@radix-ui/react-slot@1.5.0(@types/react@19.2.14)(react@19.2.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(preact@10.29.8)(react-dom@19.2.4(react@19.2.4))(react-virtuoso@4.18.19(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(tw-animate-css@1.4.0)
       '@enonic/ui-types': 0.7.0
       '@enonic/ui-utils': 0.7.0(neverthrow@8.2.0)
-      lucide-react: 1.67.0(@types/react@19.2.14)(react@19.2.4)
+      lucide-react: 1.72.0(@types/react@19.2.14)(react@19.2.4)
     optionalDependencies:
       preact: 10.29.8
       react: 19.2.4
@@ -2023,7 +2022,7 @@ snapshots:
       class-variance-authority: 0.7.1
       clsx: 2.1.1
       focus-trap-react: 12.0.3(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      lucide-react: 1.67.0(@types/react@19.2.14)(react@19.2.4)
+      lucide-react: 1.72.0(@types/react@19.2.14)(react@19.2.4)
       tailwind-merge: 3.7.0
     optionalDependencies:
       preact: 10.29.8
@@ -2732,7 +2731,7 @@ snapshots:
     dependencies:
       js-tokens: 4.0.0
 
-  lucide-react@1.67.0(@types/react@19.2.14)(react@19.2.4):
+  lucide-react@1.72.0(@types/react@19.2.14)(react@19.2.4):
     dependencies:
       react: 19.2.4
     optionalDependencies:
