@@ -1,9 +1,7 @@
-import { type WizardHeader } from '@enonic/lib-admin-ui/app/wizard/WizardHeader';
 import { WizardPanel } from '@enonic/lib-admin-ui/app/wizard/WizardPanel';
 import { type WizardStepsPanel } from '@enonic/lib-admin-ui/app/wizard/WizardStepsPanel';
 import { AuthHelper } from '@enonic/lib-admin-ui/auth/AuthHelper';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { showFeedback, showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
@@ -55,9 +53,7 @@ import { ContentWizardTabsToolbarElement } from '../../v6/pages/wizard/ui/conten
 import { Permission } from '../access/Permission';
 import {
     openPluginDialog,
-    setAiCompareStatus,
     setAiContent,
-    setAiContentHeader,
     setAiContentType,
     setAiLanguage,
     updateAiAppConfigs,
@@ -97,7 +93,6 @@ import { AccessControlHelper } from './AccessControlHelper';
 import { ContentWizardActions } from './action/ContentWizardActions';
 import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayout';
 import { ContentContext } from './ContentContext';
-import { ContentWizardHeader } from './ContentWizardHeader';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
 import { startWizardServerEvents } from '../../v6/pages/wizard/model/wizardServerEvents.service';
 import { openWizardLiveEdit, startWizardLayout } from '../../v6/pages/wizard/model/wizardLayout.service';
@@ -131,8 +126,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     declare protected wizardActions: ContentWizardActions;
 
     declare protected params: ContentWizardPanelParams;
-
-    declare protected wizardHeader: ContentWizardHeader;
 
     private parentContent: Content;
 
@@ -330,7 +323,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
                 setAiContentType(this.contentType);
                 this.updateAiAppConfigs();
-                setAiCompareStatus(this.persistedCompareStatus);
             })
             .then(() => super.doLoadData())
             .then((loadedContent: Content) => {
@@ -378,10 +370,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         return this.getLivePanel().getFrameContainer().getToolbar();
     }
 
-    protected createWizardHeader(): WizardHeader {
-        return new ContentWizardHeader();
-    }
-
     public getLivePanel(): LiveFormPanel {
         return this.livePanel;
     }
@@ -399,7 +387,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         this.wizardLayout = new WizardLayoutElement({
             formPanel: this.formPanel,
             livePanel: this.livePanel,
-            onResized: () => this.updateStickyToolbar(),
         });
 
         const stopLayout = startWizardLayout(
@@ -498,10 +485,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             this.addClass('content-wizard-panel');
 
-            ResponsiveManager.onAvailableSizeChanged(this, this.availableSizeChangedHandler.bind(this));
-
             this.onRemoved(() => {
-                ResponsiveManager.unAvailableSizeChanged(this);
                 this.wizardActions.cleanupUnsavedChangesListeners();
                 resetWizardContent();
             });
@@ -591,10 +575,10 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         });
     }
 
-    private availableSizeChangedHandler() {
-        if (this.isVisible()) {
-            this.updateStickyToolbar();
-        }
+    // ! lib `WizardPanel` calls this on every form scroll to stick the step navigator,
+    // ! which the content wizard does not have, and reads the header it no longer creates.
+    updateStickyToolbar(): void {
+        // nothing to stick
     }
 
     saveChanges(options: WizardSaveOptions = {}): Q.Promise<Content> {
@@ -724,10 +708,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             this.updateThumbnailWithContent(persistedContent);
             this.updateTabsElement();
 
-            this.wizardHeader.setSimplifiedNameGeneration(
-                persistedContent.getType().isDescendantOfMedia() || !CONFIG.isTrue('allowPathTransliteration'),
-            );
-
             if (this.params.localized) {
                 this.onRendered(() => {
                     NotifyManager.get().showFeedback(i18n('notify.content.localized'));
@@ -735,7 +715,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 });
             }
 
-            setAiContentHeader(this.wizardHeader);
             return this.fetchContentSummaryAndUpdate(persistedContent);
         });
     }
@@ -1198,8 +1177,6 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
         ContentContext.get().setContent(content);
         this.persistedCompareStatus = content.getCompareStatus();
-
-        setAiCompareStatus(this.persistedCompareStatus);
 
         setWizardContent(content.getContentSummary());
     }

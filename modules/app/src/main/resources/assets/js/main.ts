@@ -12,7 +12,6 @@ import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
 import { showError } from '@enonic/lib-admin-ui/notify/MessageBus';
 import { Message } from '@enonic/lib-admin-ui/notify/Message';
 import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
-import { PropertyChangedEvent } from '@enonic/lib-admin-ui/PropertyChangedEvent';
 import { Path } from '@enonic/lib-admin-ui/rest/Path';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { Principal } from '@enonic/lib-admin-ui/security/Principal';
@@ -430,6 +429,8 @@ const refreshTabOnContentUpdate = (content: Content) => {
 async function startContentWizard() {
     const { ContentWizardPanel } = await import('@enonic/lib-contentstudio/app/wizard/ContentWizardPanel');
     const { setMode } = await import('@enonic/lib-contentstudio/v6/shared/app-state/mode.store');
+    const { $wizardDraftDisplayName } =
+        await import('@enonic/lib-contentstudio/v6/pages/wizard/model/wizardContent.store');
 
     const wizard = new ContentWizardPanel(wizardParams, getTheme());
     setMode('wizard');
@@ -448,16 +449,11 @@ async function startContentWizard() {
             updateTabTitle(content.getDisplayName() || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
         }
     });
-    wizard.onWizardHeaderCreated(() => {
-        // header will be ready after rendering is complete
-        wizard.getWizardHeader().onPropertyChanged((event: PropertyChangedEvent) => {
-            if (event.getPropertyName() === 'displayName') {
-                let contentType = wizard.getContentType();
-                let name = (event.getNewValue() as string) || NamePrettyfier.prettifyUnnamed(contentType.getTitle());
+    $wizardDraftDisplayName.listen((displayName) => {
+        const contentType = wizard.getContentType();
+        if (!contentType) return;
 
-                updateTabTitle(name);
-            }
-        });
+        updateTabTitle(displayName || NamePrettyfier.prettifyUnnamed(contentType.getTitle()));
     });
 
     WindowDOM.get().onBeforeUnload((event: UIEvent) => {

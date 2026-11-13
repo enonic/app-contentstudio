@@ -1,6 +1,5 @@
 import type { PropertyTree } from '@enonic/input-types/data';
 import { atom, computed, map } from 'nanostores';
-import type { CompareStatus } from '../../../app/content/CompareStatus';
 import type { Content } from '../../../app/content/Content';
 import type { ContentData } from '../../../app/ai/event/data/AiData';
 import type { Mixin } from '../../../app/content/Mixin';
@@ -8,7 +7,6 @@ import type { MixinDescriptor } from '../../../app/content/MixinDescriptor';
 import type { ContentType } from '../../../app/inputtype/schema/ContentType';
 import type { Descriptor } from '../../../app/page/Descriptor';
 import type { Page } from '../../../app/page/Page';
-import type { ContentWizardHeader } from '../../../app/wizard/ContentWizardHeader';
 import { $config } from '../../shared/config/config.store';
 import { $languagesLoaded } from '../../entities/language';
 import type { AiPluginId } from './ai-protocol';
@@ -44,10 +42,6 @@ export const $aiContentType = atom<ContentType | null>(null);
 export const $aiCurrentData = atom<ContentData | null>(null);
 
 export const $aiDataTree = atom<PropertyTree | null>(null);
-
-export const $aiContentHeader = atom<ContentWizardHeader | null>(null);
-
-export const $aiCompareStatus = atom<CompareStatus | null>(null);
 
 export const $aiInstructions = atom<Record<EnonicAiPlugin, string | undefined> | null>(null);
 
