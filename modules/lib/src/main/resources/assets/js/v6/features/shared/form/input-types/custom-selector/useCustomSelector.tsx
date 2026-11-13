@@ -61,6 +61,7 @@ export const useCustomSelector = ({
     const [loadingCount, setLoadingCount] = useState(0);
     const [hasError, setHasError] = useState<boolean>(false);
     const isLoading = loadingCount > 0;
+    const [resolvedIds, setResolvedIds] = useState<Set<string>>(new Set());
 
     // Memoized values
     const key = useMemo(() => query || '', [query]);
@@ -91,6 +92,7 @@ export const useCustomSelector = ({
     contentIdRef.current = content?.getId();
     const projectIdRef = useRef<string>();
     projectIdRef.current = project?.getName();
+    const requestedIdsRef = useRef<Set<string>>(new Set());
 
     const fetchItems = useCallback(
         async (requestUrl: string) => {
@@ -162,6 +164,12 @@ export const useCustomSelector = ({
             return;
         }
 
+        const ids = selection.filter(
+            (id) => !requestedIdsRef.current.has(id) && !allItems.some((item) => item.id === id),
+        );
+
+        if (ids.length === 0) return;
+
         const requestUrl = buildRequestUrl({
             extension: config.extension,
             service: config.service,
@@ -169,27 +177,30 @@ export const useCustomSelector = ({
             projectId: projectIdRef.current,
             contentId: contentIdRef.current,
             requestParams: {
-                ids: selection.join(','),
+                ids: ids.join(','),
             },
         });
 
         if (!requestUrl) return;
 
+        ids.forEach((id) => requestedIdsRef.current.add(id));
         setLoadingCount((c) => c + 1);
 
         (await fetchItems(requestUrl)).match(
             (data) => {
                 processResponse(data, PRELOAD_KEY);
+                setResolvedIds((prev) => new Set([...prev, ...ids]));
                 setLoadingCount((c) => c - 1);
                 setHasError(false);
             },
             (error) => {
                 console.error(error.message);
+                ids.forEach((id) => requestedIdsRef.current.delete(id));
                 setLoadingCount((c) => c - 1);
                 setHasError(true);
             },
         );
-    }, [selection, config, query, key, startMap, count, fetchItems, processResponse]);
+    }, [selection, allItems, config, query, key, startMap, count, fetchItems, processResponse]);
 
     // Used to load more items
     const load = useCallback(async () => {
@@ -254,7 +265,17 @@ export const useCustomSelector = ({
         [selection, onAdd, onRemove],
     );
 
-    return { allItems, filteredItems, isLoading, hasError, hasMore, preLoad, load: debouncedLoad, onSelectionChange };
+    return {
+        allItems,
+        filteredItems,
+        isLoading,
+        resolvedIds,
+        hasError,
+        hasMore,
+        preLoad,
+        load: debouncedLoad,
+        onSelectionChange,
+    };
 };
 
 //

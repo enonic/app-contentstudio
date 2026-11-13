@@ -5,10 +5,11 @@ import { cn } from '@enonic/ui';
 
 export type ContentNotAvailableProps = {
     contentId: string;
+    label?: string;
     className?: string;
 };
 
-export const ContentNotAvailable = ({ contentId, className }: ContentNotAvailableProps): ReactElement => {
+export const ContentNotAvailable = ({ contentId, label, className }: ContentNotAvailableProps): ReactElement => {
     const contentNotAvailableLabel = useI18n('text.content.not.found');
 
     return (
@@ -21,7 +22,7 @@ export const ContentNotAvailable = ({ contentId, className }: ContentNotAvailabl
                     {contentId}
                 </span>
                 <span className="text-sm text-error block whitespace-nowrap overflow-hidden text-ellipsis">
-                    {contentNotAvailableLabel}
+                    {label ?? contentNotAvailableLabel}
                 </span>
             </div>
         </div>
