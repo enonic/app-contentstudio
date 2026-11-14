@@ -54,8 +54,8 @@ importers:
         specifier: ^0.7.1
         version: 0.7.1
       d3-dag:
-        specifier: ^1.2.2
-        version: 1.2.2
+        specifier: ^1.3.0
+        version: 1.3.0
       dayjs:
         specifier: ^1.11.23
         version: 1.11.23
@@ -1816,12 +1816,13 @@ packages:
   csstype@3.2.3:
     resolution: {integrity: sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ==}
 
-  d3-array@3.2.4:
-    resolution: {integrity: sha512-tdQAmyA18i4J7wprpYq8ClcxZy3SC31QMeByyCFyRt7BVHdREQZ5lpzoe5mFEYZUWe+oq8HBvk9JjpibyEV4Jg==}
+  d3-array@3.2.5:
+    resolution: {integrity: sha512-Th8qGXoBalmWsstpkuhmBuTsBQIFqYOJtjlBvNVvBfJ8E3uYusBUwUR8HU20U0qKKQkgCvKyR1YjiozWadk5QA==}
     engines: {node: '>=12'}
 
-  d3-dag@1.2.2:
-    resolution: {integrity: sha512-RT4+IEUEthIeIiTb4TUfmrw8o7qINmeRjtvrokmuhfk3KXp8YQX6yZOFUJIq7sHhv5JMpDKR3hHWzYb9q/jUaQ==}
+  d3-dag@1.3.0:
+    resolution: {integrity: sha512-vuIxo6ER9Z0KZB5xGFWcPGqikPHofOCZNHlJnPDrkiR+74/eVtypVTJJZAPKndtK/ISpXyqL02/njvQphwPBZg==}
+    engines: {node: '>=22.12'}
 
   dayjs@1.11.23:
     resolution: {integrity: sha512-QDTCU0M0MxR3hQfnlDJfwekQiaanm1ubOD231u73WBckQ/fsamwRLiE2GBz6D3a/xF1NgfiDLJjXBa1hYOYTtQ==}
@@ -2108,7 +2109,6 @@ packages:
   image-size@0.5.4:
     resolution: {integrity: sha512-pZ6OFlgYPCzEwnTboIif0rzImqCGRqdyEXHkjnxXi0W7E0iQlL9xDF+RgIpLyIDWPxazxxjZ0dA++s+h/YchdQ==}
     engines: {node: '>=0.10.0'}
-    deprecated: Please migrate to image-size@2.x
     hasBin: true
 
   ini@4.1.1:
@@ -2666,13 +2666,17 @@ packages:
 
       (For a CapTP with native promises, see @endo/eventual-send and @endo/captp)
 
-  quadprog@1.6.1:
-    resolution: {integrity: sha512-fN5Jkcjlln/b3pJkseDKREf89JkKIyu6cKIVXisgL6ocKPQ0yTp9n6NZUAq3otEPPw78WZMG9K0o9WsfKyMWJw==}
-    engines: {node: '>=8.x'}
+  quadprog@2.0.0:
+    resolution: {integrity: sha512-+ol4iuOBpYnjRTiykjkvzt71GWk1CzWI6DjGBmkumm2tq3l96tNFhz/oMdWqNoHdo3Fx1uA2iRXFbTMLnnCzxQ==}
+    engines: {node: '>=24.x'}
 
   quick-lru@5.1.1:
     resolution: {integrity: sha512-WuyALRjWPDGtt/wzJiadO5AXY+8hZ80hVpe6MyivgraREW751X3SbhRvG3eLKOYN+8VEvqLcf3wdnt44Z4S4SA==}
     engines: {node: '>=10'}
+
+  quote-js-string@0.1.0:
+    resolution: {integrity: sha512-Y3NoRtprEEZQD8RfxMCfS0ZTqc4e+i18OrXEXAvpM6TfC/3y+0L5rNbZiSnbBBEkDfFzbpd8o+cE8q3/anjMGA==}
+    engines: {node: '>=22'}
 
   react-dom@19.2.4:
     resolution: {integrity: sha512-AXJdLo8kgMbimY95O2aKQqsz2iWi9jMgKJhRBAxECE4IFxfcazB2LmzloIoibJI3C12IlY20+KFaLv+71bUJeQ==}
@@ -2865,9 +2869,9 @@ packages:
   streamx@2.28.1:
     resolution: {integrity: sha512-zEzXb0s5Cds7tqMH6rhZ05lcJydCWiQPEwiNngVqzsxCc962vLY4Uw+mW7od8kDH258k2Uz/JrOkdIAAhSh9VA==}
 
-  stringify-object@6.0.0:
-    resolution: {integrity: sha512-6f94vIED6vmJJfh3lyVsVWxCYSfI5uM+16ntED/Ql37XIyV6kj0mRAAiTeMMc/QLYIaizC3bUprQ8pQnDDrKfA==}
-    engines: {node: '>=20'}
+  stringify-object@7.0.0:
+    resolution: {integrity: sha512-RQU1n5OVVXD9fhww7e/rqiKdMa+LPMFLz0zDTbZ+KUjMfiMmh9soT8aw5iwvCGVquUJOodoinyv3VECyY7aFBQ==}
+    engines: {node: '>=22'}
 
   strip-bom@3.0.0:
     resolution: {integrity: sha512-vavAMRXOgBVNF6nyEEmL3DBK19iRpDcoIwW+swQ+CbGiu7lju6t+JklA1MHweoWtadgt4ISVUsXLyDq34ddcwA==}
@@ -4316,16 +4320,16 @@ snapshots:
 
   csstype@3.2.3: {}
 
-  d3-array@3.2.4:
+  d3-array@3.2.5:
     dependencies:
       internmap: 2.0.3
 
-  d3-dag@1.2.2:
+  d3-dag@1.3.0:
     dependencies:
-      d3-array: 3.2.4
+      d3-array: 3.2.5
       javascript-lp-solver: 1.0.3
-      quadprog: 1.6.1
-      stringify-object: 6.0.0
+      quadprog: 2.0.0
+      stringify-object: 7.0.0
 
   dayjs@1.11.23: {}
 
@@ -5147,9 +5151,11 @@ snapshots:
 
   q@1.5.1: {}
 
-  quadprog@1.6.1: {}
+  quadprog@2.0.0: {}
 
   quick-lru@5.1.1: {}
+
+  quote-js-string@0.1.0: {}
 
   react-dom@19.2.4(react@19.2.4):
     dependencies:
@@ -5358,12 +5364,13 @@ snapshots:
       - bare-abort-controller
       - react-native-b4a
 
-  stringify-object@6.0.0:
+  stringify-object@7.0.0:
     dependencies:
       get-own-enumerable-keys: 1.0.0
       is-identifier: 1.1.0
       is-obj: 3.0.0
       is-regexp: 3.1.0
+      quote-js-string: 0.1.0
 
   strip-bom@3.0.0: {}
 
