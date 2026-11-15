@@ -7,10 +7,8 @@ import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/Conten
 import { LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { ResponsiveManager } from '@enonic/lib-admin-ui/ui/responsive/ResponsiveManager';
-import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import Q from 'q';
-import { LiveEditModel } from '../../page-editor/LiveEditModel';
 import { cleanupWizardMixinsService, initWizardMixinsService } from '../../v6/pages/wizard/model/wizardMixins.service';
 import {
     applyOwnContentUpdate,
@@ -18,9 +16,8 @@ import {
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { setWizardContent } from '../../v6/entities/content';
-import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
 import { setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
-import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
+import { getActiveProjectName } from '../../v6/entities/project';
 import {
     $displayNameInputFocusRequested,
     $isContentFormExpanded,
@@ -44,14 +41,7 @@ import {
 import { type PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
 import { ContentWizardTabsToolbarElement } from '../../v6/pages/wizard/ui/content-wizard-tabs/ContentWizardTabsToolbarElement';
 import { Permission } from '../access/Permission';
-import {
-    openPluginDialog,
-    setAiContent,
-    setAiContentType,
-    setAiLanguage,
-    updateAiAppConfigs,
-    whenAiReady,
-} from '../../v6/features/ai';
+import { openPluginDialog, setAiContent, setAiContentType, setAiLanguage, whenAiReady } from '../../v6/features/ai';
 import { ContentWizardToolbarElement } from '../../v6/pages/wizard/ui/ContentWizardToolbar';
 import { setWizardToolbarItem, startWizardToolbar } from '../../v6/pages/wizard/model/wizardToolbar.service';
 import { type CompareStatus } from '../content/CompareStatus';
@@ -60,7 +50,6 @@ import { type ContentId } from '../content/ContentId';
 import { ContentPath } from '../content/ContentPath';
 import { ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
 import { type PageTemplate } from '../content/PageTemplate';
-import { type Site } from '../content/Site';
 import { BeforeContentSavedEvent } from '../event/BeforeContentSavedEvent';
 import { ContentLanguageUpdatedEvent } from '../event/ContentLanguageUpdatedEvent';
 import { ContentSettingsUpdatedEvent } from '../event/ContentSettingsUpdatedEvent';
@@ -73,9 +62,7 @@ import { type PageUpdatedEvent } from '../page/event/PageUpdatedEvent';
 import { type Page } from '../page/Page';
 import { type PublishStatus } from '../publish/PublishStatus';
 import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
-import { GetPageTemplateByKeyRequest } from '../resource/GetPageTemplateByKeyRequest';
 import { Router } from '../Router';
-import { SiteModel } from '../site/SiteModel';
 import { UrlAction } from '../UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
 import { PageHelper } from '../util/PageHelper';
@@ -87,21 +74,26 @@ import { WizardLayoutElement } from '../../v6/pages/wizard/ui/layout/WizardLayou
 import { ContentContext } from './ContentContext';
 import { type ContentWizardPanelParams } from './ContentWizardPanelParams';
 import { startWizardServerEvents } from '../../v6/pages/wizard/model/wizardServerEvents.service';
-import { isFrameRenderable, whenPreviewSettled } from '../../v6/widgets/preview-panel/model/previewResolution.store';
-import { openWizardLiveEdit, startWizardLayout } from '../../v6/pages/wizard/model/wizardLayout.service';
 import {
-    loadDefaultModels,
-    loadNearestSite,
-    loadWizardData,
-    type WizardLoadedData,
-} from '../../v6/pages/wizard/model/wizardLoad.service';
+    attachWizardPageEditorView,
+    getWizardLiveEditModel,
+    getWizardTemplateForCustomize,
+    handleWizardContentNamed,
+    handleWizardOtherContentUpdated,
+    handleWizardTemplatesDeleted,
+    initWizardPageModel,
+    reloadWizardPageEditorAfterSave,
+    startWizardPageEditor,
+    updateWizardPageModel,
+} from '../../v6/pages/wizard/model/wizardPageEditor.service';
+import { startWizardLayout } from '../../v6/pages/wizard/model/wizardLayout.service';
+import { loadWizardData, type WizardLoadedData } from '../../v6/pages/wizard/model/wizardLoad.service';
 import {
     createWizardContent,
     resolveSavedMessage,
     updateWizardContent,
 } from '../../v6/pages/wizard/model/wizardSave.service';
 import { type WizardSaveOptions } from '../../v6/pages/wizard/model/wizardController';
-import { type DefaultModels } from './page/DefaultModels';
 import { LiveFormPanel } from './page/LiveFormPanel';
 import { PageState } from './page/PageState';
 import { PageEventsManager } from './PageEventsManager';
@@ -144,15 +136,7 @@ export class ContentWizardPanel extends Panel {
 
     private contentExistsInParentProject: boolean;
 
-    private defaultModels: DefaultModels;
-
-    private site: Site;
-
     private contentType: ContentType;
-
-    private siteModel: SiteModel;
-
-    private liveEditModel: LiveEditModel;
 
     private currentCompareStatus: CompareStatus;
 
@@ -165,8 +149,6 @@ export class ContentWizardPanel extends Panel {
     private contentUpdateDisabled: boolean;
 
     private contentDeleted: boolean;
-
-    private debouncedEditorReload: (toggleLiveEdit?: boolean, skipConfirmation?: boolean) => void;
 
     public static debug: boolean = false;
 
@@ -186,6 +168,14 @@ export class ContentWizardPanel extends Panel {
             this.addClass(cls);
         }
 
+        const stopPageEditor = startWizardPageEditor({
+            getPersistedContent: () => this.getPersistedItem() ?? undefined,
+            getCompareStatus: () => this.currentCompareStatus,
+            getContentType: () => this.contentType,
+            createsSite: params.createSite,
+        });
+        this.onClosed(stopPageEditor);
+
         initWizardMixinsService();
         initWizardContentSyncService();
         this.onClosed(() => {
@@ -203,25 +193,6 @@ export class ContentWizardPanel extends Panel {
         this.leftPanelAndToolbar = new Panel();
 
         this.contentUpdateDisabled = false;
-
-        this.debouncedEditorReload = AppHelper.debounce((toggleLiveEdit: boolean, skipConfirmation: boolean) => {
-            this.isRenderable().then((wasRenderable: boolean) => {
-                this.livePanel.skipNextReloadConfirmation(skipConfirmation);
-
-                this.livePanel
-                    .loadPage()
-                    .then((isRenderable) => {
-                        if (wasRenderable !== isRenderable) {
-                            return this.refreshLivePanel(this.getCurrentItem());
-                        }
-                    })
-                    .then(() => {
-                        if (toggleLiveEdit) {
-                            openWizardLiveEdit();
-                        }
-                    });
-            });
-        }, 200);
 
         this.contentFetcher = new ContentSummaryAndCompareStatusFetcher();
     }
@@ -364,8 +335,6 @@ export class ContentWizardPanel extends Panel {
                         }
                     }
 
-                    this.defaultModels = loaded.defaultModels;
-                    this.site = loaded.site;
                     this.contentType = loaded.contentType;
                     this.parentContent = loaded.parentContent;
                     this.contentExistsInParentProject = loaded.existsInParentProject;
@@ -374,7 +343,7 @@ export class ContentWizardPanel extends Panel {
                     this.currentPublishStatus = loaded.publishStatus;
 
                     setAiContentType(this.contentType);
-                    this.updateAiAppConfigs();
+                    initWizardPageModel({ site: loaded.site, defaultModels: loaded.defaultModels });
                 })
                 // an unnamed, empty content is created before a new wizard renders
                 .then(() => this.getPersistedItem() ?? this.saveChanges())
@@ -383,8 +352,7 @@ export class ContentWizardPanel extends Panel {
                     // for existing content it was loaded
                     // for new content it was just created
                     const currentItem: Content = this.getCurrentItem();
-                    this.initOrUpdateSiteModel(currentItem.isSite() ? (currentItem as Site) : this.site);
-                    this.liveEditModel = this.initLiveEditModel(currentItem);
+                    updateWizardPageModel(currentItem);
 
                     return this.loadAndSetPageState(currentItem.getPage()?.clone()).then(() => loadedContent);
                 })
@@ -462,7 +430,8 @@ export class ContentWizardPanel extends Panel {
     }
 
     private createLivePanel(): LiveFormPanel {
-        const liveFormPanel: LiveFormPanel = new LiveFormPanel({ liveEditModel: this.liveEditModel });
+        const liveFormPanel: LiveFormPanel = new LiveFormPanel({ liveEditModel: getWizardLiveEditModel() });
+        attachWizardPageEditorView(liveFormPanel);
 
         liveFormPanel.whenRendered(() => {
             if (ContentWizardPanel.debug) {
@@ -477,13 +446,6 @@ export class ContentWizardPanel extends Panel {
         });
 
         return liveFormPanel;
-    }
-
-    private isWithinSite(): boolean {
-        const isSiteOrWithinSite: boolean = !!this.site || this.params.createSite;
-        const isPageTemplate: boolean = this.getContentTypeName().isPageTemplate() ?? false;
-
-        return isSiteOrWithinSite || isPageTemplate;
     }
 
     getWizardActions(): ContentWizardActions {
@@ -631,27 +593,6 @@ export class ContentWizardPanel extends Panel {
         return this.newContent;
     }
 
-    private refreshLivePanel(content: Content): Q.Promise<void> {
-        return this.isRenderable().then((renderable: boolean) => {
-            if (renderable) {
-                if (this.getPersistedItem().getPage() || this.isWithinSite()) {
-                    this.updateLiveEditModel(content);
-                }
-
-                return Q();
-            }
-
-            if (this.getPersistedItem().getPage()) {
-                this.updateLiveEditModel(content);
-                return Q();
-            }
-
-            this.livePanel.unloadPage();
-
-            return Q();
-        });
-    }
-
     saveChanges(options: WizardSaveOptions = {}): Q.Promise<Content> {
         const { reloadPageEditor = true, renamed = false } = options;
         // save happens right after data loaded with new content
@@ -665,34 +606,22 @@ export class ContentWizardPanel extends Panel {
         return Q(
             previousPersistedItem ? this.updatePersistedContent(previousPersistedItem, renamed) : this.createContent(),
         )
-            .then(() => {
+            .then(async () => {
                 const currentContent = this.getCurrentItem();
 
-                if (ContentWizardPanel.debug) {
-                    console.debug('ContentWizardPanel.saveChanges for: ' + currentContent.getPath().toString());
+                if (!currentContent.equals(previousPersistedItem)) {
+                    // needed before the reload in case content was moved
+                    // because content path is used to load the page
+                    updateWizardPageModel(currentContent);
+
+                    setWizardContent(this.getContent().getContentSummary());
+
+                    if (reloadPageEditor) {
+                        await reloadWizardPageEditorAfterSave(currentContent);
+                    }
                 }
 
-                return Q.Promise<Content>((resolve, reject) => {
-                    if (!currentContent.equals(previousPersistedItem)) {
-                        // needed before loadPage in case content was moved
-                        // because content path is used to load the page
-                        this.updateLiveEditModel(currentContent);
-
-                        setWizardContent(this.getContent().getContentSummary());
-
-                        if (reloadPageEditor && this.livePanel) {
-                            this.livePanel.loadPage().then(() => {
-                                this.refreshLivePanel(currentContent).then(() => {
-                                    resolve(currentContent);
-                                });
-                            });
-                        } else {
-                            resolve(currentContent);
-                        }
-                    } else {
-                        resolve(currentContent);
-                    }
-                });
+                return currentContent;
             })
             .finally(() => {
                 this.contentUpdateDisabled = false;
@@ -722,7 +651,7 @@ export class ContentWizardPanel extends Panel {
         const content = result.content;
 
         if (persistedContent.getName().isUnnamed() && !content.getName().isUnnamed()) {
-            this.handleContentNamed(content);
+            handleWizardContentNamed(content);
         }
 
         if (result.dataUpdated || result.pageUpdated || result.workflowUpdated) {
@@ -799,14 +728,6 @@ export class ContentWizardPanel extends Panel {
         return this.getPersistedItem() && id && this.getPersistedItem().getContentId().equals(id);
     }
 
-    private isCurrentTemplateId(id: ContentId): boolean {
-        return (
-            this.getPersistedItem() &&
-            id &&
-            this.getPersistedItem().getPage()?.getTemplate()?.toString() === id.toString()
-        );
-    }
-
     private initListeners() {
         PageState.getEvents().onPageReset(() => {
             setWizardMarkedAsReady(false);
@@ -825,8 +746,8 @@ export class ContentWizardPanel extends Panel {
 
         // to be changed: make default models static and remove that call by directly using DefaultModels in PageState
         PageEventsManager.get().onCustomizePageRequested(() => {
-            this.getTemplateForCustomize()
-                .then((template: PageTemplate) => {
+            getWizardTemplateForCustomize()
+                .then((template: PageTemplate | null) => {
                     if (template) {
                         PageEventsManager.get().notifySetCustomizedPageRequested(template);
                     }
@@ -876,17 +797,8 @@ export class ContentWizardPanel extends Panel {
                 this.wizardActions.setContent(summary).refreshState();
                 setWizardContent(summary.getContentSummary());
             },
-            otherContentUpdated: (summary) => {
-                this.handleOtherContentUpdate(summary);
-
-                if (this.isParentSiteModified(summary.getContentId())) {
-                    Q(loadNearestSite(summary.getContentId()))
-                        .then(this.updateSiteModel.bind(this))
-                        .catch(DefaultErrorHandler.handle)
-                        .done();
-                }
-            },
-            templatesDeleted: (ids) => this.handleTemplateDelete(ids),
+            otherContentUpdated: handleWizardOtherContentUpdated,
+            templatesDeleted: handleWizardTemplatesDeleted,
             descendantsPublishChanged: () => this.wizardActions.resetUnpublishedChildrenCheck(),
             publishStateChanged: () => this.wizardActions.refreshState(),
             setExistsInParentProject: (exists) => {
@@ -934,139 +846,6 @@ export class ContentWizardPanel extends Panel {
         this.updateWithContentSummary(updatedContent);
     }
 
-    private handleOtherContentUpdate(updatedContent: ContentSummaryAndCompareStatus) {
-        if (updatedContent.getType().isPageTemplate()) {
-            this.handleTemplateUpdate(updatedContent);
-            return;
-        }
-
-        if (this.isParentSiteUpdated(updatedContent)) {
-            this.debouncedEditorReload(true, false);
-            return;
-        }
-
-        const form = this.contentType?.getForm();
-
-        if (form) {
-            ContentHelper.doContentComponentsContainId(this.getPersistedItem(), form, updatedContent.getContentId())
-                .then((containsId) => {
-                    if (containsId) {
-                        this.debouncedEditorReload();
-                    }
-                })
-                .catch(DefaultErrorHandler.handle)
-                .done();
-        }
-    }
-
-    private handleTemplateUpdate(template: ContentSummaryAndCompareStatus): void {
-        if (this.isCurrentTemplateId(template.getContentId())) {
-            this.debouncedEditorReload(true, true);
-            return;
-        }
-
-        const isPageInAutoRenderingMode: boolean = !this.getPersistedItem().getPage();
-
-        if (isPageInAutoRenderingMode && this.isSameRootWithPersisted(template)) {
-            // update default models if page is rendered automatically and updated template might be or become the one rendering
-            Q(loadDefaultModels(this.site, this.getPersistedItem().getType()))
-                .then((defaultModels: DefaultModels) => {
-                    const isAutoUpdated: boolean =
-                        this.defaultModels.getDefaultPageTemplate()?.getId() === template.getId() ||
-                        defaultModels.getDefaultPageTemplate()?.getId() === template.getId();
-                    this.defaultModels = defaultModels;
-
-                    if (this.liveEditModel) {
-                        // defaultModels is part of liveEditModel so need to update it
-                        this.updateLiveEditModel(this.getPersistedItem());
-                    }
-
-                    if (isAutoUpdated) {
-                        this.debouncedEditorReload(true, true);
-                        return;
-                    }
-                })
-                .catch(DefaultErrorHandler.handle);
-        }
-    }
-
-    /*
-     * Callback on page template deleted server event, for a template under the
-     * same root as the current content. The deleted template may be the selected
-     * one, or the one an automatically rendered page resolves to, so the default
-     * models are reloaded and the editor follows when either is affected.
-     * */
-    private handleTemplateDelete(deletedIds: ContentId[]): void {
-        const isCurrentTemplate: boolean = deletedIds.some((id: ContentId) => this.isCurrentTemplateId(id));
-        const previousTemplateId: string = this.defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
-
-        Q(loadDefaultModels(this.site, this.getPersistedItem().getType()))
-            .then((defaultModels: DefaultModels) => {
-                const templateId: string = defaultModels?.getDefaultPageTemplate()?.getId() ?? null;
-                const hasDefaultChanged: boolean = templateId !== previousTemplateId;
-
-                if (hasDefaultChanged) {
-                    this.defaultModels = defaultModels;
-
-                    // defaultModels is part of liveEditModel so need to update it
-                    const modelTemplateId: string =
-                        this.liveEditModel?.getDefaultModels()?.getDefaultPageTemplate()?.getId() ?? null;
-
-                    if (this.liveEditModel && modelTemplateId !== templateId) {
-                        this.updateLiveEditModel(this.getPersistedItem());
-                    }
-                }
-
-                if (isCurrentTemplate || hasDefaultChanged) {
-                    this.debouncedEditorReload(true, true);
-                }
-            })
-            .catch((error: unknown) => {
-                if (isCurrentTemplate) {
-                    this.debouncedEditorReload(true, true);
-                }
-
-                DefaultErrorHandler.handle(error);
-            });
-    }
-
-    private isSameRootWithPersisted(item: ContentSummaryAndCompareStatus): boolean {
-        return item.getPath().getRootElement() === this.getPersistedItem().getPath().getRootElement();
-    }
-
-    private isParentSiteUpdated(updatedContent: ContentSummaryAndCompareStatus): boolean {
-        return (
-            updatedContent.getType().isSite() &&
-            this.getPersistedItem().getPath().isDescendantOf(updatedContent.getPath())
-        );
-    }
-
-    private isParentSiteModified(contentId: ContentId): boolean {
-        if (!this.site) {
-            return false;
-        }
-
-        if (!this.siteModel) {
-            return false;
-        }
-
-        if (!this.site.getContentId().equals(contentId)) {
-            return false;
-        }
-
-        return !this.getPersistedItem().getContentId().equals(contentId);
-    }
-
-    private updateLiveEditModel(content: Content): void {
-        if (ContentWizardPanel.debug) {
-            console.debug('ContentWizardPanel.updateLiveEditModel for: ' + content.getPath().toString());
-        }
-
-        this.initOrUpdateSiteModel(content.isSite() ? (content as Site) : this.site);
-        this.liveEditModel = this.initLiveEditModel(content);
-        this.livePanel?.setModel(this.liveEditModel);
-    }
-
     private fetchContentSummaryAndUpdate(persistedContent: Content) {
         return this.contentFetcher.fetchByContent(persistedContent).then((summaryAndStatus) => {
             this.updateWithContentSummary(summaryAndStatus);
@@ -1079,31 +858,6 @@ export class ContentWizardPanel extends Panel {
 
     private isContentModifiableByUser(): boolean {
         return AccessControlHelper.hasPermission(Permission.MODIFY, this.getPersistedItem().getPermissions());
-    }
-
-    private updateSiteModel(site: Site): void {
-        this.siteModel.update(site);
-        this.site = site;
-        this.updateAiAppConfigs();
-    }
-
-    private initOrUpdateSiteModel(site: Site): void {
-        if (!site) return;
-
-        if (this.siteModel) {
-            this.updateSiteModel(site);
-        } else {
-            this.siteModel = new SiteModel(site);
-        }
-    }
-
-    private initLiveEditModel(content: Content): LiveEditModel {
-        return LiveEditModel.create()
-            .setContent(content)
-            .setCompareStatus(this.currentCompareStatus)
-            .setSiteModel(this.siteModel)
-            .setDefaultTemplate(this.defaultModels)
-            .build();
     }
 
     hasUnsavedChanges(): boolean {
@@ -1126,20 +880,6 @@ export class ContentWizardPanel extends Panel {
             this.currentCompareStatus,
             this.currentPublishStatus,
         );
-    }
-
-    private handleContentNamed(content: Content): void {
-        // Content path has changed so update site as well.
-        if (content.isSite()) {
-            this.site = content as Site;
-            return;
-        }
-
-        loadNearestSite(content.getContentId())
-            .then((site) => {
-                this.site = site;
-            })
-            .catch(DefaultErrorHandler.handle);
     }
 
     setEnabled(value: boolean) {
@@ -1247,41 +987,6 @@ export class ContentWizardPanel extends Panel {
 
     isContentExistsInParentProject(): boolean {
         return !!this.contentExistsInParentProject;
-    }
-
-    private isRenderable(): Q.Promise<boolean> {
-        if (!this.livePanel) {
-            // may happen if invoked before rendered
-            if (ContentWizardPanel.debug) {
-                console.debug('ContentWizardPanel.isRenderable before rendered');
-            }
-            return Q.resolve(false);
-        }
-        return Q(whenPreviewSettled()).then(isFrameRenderable);
-    }
-
-    private getTemplateForCustomize(): Q.Promise<PageTemplate> {
-        const page = PageState.getState();
-
-        // A page with its own controller is already detached from any template.
-        if (page?.hasController()) {
-            return Q.resolve(null);
-        }
-
-        const currentTemplateKey = page?.getTemplate();
-
-        if (currentTemplateKey && !currentTemplateKey.equals(this.defaultModels?.getDefaultPageTemplate()?.getKey())) {
-            return new GetPageTemplateByKeyRequest(currentTemplateKey).sendAndParse();
-        }
-
-        return Q.resolve(this.defaultModels?.getDefaultPageTemplate());
-    }
-
-    private updateAiAppConfigs(): void {
-        updateAiAppConfigs(
-            this.site?.getSiteConfigs().map(fromLegacyApplicationConfig),
-            getActiveProject().getSiteConfigs().map(fromLegacyApplicationConfig),
-        );
     }
 
     // Opens the AI Translator dialog via the `dialog:open` plugin command.
