@@ -1,4 +1,3 @@
-import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
 import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
 import { WindowDOM } from '@enonic/lib-admin-ui/dom/WindowDOM';
@@ -8,44 +7,19 @@ import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { Panel } from '@enonic/lib-admin-ui/ui/panel/Panel';
 import { type LiveEditModel } from '../../../page-editor/LiveEditModel';
 import {
-    start as startComponentInspectionService,
-    stop as stopComponentInspectionService,
-} from '../../../v6/widgets/inspectors/model/component-inspection.service';
-import {
-    start as startFragmentInspectionService,
-    stop as stopFragmentInspectionService,
-} from '../../../v6/widgets/inspectors/model/fragment-inspection.service';
-import {
     $activeWidget,
     $isLiveViewImageEditorActive,
 } from '../../../v6/widgets/inspectors/model/liveViewWidgets.store';
-import {
-    $isPageLocked,
-    $pageEditorLifecycle,
-    cleanupPageEditorBridge,
-    initPageEditorBridge,
-    setPageModifyAllowed,
-    syncInitialRenderable,
-} from '../../../v6/widgets/inspectors/model/page-editor';
-import {
-    start as startPageInspectionService,
-    stop as stopPageInspectionService,
-} from '../../../v6/widgets/inspectors/model/page-inspection.service';
+import { $isPageLocked, setPageModifyAllowed } from '../../../v6/widgets/inspectors/model/page-editor';
 import { type Content } from '../../content/Content';
-import { type Site } from '../../content/Site';
 import { type ComponentPath } from '../../page/region/ComponentPath';
 import { type ExtensionRenderer } from '../../view/ExtensionRenderingHandler';
-import { setWizardPageTemplateSource } from '../../../v6/pages/wizard/model/wizardPageTemplate.commands';
-import { PageEventsManager } from '../PageEventsManager';
 import { type PageNavigationEvent } from '../PageNavigationEvent';
 import { type PageNavigationHandler } from '../PageNavigationHandler';
 import { PageNavigationMediator } from '../PageNavigationMediator';
 import { WizardExtensionRenderingHandler } from '../WizardExtensionRenderingHandler';
 import { FrameContainer } from './FrameContainer';
 import { LiveEditPageProxy } from './LiveEditPageProxy';
-import { getWizardController } from '../../../v6/pages/wizard/model/wizardController';
-import { PageState } from './PageState';
-import { toContentTypeName } from '../../../v6/shared/lib/cms/schema/contentTypeName';
 
 export interface LiveFormPanelConfig {
     liveEditModel: LiveEditModel;
@@ -58,11 +32,7 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
     private liveEditModel?: LiveEditModel;
 
-    private pageSkipReload: boolean = false;
-
     private frameContainer?: FrameContainer;
-
-    private lockPageAfterProxyLoad: boolean = false;
 
     private modifyPermissions: boolean;
 
@@ -126,42 +96,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
         this.frameContainer.getToolbar().setRefreshAction(() => this.refresh());
         this.liveEditPageProxy.setModifyPermissions(this.modifyPermissions);
-        this.addPageProxyLoadEventListeners();
-    }
-
-    private addPageProxyLoadEventListeners(): void {
-        PageEventsManager.get().onLoaded(() => {
-            if (this.lockPageAfterProxyLoad) {
-                this.liveEditPageProxy?.setLocked(true);
-                this.lockPageAfterProxyLoad = false;
-            }
-        });
-
-        PageEventsManager.get().onComponentReloadRequested((path, existing) => {
-            this.saveAndReloadComponent(path, existing);
-        });
-    }
-
-    private saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
-        const controller = getWizardController();
-        if (!controller) return;
-
-        this.pageSkipReload = true;
-        controller
-            .save({ reloadPageEditor: false })
-            .then(() => {
-                if ($pageEditorLifecycle.get().inlineEditing) {
-                    this.liveEditPageProxy?.loadComponent(path, existing);
-                    return;
-                }
-
-                this.pageSkipReload = false;
-                void this.loadPage();
-            })
-            .catch(DefaultErrorHandler.handle)
-            .finally(() => {
-                this.pageSkipReload = false;
-            });
     }
 
     doRender(): Q.Promise<boolean> {
@@ -185,56 +119,19 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
 
         this.unsubscribePageLocked();
         this.liveEditPageProxy.remove();
-        stopComponentInspectionService();
-        stopFragmentInspectionService();
-        stopPageInspectionService();
-        cleanupPageEditorBridge();
         super.remove();
         return this;
     }
 
+    // The page editor service decides what else follows from a new model.
     setModel(liveEditModel: LiveEditModel) {
         this.liveEditModel = liveEditModel;
         this.content = liveEditModel.getContent();
-
-        const site: Site = this.content.isSite()
-            ? (this.content as Site)
-            : liveEditModel.getSiteModel()
-              ? this.liveEditModel.getSiteModel().getSite()
-              : null;
-
-        setWizardPageTemplateSource(this.content, site);
-
         this.liveEditPageProxy.setModel(liveEditModel);
+    }
 
-        const content = liveEditModel.getContent();
-        const siteModel = liveEditModel.getSiteModel();
-        const controller = PageState.getState()?.getController();
-        const defaultModels = liveEditModel.getDefaultModels();
-
-        initPageEditorBridge({
-            hasDefaultPageTemplate: defaultModels?.hasDefaultPageTemplate() ?? false,
-            defaultPageTemplateName: defaultModels?.getDefaultPageTemplate()?.getDisplayName() ?? null,
-            contentContext: {
-                contentId: content.getContentId(),
-                contentTypeName: toContentTypeName(content.getType().toString()),
-                siteId: site?.getContentId() ?? null,
-                sitePath: site?.getPath().toString() ?? null,
-                isPageTemplate: content.isPageTemplate(),
-                isInherited: content.isInherited(),
-                isDataInherited: content.isDataInherited(),
-                applicationKey: controller?.getApplicationKey().toString() ?? null,
-            },
-        });
-
-        startPageInspectionService(siteModel);
-        startComponentInspectionService(siteModel);
-        startFragmentInspectionService();
-
-        // Sync renderable state that may have been set before bridge init
-        void this.widgetRenderingHandler.isItemRenderable().then((isRenderable: boolean) => {
-            syncInitialRenderable(isRenderable);
-        });
+    loadComponent(path: ComponentPath, existing: boolean): void {
+        this.liveEditPageProxy?.loadComponent(path, existing);
     }
 
     public getModel(): LiveEditModel {
@@ -256,10 +153,6 @@ export class LiveFormPanel extends Panel implements PageNavigationHandler, Exten
     loadPage(): Promise<boolean> {
         if (LiveFormPanel.debug) {
             console.debug('LiveFormPanel.loadPage at ' + new Date().toISOString());
-        }
-
-        if (this.pageSkipReload) {
-            return Promise.resolve(false);
         }
 
         // `LiveViewImageEditor` replaces the page, so only the preview is resolved.

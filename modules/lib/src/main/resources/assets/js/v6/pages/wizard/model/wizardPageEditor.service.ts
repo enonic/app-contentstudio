@@ -5,20 +5,43 @@ import type { ContentSummaryAndCompareStatus } from '../../../../app/content/Con
 import type { PageTemplate } from '../../../../app/content/PageTemplate';
 import type { Site } from '../../../../app/content/Site';
 import type { ContentType } from '../../../../app/inputtype/schema/ContentType';
+import type { ComponentPath } from '../../../../app/page/region/ComponentPath';
 import { GetPageTemplateByKeyRequest } from '../../../../app/resource/GetPageTemplateByKeyRequest';
 import { SiteModel } from '../../../../app/site/SiteModel';
 import { ContentHelper } from '../../../../app/util/ContentHelper';
 import type { DefaultModels } from '../../../../app/wizard/page/DefaultModels';
 import { PageState } from '../../../../app/wizard/page/PageState';
+import { PageEventsManager } from '../../../../app/wizard/PageEventsManager';
 import { LiveEditModel } from '../../../../page-editor/LiveEditModel';
 import { getActiveProject } from '../../../entities/project';
 import { updateAiAppConfigs } from '../../../features/ai';
 import { fromLegacyApplicationConfig } from '../../../shared/lib/cms/application/applicationConfig';
+import { toContentTypeName } from '../../../shared/lib/cms/schema/contentTypeName';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { handleError } from '../../../shared/notifications';
+import {
+    start as startComponentInspectionService,
+    stop as stopComponentInspectionService,
+} from '../../../widgets/inspectors/model/component-inspection.service';
+import {
+    start as startFragmentInspectionService,
+    stop as stopFragmentInspectionService,
+} from '../../../widgets/inspectors/model/fragment-inspection.service';
+import {
+    $pageEditorLifecycle,
+    cleanupPageEditorBridge,
+    initPageEditorBridge,
+    syncInitialRenderable,
+} from '../../../widgets/inspectors/model/page-editor';
+import {
+    start as startPageInspectionService,
+    stop as stopPageInspectionService,
+} from '../../../widgets/inspectors/model/page-inspection.service';
 import { isFrameRenderable, whenPreviewSettled } from '../../../widgets/preview-panel/model/previewResolution.store';
+import { getWizardController } from './wizardController';
 import { openWizardLiveEdit } from './wizardLayout.service';
 import { loadDefaultModels, loadNearestSite } from './wizardLoad.service';
+import { setWizardPageTemplateSource } from './wizardPageTemplate.commands';
 
 //
 // * Wizard Page Editor Service
@@ -45,6 +68,8 @@ export type WizardPageEditorView = {
     /** Resolves with whether the page can be rendered. */
     loadPage: () => Promise<boolean>;
     unloadPage: () => void;
+    /** Reloads one component of the page in place. */
+    loadComponent: (path: ComponentPath, existing: boolean) => void;
     setModel: (model: LiveEditModel) => void;
     skipNextReloadConfirmation: (skip: boolean) => void;
 };
@@ -62,6 +87,8 @@ let site: Site | null | undefined;
 let siteModel: SiteModel | undefined;
 let defaultModels: DefaultModels | null | undefined;
 let liveEditModel: LiveEditModel | undefined;
+// Set while one component is saved and reloaded in place: the page must not reload under it.
+let skipsPageLoad = false;
 
 //
 // * Model
@@ -112,7 +139,42 @@ export function updateWizardPageModel(content: Content): void {
         .setDefaultTemplate(defaultModels)
         .build();
 
-    view?.setModel(liveEditModel);
+    applyModelToEditor(liveEditModel);
+}
+
+// Hands the model to the editor and restarts what inspects the page with it.
+function applyModelToEditor(model: LiveEditModel): void {
+    if (!view) return;
+
+    const content = model.getContent();
+    const modelSite = content.isSite() ? (content as Site) : (model.getSiteModel()?.getSite() ?? null);
+    const models = model.getDefaultModels();
+
+    setWizardPageTemplateSource(content, modelSite);
+
+    view.setModel(model);
+
+    initPageEditorBridge({
+        hasDefaultPageTemplate: models?.hasDefaultPageTemplate() ?? false,
+        defaultPageTemplateName: models?.getDefaultPageTemplate()?.getDisplayName() ?? null,
+        contentContext: {
+            contentId: content.getContentId(),
+            contentTypeName: toContentTypeName(content.getType().toString()),
+            siteId: modelSite?.getContentId() ?? null,
+            sitePath: modelSite?.getPath().toString() ?? null,
+            isPageTemplate: content.isPageTemplate(),
+            isInherited: content.isInherited(),
+            isDataInherited: content.isDataInherited(),
+            applicationKey: PageState.getState()?.getController()?.getApplicationKey().toString() ?? null,
+        },
+    });
+
+    startPageInspectionService(model.getSiteModel());
+    startComponentInspectionService(model.getSiteModel());
+    startFragmentInspectionService();
+
+    // the renderable state may have been set before the bridge was initialised
+    void whenPreviewSettled().then((result) => syncInitialRenderable(isFrameRenderable(result)));
 }
 
 export function getWizardLiveEditModel(): LiveEditModel | undefined {
@@ -154,6 +216,40 @@ export async function getWizardTemplateForCustomize(): Promise<PageTemplate | nu
 // * Reload
 //
 
+/**
+ * Loads the page in the editor. Every page load goes through here, so that none
+ * happens while a single component is being saved and reloaded in place.
+ */
+export function loadWizardPage(): Promise<boolean> {
+    if (!view || skipsPageLoad) return Promise.resolve(false);
+
+    return view.loadPage();
+}
+
+// The editor asked for one component to be reloaded: its content is saved first.
+function saveAndReloadComponent(path: ComponentPath, existing: boolean): void {
+    const controller = getWizardController();
+    if (!controller || !view) return;
+
+    skipsPageLoad = true;
+
+    controller
+        .save({ reloadPageEditor: false })
+        .then(() => {
+            if ($pageEditorLifecycle.get().inlineEditing) {
+                view?.loadComponent(path, existing);
+                return;
+            }
+
+            skipsPageLoad = false;
+            void loadWizardPage();
+        })
+        .catch(handleError)
+        .finally(() => {
+            skipsPageLoad = false;
+        });
+}
+
 async function isRenderable(): Promise<boolean> {
     // nothing is rendered before the editor exists
     if (!view) return false;
@@ -190,7 +286,7 @@ async function refresh(content: Content): Promise<void> {
 export async function reloadWizardPageEditorAfterSave(content: Content): Promise<void> {
     if (!view) return;
 
-    await view.loadPage();
+    await loadWizardPage();
     await refresh(content);
 }
 
@@ -202,7 +298,7 @@ async function reload(toggleLiveEdit: boolean, skipConfirmation: boolean | undef
 
     view.skipNextReloadConfirmation(skipConfirmation as boolean);
 
-    if (wasRenderable !== (await view.loadPage())) {
+    if (wasRenderable !== (await loadWizardPage())) {
         await refresh(persisted);
     }
 
@@ -329,9 +425,11 @@ export function handleWizardTemplatesDeleted(deletedIds: ContentId[]): void {
 // * Lifecycle
 //
 
-/** The editor exists: from now on the service drives it. */
+/** The editor exists: from now on the service drives it, starting with the model it already has. */
 export function attachWizardPageEditorView(next: WizardPageEditorView): void {
     view = next;
+
+    if (liveEditModel) applyModelToEditor(liveEditModel);
 }
 
 /** Starts the service for a wizard; the returned function stops it and drops the model. */
@@ -342,9 +440,20 @@ export function startWizardPageEditor(nextHost: WizardPageEditorHost): () => voi
     siteModel = undefined;
     defaultModels = undefined;
     liveEditModel = undefined;
+    skipsPageLoad = false;
+
+    PageEventsManager.get().onComponentReloadRequested(saveAndReloadComponent);
 
     return () => {
         debouncedReload.cancel();
+        PageEventsManager.get().unComponentReloadRequested(saveAndReloadComponent);
+
+        if (view) {
+            stopComponentInspectionService();
+            stopFragmentInspectionService();
+            stopPageInspectionService();
+            cleanupPageEditorBridge();
+        }
 
         if (host === nextHost) {
             host = undefined;

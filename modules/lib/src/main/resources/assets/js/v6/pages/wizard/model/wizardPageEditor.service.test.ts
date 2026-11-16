@@ -14,6 +14,16 @@ const mocks = vi.hoisted(() => ({
     loadDefaultModels: vi.fn(),
     loadNearestSite: vi.fn(),
     siteModelUpdate: vi.fn(),
+    templateSource: vi.fn(),
+    bridgeInit: vi.fn(),
+    bridgeCleanup: vi.fn(),
+    inspectionStart: vi.fn(),
+    inspectionStop: vi.fn(),
+    syncRenderable: vi.fn(),
+    save: vi.fn(),
+    inlineEditing: false,
+    componentReload: undefined as ((path: unknown, existing: boolean) => void) | undefined,
+    hasController: true,
     log: [] as string[],
 }));
 
@@ -27,12 +37,48 @@ vi.mock('../../../../app/site/SiteModel', () => ({
     SiteModel: class {
         constructor(readonly site: unknown) {}
         update = mocks.siteModelUpdate;
+        getSite = () => this.site;
     },
 }));
 vi.mock('../../../../app/util/ContentHelper', () => ({
     ContentHelper: { doContentComponentsContainId: mocks.containsId },
 }));
 vi.mock('../../../../app/wizard/page/PageState', () => ({ PageState: { getState: () => mocks.page } }));
+vi.mock('../../../../app/wizard/PageEventsManager', () => ({
+    PageEventsManager: {
+        get: () => ({
+            onComponentReloadRequested: (listener: (path: unknown, existing: boolean) => void) => {
+                mocks.componentReload = listener;
+            },
+            unComponentReloadRequested: () => {
+                mocks.componentReload = undefined;
+            },
+        }),
+    },
+}));
+vi.mock('../../../shared/lib/cms/schema/contentTypeName', () => ({ toContentTypeName: (name: string) => name }));
+vi.mock('../../../widgets/inspectors/model/component-inspection.service', () => ({
+    start: mocks.inspectionStart,
+    stop: mocks.inspectionStop,
+}));
+vi.mock('../../../widgets/inspectors/model/fragment-inspection.service', () => ({
+    start: mocks.inspectionStart,
+    stop: mocks.inspectionStop,
+}));
+vi.mock('../../../widgets/inspectors/model/page-inspection.service', () => ({
+    start: mocks.inspectionStart,
+    stop: mocks.inspectionStop,
+}));
+vi.mock('../../../widgets/inspectors/model/page-editor', () => ({
+    $pageEditorLifecycle: { get: () => ({ inlineEditing: mocks.inlineEditing }) },
+    cleanupPageEditorBridge: mocks.bridgeCleanup,
+    initPageEditorBridge: mocks.bridgeInit,
+    syncInitialRenderable: mocks.syncRenderable,
+}));
+vi.mock('./wizardController', () => ({
+    getWizardController: () => (mocks.hasController ? { save: mocks.save } : undefined),
+}));
+vi.mock('./wizardPageTemplate.commands', () => ({ setWizardPageTemplateSource: mocks.templateSource }));
 vi.mock('../../../../page-editor/LiveEditModel', () => ({
     LiveEditModel: {
         create: () => {
@@ -42,7 +88,12 @@ vi.mock('../../../../page-editor/LiveEditModel', () => ({
                 setCompareStatus: (value: unknown) => ((model.compareStatus = value), builder),
                 setSiteModel: (value: unknown) => ((model.siteModel = value), builder),
                 setDefaultTemplate: (value: unknown) => ((model.defaultModels = value), builder),
-                build: () => ({ ...model, getDefaultModels: () => model.defaultModels }),
+                build: () => ({
+                    ...model,
+                    getDefaultModels: () => model.defaultModels,
+                    getContent: () => model.content,
+                    getSiteModel: () => model.siteModel,
+                }),
             };
             return builder;
         },
@@ -72,6 +123,7 @@ import {
     handleWizardOtherContentUpdated,
     handleWizardTemplatesDeleted,
     initWizardPageModel,
+    loadWizardPage,
     reloadWizardPageEditorAfterSave,
     requestWizardPageEditorReload,
     startWizardPageEditor,
@@ -89,12 +141,14 @@ const idOf = (value: string) => ({
 });
 
 const pathOf = (value: string) => ({
+    toString: () => value,
     getRootElement: () => value.split('/')[1],
     isDescendantOf: (other: { value: string }) => value.startsWith(`${other.value}/`),
     value,
 });
 
 const typeOf = (name: string) => ({
+    toString: () => name,
     isPageTemplate: () => name === 'page-template',
     isSite: () => name === 'site',
 });
@@ -115,10 +169,15 @@ const contentOf = ({
         getType: () => typeOf(type),
         isSite: () => site,
         getSiteConfigs: () => [],
+        isPageTemplate: () => type === 'page-template',
+        isInherited: () => false,
+        isDataInherited: () => false,
     }) as unknown as Content & ContentSummaryAndCompareStatus & Site;
 
 const modelsOf = (templateId: string | null) => ({
-    getDefaultPageTemplate: () => (templateId ? { getId: () => templateId, getKey: () => templateId } : null),
+    hasDefaultPageTemplate: () => templateId != null,
+    getDefaultPageTemplate: () =>
+        templateId ? { getId: () => templateId, getKey: () => templateId, getDisplayName: () => templateId } : null,
 });
 
 const SITE = contentOf({ id: 'site', path: '/site', site: true, type: 'site' });
@@ -160,6 +219,9 @@ describe('wizardPageEditor.service', () => {
         mocks.log = [];
         mocks.loadNearestSite.mockResolvedValue(null);
         mocks.loadDefaultModels.mockResolvedValue(modelsOf(null));
+        mocks.inlineEditing = false;
+        mocks.hasController = true;
+        mocks.save.mockResolvedValue(undefined);
         persisted = contentOf();
         view = {
             loadPage: vi.fn(() => {
@@ -168,6 +230,7 @@ describe('wizardPageEditor.service', () => {
             }),
             unloadPage: vi.fn(() => mocks.log.push('unload')),
             setModel: vi.fn(() => mocks.log.push('model')),
+            loadComponent: vi.fn(() => mocks.log.push('component')),
             skipNextReloadConfirmation: vi.fn(() => mocks.log.push('skip')),
         };
         mocks.openLiveEdit.mockImplementation(() => mocks.log.push('liveEdit'));
@@ -191,8 +254,39 @@ describe('wizardPageEditor.service', () => {
             expect(view.setModel).not.toHaveBeenCalled();
 
             attach();
+            expect(view.setModel).toHaveBeenCalledExactlyOnceWith(model);
+        });
+
+        it('should restart what inspects the page with every model the editor gets', async () => {
+            initWizardPageModel({ site: SITE, defaultModels: modelsOf('t1') as never });
             updateWizardPageModel(persisted as Content);
-            expect(view.setModel).toHaveBeenCalledTimes(1);
+            expect(mocks.bridgeInit).not.toHaveBeenCalled();
+
+            mocks.renderable = true;
+            attach();
+            await flush();
+
+            expect(mocks.templateSource).toHaveBeenCalledWith(persisted, SITE);
+            expect(mocks.bridgeInit).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    hasDefaultPageTemplate: true,
+                    defaultPageTemplateName: 't1',
+                    contentContext: expect.objectContaining({ sitePath: '/site', contentTypeName: 'post' }),
+                }),
+            );
+            expect(mocks.inspectionStart).toHaveBeenCalledTimes(3);
+            expect(mocks.syncRenderable).toHaveBeenCalledWith(true);
+        });
+
+        it('should stop the inspection only for a wizard that had an editor', () => {
+            stop();
+            expect(mocks.bridgeCleanup).not.toHaveBeenCalled();
+
+            start();
+            attach();
+            stop();
+            expect(mocks.inspectionStop).toHaveBeenCalledTimes(3);
+            expect(mocks.bridgeCleanup).toHaveBeenCalledTimes(1);
         });
 
         it('should take the content itself as the site when it is one', () => {
@@ -398,6 +492,7 @@ describe('wizardPageEditor.service', () => {
             initWizardPageModel({ site: SITE, defaultModels: modelsOf('default') as never });
             updateWizardPageModel(persisted as Content);
             attach();
+            view.setModel.mockClear();
         });
 
         it('should reload when the template the page uses changes', async () => {
@@ -504,6 +599,7 @@ describe('wizardPageEditor.service', () => {
             initWizardPageModel({ site: SITE, defaultModels: modelsOf('default') as never });
             updateWizardPageModel(persisted as Content);
             attach();
+            view.setModel.mockClear();
         });
 
         it('should reload when the template the page uses is deleted', async () => {
@@ -550,5 +646,65 @@ describe('wizardPageEditor.service', () => {
             expect(view.loadPage).toHaveBeenCalledTimes(1);
             expect(mocks.handleError).toHaveBeenCalledTimes(1);
         });
+    });
+
+    describe('component reload', () => {
+        beforeEach(() => {
+            attach();
+            mocks.log = [];
+        });
+
+        it('should save without reloading the page, then reload the component in place', async () => {
+            mocks.inlineEditing = true;
+
+            mocks.componentReload?.('path', true);
+            expect(await loadWizardPage()).toBe(false);
+            await flush();
+
+            expect(mocks.save).toHaveBeenCalledWith({ reloadPageEditor: false });
+            expect(view.loadComponent).toHaveBeenCalledWith('path', true);
+            expect(view.loadPage).not.toHaveBeenCalled();
+        });
+
+        it('should reload the whole page when the editor is not editing in place', async () => {
+            mocks.componentReload?.('path', false);
+            await flush();
+
+            expect(view.loadComponent).not.toHaveBeenCalled();
+            expect(view.loadPage).toHaveBeenCalledTimes(1);
+        });
+
+        it('should allow page loads again after a failed save', async () => {
+            mocks.save.mockRejectedValue(new Error('nope'));
+
+            mocks.componentReload?.('path', true);
+            await flush();
+
+            expect(mocks.handleError).toHaveBeenCalledTimes(1);
+            mocks.renderable = true;
+            expect(await loadWizardPage()).toBe(true);
+        });
+
+        it('should do nothing without a wizard controller', async () => {
+            mocks.hasController = false;
+
+            mocks.componentReload?.('path', true);
+            await flush();
+
+            expect(mocks.save).not.toHaveBeenCalled();
+            mocks.renderable = true;
+            expect(await loadWizardPage()).toBe(true);
+        });
+
+        it('should stop listening for component reloads when the wizard stops', () => {
+            stop();
+
+            expect(mocks.componentReload).toBeUndefined();
+        });
+    });
+
+    it('should not load a page before the editor exists', async () => {
+        expect(await loadWizardPage()).toBe(false);
+        expect(view.loadPage).not.toHaveBeenCalled();
     });
 });

@@ -82,6 +82,7 @@ import {
     handleWizardOtherContentUpdated,
     handleWizardTemplatesDeleted,
     initWizardPageModel,
+    loadWizardPage,
     reloadWizardPageEditorAfterSave,
     startWizardPageEditor,
     updateWizardPageModel,
@@ -740,7 +741,7 @@ export class ContentWizardPanel extends Panel {
             if (this.getPersistedItem()?.getPage()) {
                 this.saveChanges().catch(DefaultErrorHandler.handle);
             } else {
-                void this.getLivePanel()?.loadPage();
+                void loadWizardPage();
             }
         });
 
@@ -756,23 +757,25 @@ export class ContentWizardPanel extends Panel {
         });
 
         PageEventsManager.get().onPageReloadRequested(() => {
-            this.getLivePanel()?.loadPage();
+            void loadWizardPage();
         });
 
         let firstLoad = true;
         ViewExtensionEvent.on((event: ViewExtensionEvent) => {
-            this.getLivePanel()
-                ?.loadPage()
-                .then(() => {
-                    if (firstLoad) {
-                        if (ContentWizardPanel.debug) {
-                            console.debug('ContentWizardPanel.ViewWidgetEvent: first page load');
-                        }
-                        firstLoad = false;
-                        this.updateButtonsState();
-                        this.toggleClass('rendered', true);
+            if (!this.livePanel) {
+                return;
+            }
+
+            void loadWizardPage().then(() => {
+                if (firstLoad) {
+                    if (ContentWizardPanel.debug) {
+                        console.debug('ContentWizardPanel.ViewWidgetEvent: first page load');
                     }
-                });
+                    firstLoad = false;
+                    this.updateButtonsState();
+                    this.toggleClass('rendered', true);
+                }
+            });
         });
 
         PageState.getEvents().onPageUpdated((event: PageUpdatedEvent) => {
