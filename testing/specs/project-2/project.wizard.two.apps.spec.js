@@ -14,6 +14,11 @@ const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 const EditProjectDefaultLanguageStep = require('../../page_objects/project/project-wizard-dialog/edit.project.default.language.step');
 const EditProjectNameStep = require('../../page_objects/project/project-wizard-dialog/edit.project.name.step');
+const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
+const SettingsItemStatisticsPanel = require('../../page_objects/project/settings.item.statistics.panel');
+const ContentWizardPanel = require('../../page_objects/wizardpanel/content.wizard.panel');
+const ContentBrowsePanel = require('../../page_objects/browsepanel/content.browse.panel');
+const imageFiles = require('../../libs/image.files');
 
 describe('project.wizard.two.apps.spec - Select 2 applications in project wizard', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -29,6 +34,9 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         appConst.TEST_APPS_NAME.APP_CONTENT_TYPES,
         appConst.TEST_APPS_NAME.TEST_APP_WITH_METADATA_MIXIN,
     ];
+    // Inputs in the config form of 'All Content Types App':
+    const BACKGROUND_IMAGE_LABEL = 'Background image';
+    const POSTS_FOLDER_LABEL = 'Posts folder';
 
     it(`GIVEN project with two selected apps is opened THEN expected application should be present in the wizard page`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -214,6 +222,156 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         // 8. Close the config dialog, the Applications step should be displayed again:
         await configDialog.clickOnCloseButton();
         await applicationsStep.waitForLoaded();
+    });
+
+    // Project's applications should be displayed in Settings Statistics Panel #7655
+    // https://github.com/enonic/app-contentstudio/issues/7655
+    it(`GIVEN layer with inherited apps is selected WHEN language has been copied from the parent AND 'Editor' role has been added THEN the updates should be displayed in Statistics Panel`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
+        // 1. Click on the layer with inherited apps:
+        await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_WITH_INHERITED_APPS);
+        await settingsItemStatisticsPanel.waitForProjectStatisticsDisplayed();
+        // 2. Verify that both apps are displayed in the Statistics Panel:
+        await settingsItemStatisticsPanel.waitForApplicationDisplayed(PARENT_APPS[0]);
+        await settingsItemStatisticsPanel.waitForApplicationDisplayed(PARENT_APPS[1]);
+        let apps = await settingsItemStatisticsPanel.getApplications();
+        await studioUtils.saveScreenshot('layer_statistics_inherited_apps');
+        assert.deepEqual(apps, PARENT_APPS, 'Two applications should be displayed in Statistics Panel');
+        // 3. Verify the display name and the access mode:
+        let displayName = await settingsItemStatisticsPanel.getItemDisplayName();
+        assert.equal(displayName, LAYER_WITH_INHERITED_APPS, 'Expected display name should be displayed');
+        let accessMode = await settingsItemStatisticsPanel.getAccessMode();
+        assert.equal(accessMode, appConst.PROJECT_ACCESS_MODE.PRIVATE, `'Private' mode should be displayed`);
+        // 4. Click on 'Edit' button then click on 'Copy from parent' button in the language step:
+        await settingsBrowsePanel.clickOnEditButton();
+        let editProjectDefaultLanguageStep = new EditProjectDefaultLanguageStep();
+        await editProjectDefaultLanguageStep.waitForLoaded();
+        await editProjectDefaultLanguageStep.clickOnCopyFromParentButton(PROJECT_DISPLAY_NAME);
+        let language = await editProjectDefaultLanguageStep.getSelectedLanguage();
+        assert.equal(language, appConst.LANGUAGES.EN, 'The language of the parent project should be selected');
+        await editProjectDefaultLanguageStep.clickOnNextButton();
+        let editProjectNameStep = new EditProjectNameStep();
+        await editProjectNameStep.waitForLoaded();
+        await editProjectNameStep.clickOnNextButton();
+        let accessModeStep = new ProjectWizardDialogAccessModeStep();
+        await accessModeStep.waitForLoaded();
+        await accessModeStep.clickOnNextButton();
+        // 5. Add 'Super User' with 'Editor' role:
+        let projectRolesStep = new ProjectWizardDialogPermissionsStep();
+        await projectRolesStep.waitForLoaded();
+        await projectRolesStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
+        await projectRolesStep.updateUserAccessRole(
+            appConst.systemUsersDisplayName.SUPER_USER,
+            appConst.PROJECT_ROLES.EDITOR,
+        );
+        let role = await projectRolesStep.getRoleInSelectedPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
+        assert.equal(role, appConst.PROJECT_ROLES.EDITOR, `'Editor' role should be selected for Super User`);
+        await studioUtils.saveScreenshot('layer_wizard_editor_role_added');
+        await projectRolesStep.clickOnNextButton();
+        let applicationsStep = new ProjectWizardDialogApplicationsStep();
+        await applicationsStep.waitForLoaded();
+        await applicationsStep.clickOnNextButton();
+        // 6. Update the layer:
+        let summaryStep = new ProjectWizardDialogSummaryStep();
+        await summaryStep.waitForLoaded();
+        await summaryStep.clickOnUpdateProjectButton();
+        await summaryStep.waitForDialogClosed();
+        await studioUtils.saveScreenshot('layer_statistics_updated');
+        // 7. Verify that the updates are displayed in the Statistics Panel - the language:
+        let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
+        assert.equal(actualLanguage, appConst.LANGUAGES.EN, 'The copied language should be displayed');
+        // 8. 'Super User' should be displayed in 'Editors':
+        let editors = await settingsItemStatisticsPanel.getEditors();
+        assert.deepEqual(
+            editors,
+            [appConst.systemUsersDisplayName.SUPER_USER],
+            `'Super User' should be displayed in 'Editors'`,
+        );
+        // 9. The name, the access mode and the applications should not be changed:
+        displayName = await settingsItemStatisticsPanel.getItemDisplayName();
+        assert.equal(displayName, LAYER_WITH_INHERITED_APPS, 'Expected display name should be displayed');
+        accessMode = await settingsItemStatisticsPanel.getAccessMode();
+        assert.equal(accessMode, appConst.PROJECT_ACCESS_MODE.PRIVATE, `'Private' mode should be displayed`);
+        await settingsItemStatisticsPanel.waitForApplicationDisplayed(PARENT_APPS[0]);
+        await settingsItemStatisticsPanel.waitForApplicationDisplayed(PARENT_APPS[1]);
+        apps = await settingsItemStatisticsPanel.getApplications();
+        assert.deepEqual(apps, PARENT_APPS, 'Two applications should be displayed after the update');
+    });
+
+    it(`GIVEN layer with inherited apps is opened in the wizard WHEN the name of an inherited app has been typed in the options filter THEN the option should be disabled AND it is not possible to unselect the app`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        let applicationsStep = new ProjectWizardDialogApplicationsStep();
+        // 1. Click on the layer with inherited apps and click on 'Edit' button:
+        await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_WITH_INHERITED_APPS);
+        await settingsBrowsePanel.clickOnEditButton();
+        // 2. Go to the Applications step:
+        await goToApplicationsStepInEditWizard();
+        // 3. Insert the name of the inherited app in the options filter input:
+        await applicationsStep.filterOptions(PARENT_APPS[0]);
+        await studioUtils.saveScreenshot('layer_wizard_inherited_app_option');
+        // 4. Verify that the option is disabled and the checkbox is not displayed in the option:
+        let isDisabled = await applicationsStep.isOptionDisabled(PARENT_APPS[0]);
+        assert.ok(isDisabled, 'The option of the inherited application should be disabled');
+        let isCheckboxDisplayed = await applicationsStep.isCheckboxDisplayedInOption(PARENT_APPS[0]);
+        assert.ok(!isCheckboxDisplayed, 'Checkbox should not be displayed in the option of the inherited application');
+        // 5. Try to unselect the option - click on it:
+        await applicationsStep.tryToClickOnOption(PARENT_APPS[0]);
+        await studioUtils.saveScreenshot('layer_wizard_inherited_app_option_clicked');
+        // 6. 'Apply' button should not appear, the selection is not changed:
+        let isApplyDisplayed = await applicationsStep.isApplySelectionButtonDisplayed();
+        assert.ok(!isApplyDisplayed, `'Apply' button should not be displayed after clicking on the disabled option`);
+        // 7. Both inherited apps remain selected, 'Remove' icon is not displayed for the app:
+        let apps = await applicationsStep.getSelectedApplications();
+        assert.deepEqual(apps, PARENT_APPS, 'Both inherited applications should remain selected');
+        await applicationsStep.waitForRemoveAppIconNotDisplayed(PARENT_APPS[0]);
+    });
+
+    it(`GIVEN config dialog of an inherited app is opened in the layer WHEN an image has been uploaded AND new folder has been created by '+' button THEN both items should be present in the layer's context`, async () => {
+        let settingsBrowsePanel = new SettingsBrowsePanel();
+        let applicationsStep = new ProjectWizardDialogApplicationsStep();
+        let contentWizardPanel = new ContentWizardPanel();
+        let contentBrowsePanel = new ContentBrowsePanel();
+        const IMAGE_DISPLAY_NAME = studioUtils.generateRandomName('img');
+        const FOLDER_NAME = studioUtils.generateRandomName('folder');
+        const imagePath = imageFiles.writePng(IMAGE_DISPLAY_NAME);
+        // 1. Navigate to the Applications step in the layer with inherited apps:
+        await settingsBrowsePanel.clickOnRowByDisplayName(LAYER_WITH_INHERITED_APPS);
+        await settingsBrowsePanel.clickOnEditButton();
+        await goToApplicationsStepInEditWizard();
+        // 2. Click on the 'Edit' icon for 'All Content Types App':
+        let configDialog = await applicationsStep.clickOnEditAppIcon(PARENT_APPS[0]);
+        // 3. Upload an image in 'Background image' selector:
+        await configDialog.uploadImage(BACKGROUND_IMAGE_LABEL, imagePath);
+        // 4. Verify that the image is uploaded and selected in the image selector:
+        await configDialog.waitForImageSelected(BACKGROUND_IMAGE_LABEL, IMAGE_DISPLAY_NAME);
+        await studioUtils.saveScreenshot('layer_app_config_image_uploaded');
+        let selectedImages = await configDialog.getSelectedImages(BACKGROUND_IMAGE_LABEL);
+        assert.deepEqual(selectedImages, [IMAGE_DISPLAY_NAME], 'The uploaded image should be selected');
+        // 5. Click on '+' button in 'Posts folder' selector - folder wizard should be opened in the new browser tab:
+        await configDialog.clickOnAddNewContentButton(POSTS_FOLDER_LABEL);
+        await studioUtils.doSwitchToNewWizard();
+        // 6. Verify that the layer is displayed in the left corner of the content wizard:
+        // the language was copied from the parent in the previous test, so the label is 'layer (en)':
+        const LAYER_LABEL = `${LAYER_WITH_INHERITED_APPS} (en)`;
+        let projectName = await contentWizardPanel.getProjectDisplayName();
+        assert.equal(projectName, LAYER_LABEL, 'The layer should be displayed in the wizard toolbar');
+        // 7. Type the name and save the folder:
+        await contentWizardPanel.typeDisplayName(FOLDER_NAME);
+        await contentWizardPanel.waitAndClickOnSave();
+        await studioUtils.saveScreenshot('layer_app_config_folder_saved');
+        // 8. Click on the button with the layer's name and go to the browse panel:
+        await contentWizardPanel.clickOnNavigateToBrowsePanelButton(LAYER_LABEL);
+        // 9. Verify that the image and the folder are present in the layer's context:
+        await contentBrowsePanel.waitForContentDisplayed(FOLDER_NAME);
+        await contentBrowsePanel.waitForContentDisplayed(`${IMAGE_DISPLAY_NAME}.png`);
+        await studioUtils.saveScreenshot('layer_context_image_and_folder');
+        let currentProject = await contentBrowsePanel.getCurrentProjectDisplayName();
+        assert.ok(currentProject.includes(LAYER_WITH_INHERITED_APPS), "The layer's context should be loaded");
+        let displayNames = await contentBrowsePanel.getDisplayNamesInGrid();
+        assert.equal(displayNames.length, 2, 'Two items should be present in the grid');
+        assert.ok(displayNames.includes(IMAGE_DISPLAY_NAME), 'The uploaded image should be present in the grid');
+        assert.ok(displayNames.includes(FOLDER_NAME), 'The new folder should be present in the grid');
     });
 
     it('Post conditions: the layer should be deleted', async () => {

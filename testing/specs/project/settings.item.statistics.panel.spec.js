@@ -146,11 +146,11 @@ describe('settings.item.statistics.panel.spec - verify an info in item statistic
         await settingsItemStatisticsPanel.waitForGraphicElementDisplayed(PROJECT_DISPLAY_NAME);
         // 3. Verify the identifier and the language in the card:
         let identifier = await settingsItemStatisticsPanel.getGraphicElementId(PROJECT_DISPLAY_NAME);
-        //assert.equal(
-        //   identifier,
-        //    `${PROJECT_DISPLAY_NAME} (en)`,
-        //    'Identifier and language of the project should be displayed in the card',
-        //);
+        assert.equal(
+            identifier,
+            `${PROJECT_DISPLAY_NAME} (en)`,
+            'Identifier and language of the project should be displayed in the card',
+        );
     });
 
     // multiInheritance = false
