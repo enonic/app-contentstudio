@@ -72,8 +72,8 @@
   "devDependencies": {
     "@enonic/lib-admin-ui": "link:.xp/dev/lib-admin-ui",
     "@radix-ui/react-slot": "^1.4.0",
-    "@rspack/cli": "^2.3.1",
-    "@rspack/core": "^2.3.1",
+    "@rspack/cli": "^2.3.2",
+    "@rspack/core": "^2.3.2",
     "@swc/cli": "^0.8.2",
     "@swc/core": "^1.16.22",
     "@tailwindcss/vite": "^4.3.5",
