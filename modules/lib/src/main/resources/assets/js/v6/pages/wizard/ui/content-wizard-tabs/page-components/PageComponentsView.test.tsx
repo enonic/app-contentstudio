@@ -2,7 +2,11 @@ import { act, fireEvent, render } from '@testing-library/preact';
 import { atom, computed } from 'nanostores';
 import { ok, type Result } from 'neverthrow';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import type { Descriptor } from '../../../../../../app/page/Descriptor';
+import type { Page } from '../../../../../../app/page/Page';
+import { FragmentComponentBuilder } from '../../../../../../app/page/region/FragmentComponent';
 import type { PageEditorContentContext } from '../../../../../widgets/inspectors/model/page-editor/types';
 import {
     deferred,
@@ -122,7 +126,8 @@ vi.mock('@enonic/ui', async (importOriginal) => ({
     getIsMobile: () => false,
 }));
 
-import { $contentContext } from '../../../../../widgets/inspectors/model/page-editor/store';
+import { $contentContext, $page } from '../../../../../widgets/inspectors/model/page-editor/store';
+import { $fragmentOptions } from '../../../../../widgets/inspectors/model/fragment-inspection.store';
 import {
     start as startComponentInspectionService,
     stop as stopComponentInspectionService,
@@ -133,6 +138,8 @@ describe('PageComponentsView inspection wiring', () => {
     afterEach(() => {
         stopComponentInspectionService();
         $contentContext.set(null);
+        $page.set(null);
+        $fragmentOptions.set([]);
         vi.unstubAllGlobals();
         loadComponentDescriptors.mockReset();
         loadComponentDescriptor.mockReset();
@@ -181,6 +188,24 @@ describe('PageComponentsView inspection wiring', () => {
         await vi.waitFor(() => expect(loadComponentDescriptors).toHaveBeenCalledTimes(4));
         await act(async () => pendingPart.resolve(ok([part])));
         expect(container.querySelector('img[src="/hero.svg"]')).toBe(image);
+    });
+
+    it('should name a fragment row after its fragment content and fall back to the component name', async () => {
+        const fragment = new FragmentComponentBuilder().setFragment(new ContentId('fragment-id')).build();
+        const summary = { getId: () => 'fragment-id', getDisplayName: () => 'Renamed' } as ContentSummary;
+        vi.stubGlobal('requestAnimationFrame', () => 1);
+        vi.stubGlobal('cancelAnimationFrame', vi.fn());
+        $page.set({ getComponentByPath: () => fragment } as unknown as Page);
+        $fragmentOptions.set([summary]);
+
+        const { container } = render(<PageComponentsView />);
+
+        expect(container.textContent).toContain('Renamed');
+        expect(container.textContent).not.toContain('Hero');
+
+        act(() => $fragmentOptions.set([]));
+
+        await vi.waitFor(() => expect(container.textContent).toContain('Hero'));
     });
 
     it('retries a failed part icon after the descriptors refresh', async () => {

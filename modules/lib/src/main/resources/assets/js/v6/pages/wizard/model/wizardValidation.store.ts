@@ -21,6 +21,7 @@ import type { Form } from '@enonic/input-types/schema';
 import { Input } from '@enonic/input-types/schema';
 import type { Descriptor } from '../../../../app/page/Descriptor';
 import { DescriptorBasedComponent } from '../../../../app/page/region/DescriptorBasedComponent';
+import { FragmentComponent } from '../../../../app/page/region/FragmentComponent';
 import { LayoutComponent } from '../../../../app/page/region/LayoutComponent';
 import type { Region } from '../../../../app/page/region/Region';
 import {
@@ -40,6 +41,7 @@ import {
     $layoutDescriptorOptions,
     $partDescriptorOptions,
 } from '../../../widgets/inspectors/model/component-inspection.store';
+import { $fragmentOptions } from '../../../widgets/inspectors/model/fragment-inspection.store';
 import { $applications } from '../../../entities/application';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { instanceOf } from '../../../shared/lib/object/instanceOf';
@@ -195,7 +197,13 @@ function validateComponentConfigs(): Set<string> {
     const partDescriptors = $partDescriptorOptions.get();
     const layoutDescriptors = $layoutDescriptorOptions.get();
     const allDescriptors = [...partDescriptors, ...layoutDescriptors];
-    if (allDescriptors.length === 0) return new Set();
+    // The server validates a fragment content; its summary carries the result.
+    const invalidFragmentIds = new Set(
+        $fragmentOptions
+            .get()
+            .filter((fragment) => !fragment.isValid())
+            .map((fragment) => fragment.getId()),
+    );
 
     const invalidPaths = new Set<string>();
 
@@ -211,13 +219,13 @@ function validateComponentConfigs(): Set<string> {
         if (fragment instanceof LayoutComponent) {
             const regions = fragment.getRegions()?.getRegions() ?? [];
             for (const region of regions) {
-                validateRegionComponents(region, '/', allDescriptors, invalidPaths);
+                validateRegionComponents(region, '/', allDescriptors, invalidFragmentIds, invalidPaths);
             }
         }
     } else {
         const regions = page.getRegions()?.getRegions() ?? [];
         for (const region of regions) {
-            validateRegionComponents(region, '/', allDescriptors, invalidPaths);
+            validateRegionComponents(region, '/', allDescriptors, invalidFragmentIds, invalidPaths);
         }
     }
 
@@ -228,6 +236,7 @@ function validateRegionComponents(
     region: Region,
     parentPath: string,
     descriptors: Descriptor[],
+    invalidFragmentIds: ReadonlySet<string>,
     invalidPaths: Set<string>,
 ): void {
     const regionPath = parentPath === '/' ? `/${region.getName()}` : `${parentPath}/${region.getName()}`;
@@ -239,10 +248,18 @@ function validateRegionComponents(
             validateComponent(component, componentPath, descriptors, invalidPaths);
         }
 
+        if (
+            component instanceof FragmentComponent &&
+            component.hasFragment() &&
+            invalidFragmentIds.has(component.getFragment().toString())
+        ) {
+            invalidPaths.add(componentPath);
+        }
+
         if (component instanceof LayoutComponent) {
             const layoutRegions = component.getRegions()?.getRegions() ?? [];
             for (const layoutRegion of layoutRegions) {
-                validateRegionComponents(layoutRegion, componentPath, descriptors, invalidPaths);
+                validateRegionComponents(layoutRegion, componentPath, descriptors, invalidFragmentIds, invalidPaths);
             }
         }
     });
@@ -317,6 +334,12 @@ function setupSubscriptions(): void {
 
     subscriptions.push(
         $partDescriptorOptions.subscribe(() => {
+            debouncedRunValidation();
+        }),
+    );
+
+    subscriptions.push(
+        $fragmentOptions.subscribe(() => {
             debouncedRunValidation();
         }),
     );

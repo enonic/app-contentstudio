@@ -3,15 +3,23 @@ import { Input } from '@enonic/input-types/schema';
 import { type FormValidationResult, validateForm } from '@enonic/input-types';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentBuilder, type Content } from '../../../../app/content/Content';
+import { ContentId } from '../../../../app/content/ContentId';
 import { ContentName } from '../../../../app/content/ContentName';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { Mixin } from '../../../../app/content/Mixin';
 import type { MixinDescriptor } from '../../../../app/content/MixinDescriptor';
 import { MixinName } from '../../../../app/content/MixinName';
 import { Workflow } from '../../../../app/content/Workflow';
 import { WorkflowState } from '../../../../app/content/WorkflowState';
 import type { ContentType } from '../../../../app/inputtype/schema/ContentType';
+import { PageBuilder, type Page } from '../../../../app/page/Page';
+import { FragmentComponentBuilder } from '../../../../app/page/region/FragmentComponent';
+import { LayoutComponentBuilder } from '../../../../app/page/region/LayoutComponent';
+import { Region } from '../../../../app/page/region/Region';
+import { Regions } from '../../../../app/page/region/Regions';
 import { ValidationError } from '@enonic/lib-admin-ui/ValidationError';
 import {
+    $wizardDataValidation,
     $wizardDataVersion,
     $wizardDraftData,
     $wizardPersistedData,
@@ -22,6 +30,7 @@ import {
 import {
     $attachmentServerErrorEntries,
     $generalServerErrorMessages,
+    $invalidComponentPaths,
     $invalidTabs,
     $dataServerErrorEntries,
     $validationVisibility,
@@ -34,6 +43,8 @@ import {
     resetValidation,
     setServerValidationErrors,
 } from './wizardValidation.store';
+import { $fragmentOptions } from '../../../widgets/inspectors/model/fragment-inspection.store';
+import { $page } from '../../../widgets/inspectors/model/page-editor/store';
 import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';
 import { toLegacyContentTypeName } from '../../../shared/lib/cms/schema/legacy';
 
@@ -127,6 +138,23 @@ function createContent({
     builder.setWorkflow(workflow);
 
     return builder.build();
+}
+
+function fragmentSummary(id: string, valid: boolean): ContentSummary {
+    return { getId: () => id, isValid: () => valid } as ContentSummary;
+}
+
+function fragmentRegion(name: string, fragmentIds: string[]): Region {
+    return Region.create()
+        .setName(name)
+        .setComponents(fragmentIds.map((id) => new FragmentComponentBuilder().setFragment(new ContentId(id)).build()))
+        .build();
+}
+
+function pageWithFragments(...fragmentIds: string[]): Page {
+    return new PageBuilder()
+        .setRegions(Regions.create().addRegion(fragmentRegion('main', fragmentIds)).build())
+        .build();
 }
 
 function setupWizard({
@@ -591,6 +619,79 @@ describe('wizardValidation.store', () => {
             resetValidation();
 
             expect($generalServerErrorMessages.get()).toEqual([]);
+        });
+    });
+
+    describe('referenced fragments', () => {
+        const isWizardFormInvalid = (): boolean => Object.keys($wizardDataValidation.get()).length > 0;
+
+        afterEach(() => {
+            $page.set(null);
+            $fragmentOptions.set([]);
+        });
+
+        it('should mark a fragment component invalid when its fragment content is invalid', () => {
+            $page.set(pageWithFragments('valid-id', 'invalid-id'));
+            $fragmentOptions.set([fragmentSummary('valid-id', true), fragmentSummary('invalid-id', false)]);
+
+            setupWizard();
+
+            expect([...$invalidComponentPaths.get()]).toEqual(['/main/1']);
+            expect($invalidTabs.get().has('page')).toBe(true);
+            expect(isWizardFormInvalid()).toBe(true);
+        });
+
+        it('should keep the page valid when every referenced fragment is valid', () => {
+            $page.set(pageWithFragments('valid-id'));
+            $fragmentOptions.set([fragmentSummary('valid-id', true)]);
+
+            setupWizard();
+
+            expect($invalidComponentPaths.get().size).toBe(0);
+            expect($invalidTabs.get().has('page')).toBe(false);
+            expect(isWizardFormInvalid()).toBe(false);
+        });
+
+        it('should ignore invalid fragments that the page does not reference', () => {
+            $page.set(pageWithFragments('valid-id', 'unknown-id'));
+            $fragmentOptions.set([fragmentSummary('valid-id', true), fragmentSummary('other-id', false)]);
+
+            setupWizard();
+
+            expect($invalidComponentPaths.get().size).toBe(0);
+        });
+
+        it('should mark an invalid fragment nested in a layout', () => {
+            const layout = new LayoutComponentBuilder()
+                .setRegions(
+                    Regions.create()
+                        .addRegion(fragmentRegion('left', ['invalid-id']))
+                        .build(),
+                )
+                .build();
+            const main = Region.create().setName('main').setComponents([layout]).build();
+            $page.set(new PageBuilder().setRegions(Regions.create().addRegion(main).build()).build());
+            $fragmentOptions.set([fragmentSummary('invalid-id', false)]);
+
+            setupWizard();
+
+            expect([...$invalidComponentPaths.get()]).toEqual(['/main/0/left/0']);
+        });
+
+        it('should re-validate when the fragment summaries change', () => {
+            $page.set(pageWithFragments('fragment-id'));
+            $fragmentOptions.set([fragmentSummary('fragment-id', false)]);
+            setupWizard();
+            // Drain the validation queued by setup, so only the summary change can schedule one.
+            flushValidation();
+            expect($invalidTabs.get().has('page')).toBe(true);
+
+            $fragmentOptions.set([fragmentSummary('fragment-id', true)]);
+            flushValidation();
+
+            expect($invalidComponentPaths.get().size).toBe(0);
+            expect($invalidTabs.get().has('page')).toBe(false);
+            expect(isWizardFormInvalid()).toBe(false);
         });
     });
 });

@@ -21,7 +21,10 @@ import {
     useRef,
     useState,
 } from 'react';
+import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
+import type { Page } from '../../../../../../app/page/Page';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
+import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
 import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
@@ -111,6 +114,10 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
         [areFragmentsResolved, arePartsResolved, areLayoutsResolved],
     );
     const [flatNodes, setFlatNodes] = useState(() => [...$componentsFlatNodes.get()]);
+    const namedNodes = useMemo(
+        () => withFragmentNames(flatNodes, page, fragmentOptions),
+        [flatNodes, page, fragmentOptions],
+    );
     // The roving tab stop follows real focus while the list has it, and falls back to the
     // inspected row once focus leaves, so tabbing back in lands on the selected component.
     const tabStopNodeId = useMemo(() => {
@@ -442,9 +449,9 @@ export const PageComponentsView = ({ showTitle = false }: PageComponentsViewProp
                 onKeyDownCapture={handleKeyDownCapture}
             >
                 {showTitle && <h3 className="text-base font-semibold">{componentsLabel}</h3>}
-                <PageComponentsContextMenu nodes={flatNodes}>
+                <PageComponentsContextMenu nodes={namedNodes}>
                     <SortableList
-                        items={flatNodes}
+                        items={namedNodes}
                         keyExtractor={(node) => node.data?.dragId ?? node.id}
                         onDragStart={handleDragStart}
                         onMove={handleMove}
@@ -472,6 +479,24 @@ PageComponentsView.displayName = PAGE_COMPONENTS_VIEW_NAME;
 //
 // * Internal
 //
+
+// The name on a fragment component is resolved on load; its summary follows later renames.
+function withFragmentNames(
+    nodes: FlatNode<PageComponentNodeData>[],
+    page: Page | null,
+    fragments: ContentSummary[],
+): FlatNode<PageComponentNodeData>[] {
+    if (page == null || fragments.length === 0) return nodes;
+
+    return nodes.map((node) => {
+        const component = page.getComponentByPath(ComponentPath.fromString(node.id));
+        if (node.data == null || !(component instanceof FragmentComponent) || !component.hasFragment()) return node;
+
+        const fragmentId = component.getFragment().toString();
+        const displayName = fragments.find((fragment) => fragment.getId() === fragmentId)?.getDisplayName();
+        return displayName ? { ...node, data: { ...node.data, displayName } } : node;
+    });
+}
 
 // Projects the flattened tree onto the drop model: regions are containers, every
 // other node (page, parts, layouts, text, fragments) is a draggable item.
