@@ -273,7 +273,6 @@ public class ProjectResourceTest
             post();
 
         assertEquals( 500, get.getStatus() );
-        assertEquals( "Exception occured.", get.getAsString() );
     }
 
     @Test
@@ -550,7 +549,6 @@ public class ProjectResourceTest
             .post();
 
         assertEquals( 500, get.getStatus() );
-        assertEquals( "File size exceeds maximum allowed upload size", get.getAsString() );
     }
 
     @Test

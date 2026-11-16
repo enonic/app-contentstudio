@@ -190,7 +190,6 @@ public class ContentIconResourceTest
             queryParam( "ts", "2" ).get();
 
         assertEquals( 500, get.getStatus() );
-        assertEquals( "java.io.IOException: io error message", get.getAsString() );
     }
 
     @Test

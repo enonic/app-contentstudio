@@ -15,6 +15,7 @@ apis:
   - "export"
   - "import-content"
   - "media:image"
+  - "media:attachment"
   - "styles"
   - "admin:events"
   - "admin:extension"

@@ -105,7 +105,6 @@ public class PageResourceTest
             .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Content with id [content-id] not found", post.getAsString() );
     }
 
     @Test

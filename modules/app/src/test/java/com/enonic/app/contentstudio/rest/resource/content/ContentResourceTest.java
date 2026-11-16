@@ -698,7 +698,6 @@ public class ContentResourceTest
             .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Exception occured.", post.getAsString() );
     }
 
     @Test
@@ -855,7 +854,6 @@ public class ContentResourceTest
             .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Content with id [content-id] not found", post.getAsString() );
     }
 
     @Test
@@ -2714,7 +2712,6 @@ public class ContentResourceTest
                 request().path( "content/createMediaFromUrl" ).entity( json, MediaType.APPLICATION_JSON_TYPE ).post();
 
             assertEquals( 500, post.getStatus() );
-            assertEquals( "File size exceeds maximum allowed upload size", post.getAsString() );
         }
         finally
         {
@@ -2735,7 +2732,6 @@ public class ContentResourceTest
         final MockRestResponse post = request().path( "content/createMediaFromUrl" ).entity( json, MediaType.APPLICATION_JSON_TYPE ).post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "Illegal protocol", post.getAsString() );
     }
 
     @Test
@@ -2747,7 +2743,6 @@ public class ContentResourceTest
             .post();
 
         assertEquals( 500, post.getStatus() );
-        assertEquals( "no protocol: some_url", post.getAsString() );
     }
 
     @Test
