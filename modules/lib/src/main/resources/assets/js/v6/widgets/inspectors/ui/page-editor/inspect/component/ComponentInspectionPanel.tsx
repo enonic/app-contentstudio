@@ -4,7 +4,7 @@ import { type ReactElement, useMemo } from 'react';
 import { DescriptorBasedComponent } from '../../../../../../../app/page/region/DescriptorBasedComponent';
 import { FormRenderer } from '../../../../../../features/shared/form/FormRenderer';
 import { getAiFieldRegistry } from '../../../../../../features/ai/ai.field-registry';
-import { $contentContext, $inspectedItem, $inspectedPath, $isPageLocked } from '../../../../model/page-editor';
+import { $inspectedItem, $inspectedPath, $isPageLocked } from '../../../../model/page-editor';
 import { $componentConfigDescriptor } from '../../../../model/component-inspection.store';
 import { useInspectFormTracking } from '../useInspectFormTracking';
 import { ComponentDescriptorSelector } from './ComponentDescriptorSelector';
@@ -18,7 +18,6 @@ const COMPONENT_INSPECTION_PANEL_NAME = 'ComponentInspectionPanel';
 export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionPanelProps): ReactElement | null => {
     const item = useStore($inspectedItem);
     const inspectedPath = useStore($inspectedPath);
-    const ctx = useStore($contentContext);
     const isPageLocked = useStore($isPageLocked);
     const descriptor = useStore($componentConfigDescriptor);
 
@@ -26,6 +25,7 @@ export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionP
     const hasDescriptor = isDescriptorComponent && item.hasDescriptor();
     const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasDescriptor ? (item.getConfig()?.getRoot() ?? null) : null;
+    const applicationKey = hasDescriptor ? item.getDescriptorKey().getApplicationKey().toString() : undefined;
     const fieldRegistry = useMemo(() => getAiFieldRegistry('page'), []);
 
     // Component may share descriptor key, so make it unique
@@ -48,7 +48,7 @@ export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionP
                         form={configForm}
                         propertySet={configRoot}
                         enabled={!isPageLocked}
-                        applicationKey={ctx?.applicationKey ?? undefined}
+                        applicationKey={applicationKey}
                     />
                 </FieldRegistryProvider>
             )}
