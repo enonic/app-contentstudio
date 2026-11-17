@@ -3,7 +3,6 @@ import { type Element } from '@enonic/lib-admin-ui/dom/Element';
 import { type IFrameEl } from '@enonic/lib-admin-ui/dom/IFrameEl';
 import { type Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { StatusCode } from '@enonic/lib-admin-ui/rest/StatusCode';
-import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { type Mask } from '@enonic/lib-admin-ui/ui/mask/Mask';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { readResolvedTheme, subscribeResolvedTheme } from '@enonic/ui-utils';
@@ -132,7 +131,6 @@ export class ExtensionRenderingHandler {
         if (pending) {
             if (request.id === this.shownRequestId) return;
             this.shownRequestId = request.id;
-            this.renderer.getPreviewAction()?.setEnabled(false);
             if (request.showFrame) {
                 this.showMask();
             }
@@ -213,7 +211,6 @@ export class ExtensionRenderingHandler {
     }
 
     protected handlePreviewSuccess(result: Extract<PreviewResult, { kind: 'ready' }>) {
-        this.renderer.getPreviewAction()?.setEnabled(true);
         this.setPreviewType(PREVIEW_TYPE.SUCCESS);
 
         if (!result.showFrame) {
@@ -391,8 +388,6 @@ export interface ExtensionRenderer extends Element {
     getIFrameEl(): IFrameEl;
 
     getChildrenContainer(): DivEl;
-
-    getPreviewAction(): Action;
 
     getMask(): Mask;
 }

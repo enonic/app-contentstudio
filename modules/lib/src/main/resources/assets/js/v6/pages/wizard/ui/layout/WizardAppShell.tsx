@@ -13,9 +13,12 @@ import { UnpublishDialog } from '../../../../features/unpublish/ui/UnpublishDial
 import { PermissionsDialog } from '../../../../features/permissions/ui/PermissionsDialog';
 import { NewContentDialog } from '../../../../features/new-content/ui/NewContentDialog';
 import { DetachedPageComponentsView } from './detached-page-components/DetachedPageComponentsView';
+import { useWizardShortcuts } from '../useWizardShortcuts';
 import { PageResetDialog } from './PageResetDialog';
 
 export const WizardAppShell = (): ReactElement => {
+    useWizardShortcuts();
+
     return (
         <>
             {/* Shared dialogs */}

@@ -1,6 +1,4 @@
-import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type Property, PropertyPath } from '@enonic/input-types/data';
-import { CompareStatusChecker } from '../../../app/content/CompareStatus';
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { DescriptorBasedComponent } from '../../../app/page/region/DescriptorBasedComponent';
 import type { PageItem } from '../../../app/page/region/PageItem';
@@ -8,7 +6,7 @@ import { TextComponent } from '../../../app/page/region/TextComponent';
 import { PageState } from '../../../app/wizard/page/PageState';
 import { isBlank } from '../../shared/lib/format/isBlank';
 import type { AiFieldPath } from './ai-protocol';
-import { $aiCompareStatus, $aiContentHeader, $aiDataTree, $aiWizardBridge } from './ai.store';
+import { $aiDataTree, $aiWizardBridge } from './ai.store';
 
 //
 // * Value writes
@@ -37,39 +35,15 @@ export function setAiValueAtPath(path: AiFieldPath, text: string): boolean {
 function handleTopicEvent(text: string): boolean {
     // The v6 DisplayNameInput renders from the wizard draft display-name atom. The
     // bridge is the only way to reach it without re-introducing a wizardContent →
-    // ai → wizardContent module cycle. The legacy header is kept in sync so any
-    // remaining legacy consumers (name auto-generation) keep working.
+    // ai → wizardContent module cycle.
     const bridge = $aiWizardBridge.get();
     if (!bridge) {
         return false;
     }
 
-    const currentDisplayName = bridge.getCurrentDisplayName() ?? '';
     bridge.applyDisplayName(text);
 
-    const header = $aiContentHeader.get();
-    if (header) {
-        if (isAllowedToChangeName(text, currentDisplayName)) {
-            // Reset name to trigger name generation after updating displayName.
-            header.setName('', true);
-        }
-        header.setDisplayName(text);
-    }
-
     return true;
-}
-
-function isAllowedToChangeName(text: string, currentDisplayName: string): boolean {
-    const status = $aiCompareStatus.get();
-    if (status == null) {
-        return false;
-    }
-
-    return (
-        !isBlank(text) &&
-        !ObjectHelper.stringEquals(text?.trim(), currentDisplayName) &&
-        CompareStatusChecker.isNew(status)
-    );
 }
 
 function handleDataEvent(field: string, text: string): boolean {

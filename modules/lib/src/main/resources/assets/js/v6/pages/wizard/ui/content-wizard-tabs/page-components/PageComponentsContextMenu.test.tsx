@@ -17,8 +17,8 @@ vi.mock('@enonic/ui', async (importOriginal) => ({
     ...(await importOriginal<typeof import('@enonic/ui')>()),
     getIsMobile: () => false,
 }));
-vi.mock('../../../../../../app/wizard/action/SaveAsTemplateAction', () => ({
-    SaveAsTemplateAction: { get: vi.fn() },
+vi.mock('../../../model/wizardPageTemplate.commands', () => ({
+    saveWizardPageAsTemplate: vi.fn(),
 }));
 vi.mock('../../../../../shared/lib/hooks/useI18n', () => ({
     useI18n: (key: string) => key,

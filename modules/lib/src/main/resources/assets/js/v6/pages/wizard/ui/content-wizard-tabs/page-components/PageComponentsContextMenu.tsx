@@ -2,7 +2,7 @@ import { ContextMenu, getIsMobile } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Box, Columns2, PenLine, Puzzle } from 'lucide-react';
 import { type ReactElement, type ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
-import { SaveAsTemplateAction } from '../../../../../../app/wizard/action/SaveAsTemplateAction';
+import { saveWizardPageAsTemplate } from '../../../model/wizardPageTemplate.commands';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
 import { ComponentType } from '../../../../../../app/page/region/ComponentType';
@@ -218,7 +218,7 @@ const SaveAsTemplateItem = ({ label }: { label: string }): ReactElement => {
     const contentContext = useStore($contentContext);
 
     const handleSelect = useCallback(() => {
-        SaveAsTemplateAction.get().execute();
+        saveWizardPageAsTemplate();
     }, []);
 
     if (isFragment || contentContext?.isPageTemplate) {
