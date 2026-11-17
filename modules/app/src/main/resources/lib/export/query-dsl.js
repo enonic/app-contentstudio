@@ -111,12 +111,42 @@ const createLangDSLQuery = (lang) => {
 }
 
 const createWorkflowDSLQuery = (state) => {
+    const states = state.split(',');
+    const workflowStates = states.filter((value) => value !== 'modified');
+    const queries = [];
+
+    if (workflowStates.length > 0) {
+        queries.push({
+            "in": {
+                "field": "workflow.state",
+                "values": workflowStates.map((value) => value.toUpperCase())
+            }
+        });
+    }
+
+    if (workflowStates.length < states.length) {
+        queries.push(createModifiedDSLQuery());
+    }
+
+    return {
+        "boolean": {
+            "should": queries
+        }
+    }
+}
+
+// 'modified' is not a workflow state: it is published content without 'publish.time'
+const createModifiedDSLQuery = () => {
     return {
         "boolean": {
             "must": {
-                "in": {
-                    "field": "workflow.state",
-                    "values": state.toUpperCase().split(',')
+                "exists": {
+                    "field": "publish.from"
+                }
+            },
+            "mustNot": {
+                "exists": {
+                    "field": "publish.time"
                 }
             }
         }
