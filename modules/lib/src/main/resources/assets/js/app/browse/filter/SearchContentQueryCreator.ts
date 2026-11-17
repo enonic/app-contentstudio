@@ -20,7 +20,7 @@ import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import {i18n} from '@enonic/lib-admin-ui/util/Messages';
 import {type ContentId} from '../../content/ContentId';
 import {ContentAggregation} from './ContentAggregation';
-import {WorkflowState} from '../../content/WorkflowState';
+import {MODIFIED_BUCKET_KEY, WorkflowState} from '../../content/WorkflowState';
 
 export class SearchContentQueryCreator {
 
@@ -257,6 +257,11 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((bucket: Bucket) => {
+            if (bucket.getKey() === MODIFIED_BUCKET_KEY) {
+                booleanFilter.addShould(this.createModifiedFilter());
+                return;
+            }
+
             booleanFilter.addShould(new ValueFilter('workflow.state',bucket.getKey().toUpperCase()));
 
             if (bucket.key === WorkflowState.READY.toString()) {
@@ -265,6 +270,13 @@ export class SearchContentQueryCreator {
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);
+    }
+
+    private createModifiedFilter(): BooleanFilter {
+        const modifiedFilter: BooleanFilter = new BooleanFilter();
+        modifiedFilter.addMust(new ExistsFilter('publish.from'));
+        modifiedFilter.addMustNot(new ExistsFilter('publish.time'));
+        return modifiedFilter;
     }
 
     private createWorkflowNotExistsFilter(): BooleanFilter {

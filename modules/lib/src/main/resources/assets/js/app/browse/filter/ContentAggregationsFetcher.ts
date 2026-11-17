@@ -12,8 +12,8 @@ import {type ContentQueryResult} from '../../resource/ContentQueryResult';
 import {type ContentId} from '../../content/ContentId';
 import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import {ContentAggregation} from './ContentAggregation';
-import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {WorkflowState} from '../../content/WorkflowState';
+import {Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
+import {MODIFIED_BUCKET_KEY, WorkflowState} from '../../content/WorkflowState';
 import {AggregationsQueryResult} from './AggregationsQueryResult';
 import {ContentResourceRequest} from '../../resource/ContentResourceRequest';
 import {type Branch} from '../../versioning/Branch';
@@ -56,9 +56,17 @@ export class ContentAggregationsFetcher {
         return this;
     }
 
+    getAggregations(): Q.Promise<AggregationsQueryResult> {
+        return Q.all([this.fetchAggregations(), this.fetchModifiedCount()]).then(
+            ([aggregationsResult, modifiedCount]: [AggregationsQueryResult, number]) => {
+                this.appendModifiedBucket(aggregationsResult.getAggregations(), modifiedCount);
+                return aggregationsResult;
+            });
+    }
+
     // if some of the aggregation's buckets were selected then we have to make a request like none of the aggregation's buckets selected
     // that will give us all the aggregation's buckets with numbers
-    getAggregations(): Q.Promise<AggregationsQueryResult> {
+    private fetchAggregations(): Q.Promise<AggregationsQueryResult> {
         const result: Aggregation[] = [];
         const selectedAggregationPromises: Q.Promise<Aggregation>[] = [];
 
@@ -103,6 +111,41 @@ export class ContentAggregationsFetcher {
 
                 return fetchedAggregation;
             });
+    }
+
+    // "Modified" is not a workflow state and has no field to run a terms aggregation on,
+    // so it is counted with a separate query that ignores the Workflow section's own selection
+    private fetchModifiedCount(): Q.Promise<number> {
+        const hasWorkflowAggregation: boolean = !this.aggregationsNames ||
+            this.aggregationsNames.some((name: string) => name === ContentAggregation.WORKFLOW.toString());
+
+        if (!hasWorkflowAggregation) {
+            return Q(0);
+        }
+
+        const modifiedSelection: AggregationSelection = new AggregationSelection(ContentAggregation.WORKFLOW);
+        modifiedSelection.setValues([new Bucket(MODIFIED_BUCKET_KEY, 0)]);
+
+        const searchValues: SearchInputValues = new SearchInputValues();
+        searchValues.setTextSearchFieldValue(this.searchInputValues.textSearchFieldValue);
+        searchValues.setAggregationSelections(
+            this.searchInputValues.aggregationSelections
+                .filter((aggrSelection: AggregationSelection) => aggrSelection.getName() !== ContentAggregation.WORKFLOW.toString())
+                .concat(modifiedSelection));
+
+        const query: ContentQuery = this.createContentQuery(searchValues).setSize(0).setAggregationQueries([]);
+
+        return this.sendQueryRequest(query).then(
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => queryResult.getMetadata().getTotalHits());
+    }
+
+    private appendModifiedBucket(aggregations: Aggregation[], modifiedCount: number): void {
+        const workflowAggregation = aggregations.find(
+            (aggr: Aggregation) => aggr.getName() === ContentAggregation.WORKFLOW.toString()) as BucketAggregation;
+
+        if (workflowAggregation && modifiedCount > 0) {
+            workflowAggregation.addBucket(new Bucket(MODIFIED_BUCKET_KEY, modifiedCount));
+        }
     }
 
     private sendQueryRequest(query: ContentQuery, expand?: Expand): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {

@@ -58,6 +58,8 @@ export class AggregationsDisplayNamesResolver {
                 bucket.setDisplayName(i18n('field.workflow.status.ready'));
             } else if (key === 'in_progress') {
                 bucket.setDisplayName(i18n('field.workflow.status.inProgress'));
+            } else if (key === 'modified') {
+                bucket.setDisplayName(i18n('status.modified'));
             }
         });
     }
