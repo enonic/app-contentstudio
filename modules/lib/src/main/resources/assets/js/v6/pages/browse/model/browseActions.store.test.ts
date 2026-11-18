@@ -19,7 +19,6 @@ type ItemOptions = {
     online?: boolean;
     published?: boolean;
     valid?: boolean;
-    ready?: boolean;
     inProgress?: boolean;
     children?: boolean;
     deletable?: boolean;
@@ -32,7 +31,6 @@ const createItem = ({
     online = false,
     published = false,
     valid = true,
-    ready = false,
     inProgress = false,
     children = false,
     deletable = true,
@@ -44,7 +42,6 @@ const createItem = ({
         online,
         published,
         isValid: () => valid,
-        isReady: () => ready,
         isInProgress: () => inProgress,
         hasChildren: () => children,
         isDeletable: () => deletable,
@@ -92,7 +89,6 @@ describe('resolveBrowseActions', () => {
         expect(actions.sort.enabled).toBe(true);
         expect(actions.preview.enabled).toBe(true);
         expect(actions.publish).toMatchObject({ enabled: true, visible: true });
-        expect(actions.markAsReady.enabled).toBe(true);
         expect(actions.requestPublish.enabled).toBe(true);
         expect(actions.unpublish).toMatchObject({ enabled: false, visible: false });
         expect(actions.publishTree.enabled).toBe(false);
@@ -107,11 +103,10 @@ describe('resolveBrowseActions', () => {
     });
 
     it('should hide Publish and show Unpublish for an online item', () => {
-        const actions = resolve({ items: [createItem({ online: true, published: true, ready: true })] });
+        const actions = resolve({ items: [createItem({ online: true, published: true })] });
 
         expect(actions.publish).toMatchObject({ enabled: false, visible: false });
         expect(actions.unpublish).toMatchObject({ enabled: true, visible: true });
-        expect(actions.markAsReady.enabled).toBe(false);
         expect(actions.requestPublish.enabled).toBe(false);
     });
 

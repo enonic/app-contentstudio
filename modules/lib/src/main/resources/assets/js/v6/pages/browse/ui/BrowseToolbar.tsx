@@ -24,7 +24,6 @@ import { useBrowseToolbarActions } from './useBrowseToolbarActions';
 const ROW_ACTION_IDS: readonly BrowseActionId[] = ['new', 'edit', 'archive', 'duplicate', 'move', 'sort', 'preview'];
 
 const PUBLISH_ACTION_IDS: readonly BrowseActionId[] = [
-    'markAsReady',
     'publish',
     'publishTree',
     'unpublish',

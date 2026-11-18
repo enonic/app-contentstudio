@@ -300,14 +300,6 @@ export class ContentSummaryAndCompareStatus implements ViewItem, Cloneable {
         return null;
     }
 
-    canBeMarkedAsReady(): boolean {
-        if (!this.contentSummary) {
-            return false;
-        }
-
-        return !this.isOnline() && this.contentSummary.isValid() && !this.contentSummary.isReady();
-    }
-
     clone(): ContentSummaryAndCompareStatus {
         const contentSummary = new ContentSummaryBuilder(this.getContentSummary()).build();
         const clone = ContentSummaryAndCompareStatus.fromContentAndCompareAndPublishStatus(

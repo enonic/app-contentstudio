@@ -17,7 +17,6 @@ export type BrowseActionId =
     | 'publish'
     | 'publishTree'
     | 'unpublish'
-    | 'markAsReady'
     | 'requestPublish'
     | 'createIssue'
     | 'search';
@@ -70,7 +69,6 @@ export const BROWSE_ACTIONS: readonly BrowseAction[] = [
     { id: 'publish', shortcut: 'ctrl+alt+p' },
     { id: 'publishTree' },
     { id: 'unpublish' },
-    { id: 'markAsReady' },
     { id: 'requestPublish' },
     { id: 'createIssue' },
     { id: 'search', shortcut: 'shift+f' },
@@ -87,7 +85,6 @@ const LABEL_KEYS: Record<BrowseActionId, string> = {
     publish: 'action.publish',
     publishTree: 'action.publishTree',
     unpublish: 'action.unpublish',
-    markAsReady: 'action.markAsReady',
     requestPublish: 'action.requestPublish',
     createIssue: 'action.createIssue',
     search: '',
@@ -108,7 +105,6 @@ type ItemsSummary = {
     anyEditable: boolean;
     anyPublished: boolean;
     anyValidNonOnline: boolean;
-    anyCanBeMarkedAsReady: boolean;
     anyInProgress: boolean;
     allValid: boolean;
     allOnline: boolean;
@@ -117,10 +113,6 @@ type ItemsSummary = {
     readyForPublishing: boolean;
     publishTreeAllowed: boolean;
 };
-
-export function canBeMarkedAsReady(content: ContentSummary): boolean {
-    return !isOnline(content) && content.isValid() && !content.isReady();
-}
 
 function summarize({ items, permissions }: BrowseActionFacts, stashed: boolean): ItemsSummary {
     const empty = items.length === 0;
@@ -144,7 +136,6 @@ function summarize({ items, permissions }: BrowseActionFacts, stashed: boolean):
         anyEditable: items.some((item) => item.isEditable()),
         anyPublished: items.some(isPublished),
         anyValidNonOnline,
-        anyCanBeMarkedAsReady: items.some(canBeMarkedAsReady),
         anyInProgress,
         allValid: items.every((item) => item.isValid()),
         allOnline,
@@ -192,7 +183,6 @@ export function resolveBrowseActions(facts: BrowseActionFacts, env: BrowseAction
         publish: s.readyForPublishing && !contentTypeMissing,
         publishTree: s.publishTreeAllowed && !contentTypeMissing && hasUnpublishedChildren !== false,
         unpublish: some && idle && s.canPublish && s.anyPublished,
-        markAsReady: some && s.allValid && s.canModify && s.anyCanBeMarkedAsReady,
         requestPublish: some && canRequest && (!s.allOnline || hasUnpublishedChildren === true),
         createIssue: true,
         search: true,
