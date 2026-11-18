@@ -27,7 +27,7 @@ public final class PartDescriptorIconUrlResolver
         }
 
         final String baseUrl = DESCRIPTOR_ICON + partDescriptor.getKey().toString();
-        return generateIconUrl( baseUrl, icon );
+        return generateColorableIconUrl( baseUrl, icon );
     }
 
 }

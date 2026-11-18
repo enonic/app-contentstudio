@@ -18,6 +18,16 @@ public abstract class IconUrlResolver
 
     protected String generateIconUrl( final String baseUrl, final Icon icon )
     {
+        return generateIconUrl( baseUrl, icon, false );
+    }
+
+    protected String generateColorableIconUrl( final String baseUrl, final Icon icon )
+    {
+        return generateIconUrl( baseUrl, icon, ColorableIcon.isColorable( icon ) );
+    }
+
+    private String generateIconUrl( final String baseUrl, final Icon icon, final boolean colorable )
+    {
         final StringBuilder str = new StringBuilder( baseUrl );
         if ( icon != null )
         {
@@ -26,6 +36,10 @@ public abstract class IconUrlResolver
             {
                 str.append( "?hash=" ).append( Hashing.md5().hashBytes( iconData ).toString() );
             }
+        }
+        if ( colorable )
+        {
+            str.append( str.indexOf( "?" ) < 0 ? '?' : '&' ).append( "colorable=true" );
         }
         return ServletRequestUrlHelper.createUri( request, str.toString() );
     }

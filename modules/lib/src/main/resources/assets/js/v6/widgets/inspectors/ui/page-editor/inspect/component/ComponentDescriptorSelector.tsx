@@ -95,7 +95,7 @@ export const ComponentDescriptorSelector = ({
                                 <DescriptorIcon
                                     iconUrl={option.iconUrl}
                                     fallback={FallbackIcon}
-                                    className="size-4 shrink-0"
+                                    className="size-4 shrink-0 group-data-[tone=inverse]:text-alt"
                                     strokeWidth={1.75}
                                 />
                                 <div className="flex min-w-0 flex-col overflow-hidden">
