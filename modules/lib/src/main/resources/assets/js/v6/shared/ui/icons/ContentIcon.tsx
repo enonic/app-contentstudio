@@ -30,6 +30,7 @@ import {
 import { Image } from '../primitives/Image';
 import { createImageUrl } from '../../lib/url/images';
 import { cn } from '@enonic/ui';
+import { isColorableIconUrl } from './colorableIcon';
 
 type Props = {
     className?: string;
@@ -83,14 +84,6 @@ const BUILT_IN_CONTENT_TYPE_ICON_MAP = new Map<string, LucideIcon>([
     [String(ContentTypeName.TEMPLATE_FOLDER), FolderCog],
     [String(ContentTypeName.UNSTRUCTURED), Shapes],
 ]);
-
-/** Set by the server on SVG type icons painted only with `currentColor`. */
-const COLORABLE_PARAM = 'colorable';
-
-function isColorableIconUrl(url: string): boolean {
-    const queryIndex = url.indexOf('?');
-    return queryIndex >= 0 && new URLSearchParams(url.substring(queryIndex + 1)).get(COLORABLE_PARAM) === 'true';
-}
 
 const BuiltInIcon = ({ contentType, ...props }: BuiltInIconProps): React.ReactElement => {
     const Icon = BUILT_IN_CONTENT_TYPE_ICON_MAP.get(contentType) ?? FileIcon;

@@ -1,4 +1,4 @@
-package com.enonic.app.contentstudio.rest.resource.schema.content;
+package com.enonic.app.contentstudio.rest.resource.schema;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Set;

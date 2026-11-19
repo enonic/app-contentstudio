@@ -1,5 +1,6 @@
 package com.enonic.app.contentstudio.rest.resource.content;
 
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
@@ -98,8 +99,12 @@ public class JsonObjectsFactory
                                                                                 request.getLocales() ) ) )
             .collect( Collectors.toList() );
 
+        final List<Locale> locales = Collections.list( request.getLocales() );
+        final ComponentDisplayNameResolver localizedComponentDisplayNameResolver =
+            ( component, ignored ) -> componentDisplayNameResolver.resolve( component, locales );
+
         return new ContentJson( content, hasChildren( content ), new ContentIconUrlResolver( contentTypeService, portalUrlGeneratorService, request ), principalsResolver,
-                                componentDisplayNameResolver, new ContentListTitleResolver( contentTypeService ),
+                                localizedComponentDisplayNameResolver, new ContentListTitleResolver( contentTypeService ),
                                 localizedValidationErrors );
     }
 

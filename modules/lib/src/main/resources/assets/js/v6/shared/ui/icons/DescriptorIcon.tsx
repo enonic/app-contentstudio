@@ -1,6 +1,7 @@
 import { cn } from '@enonic/ui';
 import type { LucideIcon } from 'lucide-react';
 import { type ReactElement, useEffect, useState } from 'react';
+import { isColorableIconUrl } from './colorableIcon';
 
 export type DescriptorIconProps = {
     iconUrl?: string;
@@ -21,29 +22,48 @@ export const DescriptorIcon = ({
 }: DescriptorIconProps): ReactElement => {
     const [failedIcon, setFailedIcon] = useState<{ url: string; refreshVersion?: number }>();
     const [loadedIconUrl, setLoadedIconUrl] = useState<string>();
-    const currentIconFailed =
-        failedIcon != null && failedIcon.url === iconUrl && failedIcon.refreshVersion === refreshVersion;
+    const hasFailed = (url: string | undefined): boolean =>
+        failedIcon != null && failedIcon.url === url && failedIcon.refreshVersion === refreshVersion;
+
+    const visibleIconUrl = retainPreviousIcon && loadedIconUrl && iconUrl ? loadedIconUrl : iconUrl;
+    const visibleIconFailed = hasFailed(visibleIconUrl);
+    const showIcon = !visibleIconFailed || (retainPreviousIcon && !!loadedIconUrl);
+    const isColorable = !!visibleIconUrl && isColorableIconUrl(visibleIconUrl);
+
+    // A CSS mask never reports a failed load, so colorable icons are probed the same way as pending ones.
+    const pendingIconUrl = retainPreviousIcon && loadedIconUrl && iconUrl !== loadedIconUrl ? iconUrl : undefined;
+    const probedIconUrl = pendingIconUrl ?? (isColorable ? visibleIconUrl : undefined);
+    const probedIconFailed = hasFailed(probedIconUrl);
 
     useEffect(() => {
-        if (!retainPreviousIcon || !loadedIconUrl || !iconUrl || iconUrl === loadedIconUrl || currentIconFailed) {
+        if (!probedIconUrl || probedIconFailed) {
             return;
         }
 
         const image = new Image();
-        image.onload = () => setLoadedIconUrl(iconUrl);
-        image.onerror = () => setFailedIcon({ url: iconUrl, refreshVersion });
-        image.src = iconUrl;
+        image.onload = () => {
+            if (retainPreviousIcon) {
+                setLoadedIconUrl(probedIconUrl);
+            }
+        };
+        image.onerror = () => setFailedIcon({ url: probedIconUrl, refreshVersion });
+        image.src = probedIconUrl;
 
         return () => {
             image.onload = null;
             image.onerror = null;
         };
-    }, [retainPreviousIcon, loadedIconUrl, iconUrl, currentIconFailed, refreshVersion]);
+    }, [probedIconUrl, probedIconFailed, retainPreviousIcon, refreshVersion]);
 
-    const visibleIconUrl = retainPreviousIcon && loadedIconUrl && iconUrl ? loadedIconUrl : iconUrl;
-    const visibleIconFailed =
-        failedIcon != null && failedIcon.url === visibleIconUrl && failedIcon.refreshVersion === refreshVersion;
-    const showIcon = !visibleIconFailed || (retainPreviousIcon && !!loadedIconUrl);
+    if (visibleIconUrl && showIcon && isColorable) {
+        return (
+            <span
+                aria-hidden="true"
+                className={cn('inline-block bg-current mask-contain mask-center mask-no-repeat', className)}
+                style={{ maskImage: `url("${visibleIconUrl}")` }}
+            />
+        );
+    }
 
     if (visibleIconUrl && showIcon) {
         return (
