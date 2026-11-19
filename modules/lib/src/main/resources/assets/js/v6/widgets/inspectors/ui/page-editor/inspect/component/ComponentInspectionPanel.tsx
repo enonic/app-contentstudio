@@ -25,7 +25,7 @@ export const ComponentInspectionPanel = ({ componentType }: ComponentInspectionP
     const hasDescriptor = isDescriptorComponent && item.hasDescriptor();
     const configForm = descriptor?.getConfig() ?? null;
     const configRoot = hasDescriptor ? (item.getConfig()?.getRoot() ?? null) : null;
-    const applicationKey = hasDescriptor ? item.getDescriptorKey().getApplicationKey().toString() : undefined;
+    const applicationKey = hasDescriptor ? item.getDescriptorKey().getApplicationKey() : undefined;
     const fieldRegistry = useMemo(() => getAiFieldRegistry('page'), []);
 
     // Component may share descriptor key, so make it unique

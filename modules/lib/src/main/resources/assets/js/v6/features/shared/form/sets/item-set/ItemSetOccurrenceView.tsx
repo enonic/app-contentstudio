@@ -160,7 +160,7 @@ export const ItemSetOccurrenceView = forwardRef<HTMLDivElement, ItemSetOccurrenc
                                             onClick={() => onToggle(index)}
                                         >
                                             <span className="truncate font-semibold text-base">{label.primary}</span>
-                                            {hasErrors && !expanded && (
+                                            {hasErrors && (
                                                 <FilledOctagonAlert size={16} className="text-error shrink-0" />
                                             )}
                                         </button>

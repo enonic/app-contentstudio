@@ -20,7 +20,7 @@ import {
     useSetPropertyArray,
 } from '../set-occurrence';
 import { ItemSetOccurrenceView } from './ItemSetOccurrenceView';
-import { useItemSetChildErrors, useOccurrenceError, useSetChildShowErrors } from '../set-errors';
+import { useItemSetChildErrors, useOccurrenceError, useSetChildShowErrors, useSetServerErrors } from '../set-errors';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { Button } from '@enonic/ui';
 import { Plus } from 'lucide-react';
@@ -68,6 +68,7 @@ export const ItemSetView = ({ itemSet, propertySet }: ItemSetViewProps): ReactEl
     const occurrenceError = useOccurrenceError(occurrences, state);
     const { childShowErrors, childValidationVisibility } = useSetChildShowErrors(propertyArray, propertySets);
     const childErrors = useItemSetChildErrors(formItems, propertySets);
+    const childServerErrors = useSetServerErrors(propertySets);
 
     const handleAdd = useCallback(() => {
         if (!state.canAdd) return;
@@ -163,7 +164,10 @@ export const ItemSetView = ({ itemSet, propertySet }: ItemSetViewProps): ReactEl
                                 onRemove={handleRemove}
                                 onToggle={handleToggleSingle}
                                 occurrences={occurrences}
-                                hasErrors={childShowErrors.get(index) && childErrors.get(index)}
+                                hasErrors={
+                                    (childShowErrors.get(index) && childErrors.get(index)) ||
+                                    childServerErrors.get(index) === true
+                                }
                             >
                                 {formItems.map((formItem) => (
                                     <FormItemRenderer key={formItem.getName()} formItem={formItem} propertySet={item} />

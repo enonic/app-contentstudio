@@ -1,12 +1,13 @@
-import {PropertyArray} from '@enonic/lib-admin-ui/data/PropertyArray';
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import {Value} from '@enonic/lib-admin-ui/data/Value';
-import {ValueTypes} from '@enonic/lib-admin-ui/data/ValueTypes';
-import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {usePropertyArray} from '@enonic/lib-admin-ui/form2';
-import {showWarning} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {useCallback, useMemo} from 'react';
+import { PropertyArray } from '@enonic/lib-admin-ui/data/PropertyArray';
+import { PropertyPath, PropertyPathElement } from '@enonic/lib-admin-ui/data/PropertyPath';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import { Value } from '@enonic/lib-admin-ui/data/Value';
+import { ValueTypes } from '@enonic/lib-admin-ui/data/ValueTypes';
+import type { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { usePropertyArray, useServerErrors } from '@enonic/lib-admin-ui/form2';
+import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { useCallback, useMemo } from 'react';
 
 const SELECTED_NAME = '_selected';
 
@@ -27,7 +28,11 @@ function ensureSelectedArray(occurrencePropertySet: PropertySet): PropertyArray 
 function ensureOptionDataSet(occurrencePropertySet: PropertySet, name: string): void {
     let optionArray = occurrencePropertySet.getPropertyArray(name);
     if (optionArray == null) {
-        optionArray = PropertyArray.create().setName(name).setType(ValueTypes.DATA).setParent(occurrencePropertySet).build();
+        optionArray = PropertyArray.create()
+            .setName(name)
+            .setType(ValueTypes.DATA)
+            .setParent(occurrencePropertySet)
+            .build();
         occurrencePropertySet.addPropertyArray(optionArray);
     }
     if (optionArray.getSize() === 0) {
@@ -99,13 +104,16 @@ type UseOptionSetSelectionResult = {
  * boolean per option; this hook centralizes the radio vs multi rules and keeps
  * ordering deterministic (alphabetic for multi).
  */
-export function useOptionSetSelection(optionSet: FormOptionSet, occurrencePropertySet: PropertySet): UseOptionSetSelectionResult {
+export function useOptionSetSelection(
+    optionSet: FormOptionSet,
+    occurrencePropertySet: PropertySet,
+): UseOptionSetSelectionResult {
     const isRadio = optionSet.isRadioSelection();
     const schemaOptionNames = useMemo(() => optionSet.getOptions().map((o) => o.getName()), [optionSet]);
 
     const selectedArray = useMemo(() => ensureSelectedArray(occurrencePropertySet), [occurrencePropertySet]);
 
-    const {values} = usePropertyArray(selectedArray);
+    const { values } = usePropertyArray(selectedArray);
 
     const selectedNames = useMemo(() => {
         return values.map((v) => v.getString()).filter((n): n is string => n != null && schemaOptionNames.includes(n));
@@ -115,7 +123,20 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
 
     const ensureOption = useCallback(
         (name: string) => ensureOptionDataSet(occurrencePropertySet, name),
-        [occurrencePropertySet]
+        [occurrencePropertySet],
+    );
+
+    const serverErrors = useServerErrors();
+
+    const clearOptionServerErrors = useCallback(
+        (name: string) => {
+            const path = PropertyPath.fromParent(
+                occurrencePropertySet.getPropertyPath(),
+                new PropertyPathElement(name, 0),
+            ).toString();
+            serverErrors?.clearField(path.startsWith('.') ? path.slice(1) : path);
+        },
+        [serverErrors, occurrencePropertySet],
     );
 
     const select = useCallback(
@@ -124,19 +145,22 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
 
             if (isRadio) {
                 selectedNames.forEach((prev) => {
-                    if (prev !== name) warnIfOptionHasData(occurrencePropertySet, prev);
+                    if (prev === name) return;
+                    warnIfOptionHasData(occurrencePropertySet, prev);
+                    clearOptionServerErrors(prev);
                 });
                 writeRadioSelection(selectedArray, name);
             } else {
                 insertMultiSelection(selectedArray, name, selectedNames);
             }
         },
-        [isRadio, selectedArray, selectedNames, ensureOption, occurrencePropertySet]
+        [isRadio, selectedArray, selectedNames, ensureOption, occurrencePropertySet, clearOptionServerErrors],
     );
 
     const deselect = useCallback(
         (name: string) => {
             warnIfOptionHasData(occurrencePropertySet, name);
+            clearOptionServerErrors(name);
 
             const size = selectedArray.getSize();
             for (let i = 0; i < size; i++) {
@@ -146,7 +170,7 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
                 }
             }
         },
-        [selectedArray, occurrencePropertySet]
+        [selectedArray, occurrencePropertySet, clearOptionServerErrors],
     );
 
     const toggle = useCallback(
@@ -157,13 +181,17 @@ export function useOptionSetSelection(optionSet: FormOptionSet, occurrenceProper
                 select(name);
             }
         },
-        [selectedNames, select, deselect]
+        [selectedNames, select, deselect],
     );
 
-    return {selectedNames, isSelected, select, deselect, toggle};
+    return { selectedNames, isSelected, select, deselect, toggle };
 }
 
-export function selectOptionInPropertySet(occurrencePropertySet: PropertySet, optionSet: FormOptionSet, name: string): void {
+export function selectOptionInPropertySet(
+    occurrencePropertySet: PropertySet,
+    optionSet: FormOptionSet,
+    name: string,
+): void {
     ensureOptionDataSet(occurrencePropertySet, name);
 
     const selectedArray = ensureSelectedArray(occurrencePropertySet);

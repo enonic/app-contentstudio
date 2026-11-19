@@ -24,7 +24,7 @@ import {
     useSetPropertyArray,
 } from '../set-occurrence';
 import { OptionSetConfirmAdd, SetConfirmOverlay, useConfirmPosition } from '../set-confirmation';
-import { useOccurrenceError, useOptionSetChildErrors, useSetChildShowErrors } from '../set-errors';
+import { useOccurrenceError, useOptionSetChildErrors, useSetChildShowErrors, useSetServerErrors } from '../set-errors';
 import { Button } from '@enonic/ui';
 import { Plus } from 'lucide-react';
 
@@ -90,6 +90,7 @@ export const OptionSetView = ({ optionSet, propertySet }: OptionSetViewProps): R
         propertySets,
     );
     const childErrors = useOptionSetChildErrors(optionSet, propertySets);
+    const childServerErrors = useSetServerErrors(propertySets);
 
     const handleAdd = useCallback(() => {
         if (!state.canAdd) return;
@@ -250,7 +251,10 @@ export const OptionSetView = ({ optionSet, propertySet }: OptionSetViewProps): R
                                 onRemove={handleRemove}
                                 onReset={isRadio && !state.canRemove ? handleReset : undefined}
                                 onToggle={handleToggleSingle}
-                                hasErrors={childShowErrors.get(index) && childErrors.get(index) === true}
+                                hasErrors={
+                                    (childShowErrors.get(index) && childErrors.get(index) === true) ||
+                                    childServerErrors.get(index) === true
+                                }
                             >
                                 <OptionSetOccurrenceBody
                                     optionSet={optionSet}

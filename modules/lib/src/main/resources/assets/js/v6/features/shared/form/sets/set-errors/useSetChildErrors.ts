@@ -1,8 +1,8 @@
-import type {PropertySet} from '@enonic/lib-admin-ui/data/PropertySet';
-import type {FormItem} from '@enonic/lib-admin-ui/form/FormItem';
-import type {FormOptionSet} from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
-import {validateFormItemsValid} from '@enonic/lib-admin-ui/form2';
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import type { PropertySet } from '@enonic/lib-admin-ui/data/PropertySet';
+import type { FormItem } from '@enonic/lib-admin-ui/form/FormItem';
+import type { FormOptionSet } from '@enonic/lib-admin-ui/form/set/optionset/FormOptionSet';
+import { matchesOccurrencePath, useServerErrors, validateFormItemsValid } from '@enonic/lib-admin-ui/form2';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 const EMPTY = new Map<number, boolean>();
 const SELECTED_NAME = '_selected';
@@ -39,6 +39,24 @@ export function useOptionSetChildErrors(optionSet: FormOptionSet, propertySets: 
         });
         return next;
     }, [optionSet, propertySets, tick]);
+}
+
+export function useSetServerErrors(propertySets: PropertySet[]): Map<number, boolean> {
+    const entries = useServerErrors()?.entries;
+
+    return useMemo(() => {
+        if (entries == null || entries.length === 0 || propertySets.length === 0) return EMPTY;
+        const next = new Map<number, boolean>();
+        propertySets.forEach((ps, i) => {
+            const path = ps.getPropertyPath().toString();
+            const occurrencePath = path.startsWith('.') ? path.slice(1) : path;
+            next.set(
+                i,
+                entries.some((entry) => matchesOccurrencePath(entry.path, occurrencePath)),
+            );
+        });
+        return next;
+    }, [entries, propertySets]);
 }
 
 function useOccurrenceChangeTick(propertySets: PropertySet[]): number {
