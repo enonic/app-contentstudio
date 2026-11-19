@@ -1,5 +1,8 @@
 package com.enonic.app.contentstudio.rest.resource.content;
 
+import java.util.List;
+import java.util.Locale;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -9,8 +12,14 @@ import com.enonic.xp.content.ContentId;
 import com.enonic.xp.content.ContentNotFoundException;
 import com.enonic.xp.content.ContentPath;
 import com.enonic.xp.content.ContentService;
+import com.enonic.xp.descriptor.DescriptorKey;
+import com.enonic.xp.i18n.LocaleService;
+import com.enonic.xp.i18n.MessageBundle;
 import com.enonic.xp.region.FragmentComponent;
 import com.enonic.xp.region.ImageComponent;
+import com.enonic.xp.region.PartComponent;
+import com.enonic.xp.region.PartDescriptor;
+import com.enonic.xp.region.PartDescriptorService;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -20,12 +29,85 @@ public class ComponentDisplayNameResolverImplTest
 
     private ContentService contentService;
 
+    private PartDescriptorService partDescriptorService;
+
+    private LocaleService localeService;
+
     @BeforeEach
     public void init()
     {
         componentNameResolver = new ComponentDisplayNameResolverImpl();
         contentService = Mockito.mock( ContentService.class );
         componentNameResolver.setContentService( contentService );
+        partDescriptorService = Mockito.mock( PartDescriptorService.class );
+        componentNameResolver.setPartDescriptorService( partDescriptorService );
+        localeService = Mockito.mock( LocaleService.class );
+        componentNameResolver.setLocaleService( localeService );
+    }
+
+    @Test
+    public void testResolvePartComponentLocalized()
+    {
+        final PartComponent partComponent = mockPart( "part.title" );
+        final MessageBundle bundle = Mockito.mock( MessageBundle.class );
+        final List<Locale> locales = List.of( Locale.forLanguageTag( "no" ) );
+
+        Mockito.when( localeService.getSupportedLocale( locales, partComponent.getDescriptor().getApplicationKey() ) )
+            .thenReturn( locales.get( 0 ) );
+        Mockito.when( localeService.getBundle( partComponent.getDescriptor().getApplicationKey(), locales.get( 0 ) ) )
+            .thenReturn( bundle );
+        Mockito.when( bundle.localize( "part.title" ) ).thenReturn( "Min part" );
+
+        assertEquals( "Min part", componentNameResolver.resolve( partComponent, locales ) );
+    }
+
+    @Test
+    public void testResolvePartComponentWithInvalidMessagePattern()
+    {
+        final PartComponent partComponent = mockPart( "part.title" );
+        final MessageBundle bundle = Mockito.mock( MessageBundle.class );
+        final List<Locale> locales = List.of( Locale.forLanguageTag( "no" ) );
+
+        Mockito.when( localeService.getSupportedLocale( locales, partComponent.getDescriptor().getApplicationKey() ) )
+            .thenReturn( locales.get( 0 ) );
+        Mockito.when( localeService.getBundle( partComponent.getDescriptor().getApplicationKey(), locales.get( 0 ) ) )
+            .thenReturn( bundle );
+        Mockito.when( bundle.localize( "part.title" ) ).thenThrow( new IllegalArgumentException( "can't parse argument number: label" ) );
+        Mockito.when( bundle.getMessage( "part.title" ) ).thenReturn( "Min {label}" );
+
+        assertEquals( "Min {label}", componentNameResolver.resolve( partComponent, locales ) );
+    }
+
+    @Test
+    public void testResolvePartComponentWithoutTranslation()
+    {
+        final PartComponent partComponent = mockPart( "part.title" );
+        final List<Locale> locales = List.of( Locale.forLanguageTag( "no" ) );
+
+        assertEquals( "My part", componentNameResolver.resolve( partComponent, locales ) );
+        assertEquals( "My part", componentNameResolver.resolve( partComponent ) );
+    }
+
+    @Test
+    public void testResolvePartComponentWithoutI18nKey()
+    {
+        final PartComponent partComponent = mockPart( null );
+
+        assertEquals( "My part", componentNameResolver.resolve( partComponent, List.of( Locale.forLanguageTag( "no" ) ) ) );
+        Mockito.verifyNoInteractions( localeService );
+    }
+
+    private PartComponent mockPart( final String titleI18nKey )
+    {
+        final DescriptorKey key = DescriptorKey.from( "myapp:mypart" );
+        final PartDescriptor descriptor = Mockito.mock( PartDescriptor.class );
+
+        Mockito.when( descriptor.getTitle() ).thenReturn( "My part" );
+        Mockito.when( descriptor.getTitleI18nKey() ).thenReturn( titleI18nKey );
+        Mockito.when( descriptor.getApplicationKey() ).thenReturn( key.getApplicationKey() );
+        Mockito.when( partDescriptorService.getByKey( key ) ).thenReturn( descriptor );
+
+        return PartComponent.create().descriptor( key ).build();
     }
 
     @Test
