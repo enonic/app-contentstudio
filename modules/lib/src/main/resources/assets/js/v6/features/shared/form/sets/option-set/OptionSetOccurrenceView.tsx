@@ -213,7 +213,7 @@ export const OptionSetOccurrenceView = forwardRef<HTMLDivElement, OptionSetOccur
                                                 secondary={label.secondary}
                                                 className="min-w-0"
                                             />
-                                            {hasErrors && !expanded && (
+                                            {hasErrors && (
                                                 <FilledOctagonAlert size={16} className="text-error shrink-0" />
                                             )}
                                         </button>
