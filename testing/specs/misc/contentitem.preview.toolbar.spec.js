@@ -102,7 +102,7 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
         // 1. select the 'modified' folder:
         await studioUtils.findAndSelectItem(TEST_FOLDER.name);
         // 2. Publish the folder:
-        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        await contentBrowsePanel.clickOnPublishButton();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnMarkAsReadyButton();
         await contentBrowsePanel.waitForNotificationMessage();
