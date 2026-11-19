@@ -434,6 +434,17 @@ module.exports = {
         await contentPublishDialog.clickOnPublishNowButton();
         await contentPublishDialog.waitForDialogClosed();
     },
+    // 'Work in progress' content should be selected: clicks on 'Publish...' button in the browse toolbar,
+    // then clicks on 'Mark as ready' button in the Publish dialog. The dialog remains opened.
+    // ('Mark as ready' is no longer offered in the browse toolbar)
+    async openPublishDialogAndMarkAsReady() {
+        let browsePanel = new BrowsePanel();
+        let contentPublishDialog = new ContentPublishDialog();
+        await browsePanel.clickOnPublishButton();
+        await contentPublishDialog.waitForDialogOpened();
+        await contentPublishDialog.clickOnMarkAsReadyButton();
+        await contentPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
+    },
     async doPublishTree() {
         let browsePanel = new BrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
@@ -980,6 +991,56 @@ module.exports = {
             query,
             variables,
         );
+    },
+    // Creates a folder through the Content Studio REST API (no wizard), returns the JSON of the created content (id, path, ...).
+    // The browser must already be logged in (session cookie) and stay on the XP admin origin, e.g. after navigateToContentStudioApp().
+    // folder - object from contentBuilder.buildFolder(); only 'name' and 'displayName' are sent, 'settings' (owner, language) are ignored.
+    // options.parentPath - path of the parent content, the root by default, e.g. '/my-site'
+    // options.project - name (id) of the project, 'default' by default
+    // options.ready - true creates the folder as 'Ready for publishing', otherwise it is 'Work in progress'
+    // The grid may need a moment (or a refresh) to show the new item - find it with findAndSelectItem(name).
+    async doAddFolderByApi(folder, options = {}) {
+        const { parentPath = '/', project = 'default', ready = false } = options;
+        const url = `/admin/rest-v2/cs/cms/${project}/content/content/create`;
+        const body = {
+            valid: true,
+            requireValid: false,
+            name: folder.name || folder.displayName,
+            parent: parentPath,
+            contentType: 'base:folder',
+            data: [],
+            meta: [],
+            displayName: folder.displayName,
+            workflow: { state: ready ? 'READY' : 'IN_PROGRESS', checks: {} },
+        };
+        const result = await this.getBrowser().execute(
+            async function (url, body) {
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+                        credentials: 'same-origin',
+                        body: JSON.stringify(body),
+                    });
+                    const text = await response.text();
+                    return { status: response.status, text: text };
+                } catch (err) {
+                    return { status: 0, text: String(err) };
+                }
+            },
+            url,
+            body,
+        );
+        if (result.status !== 200) {
+            throw new Error(
+                `Folder '${body.name}' was not created by API: status ${result.status}, ${result.text.substring(0, 300)}`,
+            );
+        }
+        return JSON.parse(result.text);
+    },
+    // Creates a 'Ready for publishing' folder through the REST API, see doAddFolderByApi() for the preconditions and options.
+    async doAddReadyFolderByApi(folder, options = {}) {
+        return await this.doAddFolderByApi(folder, { ...options, ready: true });
     },
     // Detects which Users GraphQL API the running XP provides (see appConst.USERS_API) and caches the result.
     // The browser must already be logged in (session cookie) and stay on the XP admin origin, e.g. after doLogin().

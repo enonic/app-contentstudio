@@ -1,5 +1,5 @@
 /**
- * Created on 21.01.2019.  updated on 30.06.2026
+ * Created on 21.01.2019.  updated on 19.11.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
@@ -18,19 +18,24 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
     let SITE;
     let TEST_FOLDER;
 
-    it('Precondition: ready for publishing site with invalid child folder should be added', async () => {
+    it('Precondition: site should be added and marked as ready in the Publish dialog, then invalid child folder should be added', async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         let displayName = contentBuilder.generateRandomName('site');
         SITE = contentBuilder.buildSite(displayName, null, [appConst.TEST_APPS_NAME.SIMPLE_SITE_APP]);
         await studioUtils.doAddSite(SITE);
+        // 1. Select the 'Work in progress' site and click on 'Publish...' button in the browse-toolbar
+        // ('Mark as ready' is no longer offered in the toolbar):
         await studioUtils.findAndSelectItem(SITE.displayName);
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
-        // Close 'Publish Wizard':
+        await contentBrowsePanel.clickOnPublishButton();
         await contentPublishDialog.waitForDialogOpened();
+        // 2. Click on 'Mark as ready' in the Publish dialog:
+        await contentPublishDialog.clickOnMarkAsReadyButton();
+        await contentPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
+        // 3. Close 'Publish Wizard':
         await contentPublishDialog.clickOnCloseButton();
         await contentPublishDialog.waitForDialogClosed();
-        // Add invalid child folder:
+        // 4. Add invalid child folder:
         await studioUtils.openContentWizard(appConst.contentTypes.FOLDER);
         await studioUtils.doCloseWizardAndSwitchToGrid();
     });

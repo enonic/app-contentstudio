@@ -140,15 +140,15 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
 
     //Verifies - https://github.com/enonic/app-contentstudio/issues/2309
     //Incorrect default action for inherited content #2309
-    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Mark as ready' button should appear in the browse toolbar", async () => {
+    it("GIVEN user with 'Owner'-layer role is logged in WHEN 'inherited' site has been selected THEN 'Publish...' button should appear in the browse toolbar", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. Do log in with the user-owner and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
         // user's context should be loaded by default now!
         // 2. Select the site:
         await studioUtils.findAndSelectItem(SITE_NAME);
-        // 3. Verify that 'Mark as Ready' is default action in Publish Menu
-        await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
+        // 3. Verify that 'Publish...' is default action in Publish Menu ('Mark as ready' is no longer offered in the browse toolbar)
+        await contentBrowsePanel.waitForPublishButtonVisible();
     });
 
     it("GIVEN user with 'Owner'-layer role is logged in WHEN the user attempts to open existing site in draft THEN expected page should be loaded", async () => {
@@ -174,7 +174,8 @@ describe('layer.owner.spec - ui-tests for user with layer-Owner role ', function
         // 2. the  user's context should be loaded by default, so need to switch to Default project
         await contentBrowsePanel.selectContext(PROJECT_DISPLAY_NAME);
         await studioUtils.findAndSelectItem(SITE_NAME);
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
+        // 'Publish...' has been clicked, then the site has been marked as ready in the Publish dialog:
+        await studioUtils.openPublishDialogAndMarkAsReady();
         // Do log out:
         await studioUtils.doCloseAllWindowTabsAndNavigateToHome();
         await studioUtils.doLogout();

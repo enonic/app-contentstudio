@@ -74,12 +74,12 @@ describe('browse.panel.selections.spec - tests for selection items in Browse Pan
         // 1. Open Filter Panel and filter by 'Images' content type:
         await studioUtils.openFilterPanel();
         await contentFilterPanel.clickOnCheckboxInContentTypesBlock(appConst.FILTER_PANEL_AGGREGATION_BLOCK.IMAGE);
-        // 2. Click on the first row - highlight the first item
+        // 2. Click on the checkbox in the first row - the first item gets checked:
         await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.BOOK);
-        // 3. hold down Shift key and press Arrow down key 3 times:
+        // 3. Hold down 'Shift' key and press 'Arrow down' key 3 times:
         await contentBrowsePanel.holdDownShiftAndPressArrowDown(3);
-        await studioUtils.saveScreenshot('hold_down_shift_and_click');
-        // 4. Verify that 5 content items get checked:
+        await studioUtils.saveScreenshot('hold_down_shift_and_arrow_down');
+        // 4. Verify that 3 content items get checked:
         let numberCheckedRows = await contentBrowsePanel.getNumberOfCheckedRows();
         assert.equal(numberCheckedRows, 3, '3 rows should be checked in Browse Panel');
     });

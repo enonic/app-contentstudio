@@ -61,9 +61,8 @@ describe('filtering.by.workflow.spec: tests for filter panel', function () {
             appConst.FILTER_PANEL_AGGREGATION_BLOCK.WORKFLOW,
             appConst.WORKFLOW_STATE.WORK_IN_PROGRESS,
         );
-        //3. Click on "Mark as Ready" button in Browse toolbar:
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
-        await contentBrowsePanel.waitForNotificationMessage();
+        //3. Click on 'Publish...' button in Browse toolbar, then click on 'Mark as ready' in the Publish dialog:
+        await studioUtils.openPublishDialogAndMarkAsReady();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnCloseButton();
         await contentPublishDialog.waitForDialogClosed();

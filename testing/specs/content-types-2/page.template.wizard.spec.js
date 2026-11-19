@@ -59,8 +59,8 @@ describe('page.template.wizard.spec tests for page template wizard', function ()
         let isDisplayed = await contentBrowsePanel.isRedIconDisplayed(TEMPLATE_NAME);
         await studioUtils.saveScreenshot('template_support_selected');
         assert.ok(isDisplayed === false, 'red icon should not be displayed near the content!');
-        // Verify that Mark as Ready is default action for the template:
-        await contentBrowsePanel.waitForMarkAsReadyButtonVisible();
+        // Verify that 'Publish...' is default action for the template ('Mark as ready' is no longer offered in the browse toolbar):
+        await contentBrowsePanel.waitForPublishButtonVisible();
     });
 
     it('GIVEN the page-template is opened WHEN support selected option has been removed THEN red icon should appear, the content gets invalid', async () => {

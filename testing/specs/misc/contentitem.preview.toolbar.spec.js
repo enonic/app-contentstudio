@@ -55,9 +55,8 @@ describe('contentItem.preview.toolbar.spec: tests for preview toolbar', function
         let browseVersionsWidget = new BrowseVersionsWidget();
         // 1. Select the folder
         await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
-        // 2. Click on 'Mark on ready' button in the browse toolbar:
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
-        await contentBrowsePanel.waitForNotificationMessage();
+        // 2. Click on 'Publish...' button in the browse toolbar, then click on 'Mark as ready' in the Publish dialog:
+        await studioUtils.openPublishDialogAndMarkAsReady();
         // 3. Verify that Publish wizard is loaded
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnPublishNowButton();
