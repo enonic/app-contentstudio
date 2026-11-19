@@ -7,7 +7,7 @@ export class ArchiveContentAction extends Action {
     constructor(wizardPanel: ContentWizardPanel) {
         super(i18n('action.delete'), 'mod+del', true);
         this.onExecuted(() => {
-            openDeleteDialog([wizardPanel.getPersistedItem()]);
+            openDeleteDialog([wizardPanel.getPersistedSummary()]);
         });
     }
 }

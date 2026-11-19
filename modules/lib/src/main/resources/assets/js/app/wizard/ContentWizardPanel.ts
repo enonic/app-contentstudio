@@ -26,7 +26,7 @@ import {
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
-import { setWizardContent } from '../../v6/entities/content';
+import { $contextContent, setWizardContent } from '../../v6/entities/content';
 import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
 import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
@@ -115,6 +115,7 @@ import {
     shouldCollapseWizardContextInitially,
 } from '../../v6/pages/wizard/model/wizardLayout.store';
 import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
+import type { ContentSummary } from '../content/ContentSummary';
 import { ContentContext } from './ContentContext';
 import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
@@ -989,8 +990,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                         return;
                     }
 
-                    this.wizardActions.setContent(summary).refreshState();
-                    setWizardContent(summary.getContentSummary());
+                    this.updateWithContentSummary(summary);
                 })
                 .catch(DefaultErrorHandler.handle);
         };
@@ -1673,6 +1673,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+        setWizardContent(newPersistedItem);
 
         setWizardPersistedContent(newPersistedItem);
 
@@ -1685,6 +1686,10 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     protected convertToCurrentItem(content: Content): Content {
         return content ? content.clone() : null;
+    }
+
+    getPersistedSummary(): ContentSummary | null {
+        return $contextContent.get() ?? this.getPersistedItem() ?? null;
     }
 
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {
