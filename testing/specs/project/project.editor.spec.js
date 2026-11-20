@@ -173,8 +173,8 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
         // 1. Do log in with the user-editor and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
         await studioUtils.findAndSelectItem(FOLDER_NAME);
-        // 2. The folder has been 'Marked as ready' in browse panel(Publish wizard loads automatically):
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
+        // 2. Click on 'Publish...' in browse panel, the folder has been 'Marked as ready' in the Publish dialog:
+        await studioUtils.openPublishDialogAndMarkAsReady();
         await studioUtils.saveScreenshot('project_editor_6');
         // 3. The folder has been published in browse panel:
         await studioUtils.doPublish();
@@ -187,7 +187,7 @@ describe("project.editor.spec - ui-tests for an user with 'Editor' role", functi
 
     // Users with Owner and Editor roles don't have access to HTML source in the editor #8526
     // https://github.com/enonic/app-contentstudio/issues/8526
-    it("GIVEN user with 'Editor' role is logged in WHEN existing folder(work in progress) has been published THEN the folder gets Published", async () => {
+    it("GIVEN user with 'Editor' role is logged in WHEN wizard for new content with htmlArea is opened THEN 'Source' button should be available in the htmlArea toolbar", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         // 1. Do log in with the user-editor and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);

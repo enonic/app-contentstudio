@@ -9,7 +9,6 @@ const browser_version = properties.get('browser.version');
 exports.config = {
     specs: [path.join(__dirname, '../specs/publish/*.spec.js'), path.join(__dirname, '../specs/issue/*.spec.js')],
     exclude: [
-        path.join(__dirname, '../specs/publish/change.display.name.rename.published.content.spec.js'),
         path.join(__dirname, '../specs/publish/request.publish.dialog.validation.spec.js'),
         path.join(__dirname, '../specs/publish/request.publishing.dialog.mark.as.ready.spec.js'),
         path.join(__dirname, '../specs/publish/version.items.after.publishing.spec.js'),

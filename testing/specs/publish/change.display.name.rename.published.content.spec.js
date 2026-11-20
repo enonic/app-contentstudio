@@ -5,8 +5,9 @@ const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const appConst = require('../../libs/app_const');
 const studioUtils = require('../../libs/studio.utils.js');
-const contentBuilder = require("../../libs/content.builder");
+const contentBuilder = require('../../libs/content.builder');
 const ContentWizard = require('../../page_objects/wizardpanel/content.wizard.panel');
+const RenameContentDialog = require('../../page_objects/wizardpanel/rename.content.dialog');
 
 describe('change.display.name.rename.published.content.dialog.spec - tests for Rename published content modal dialog', function () {
     this.timeout(appConst.SUITE_TIMEOUT);
@@ -16,35 +17,34 @@ describe('change.display.name.rename.published.content.dialog.spec - tests for R
     let TEST_FOLDER;
     let NEW_NAME = contentBuilder.generateRandomName('folder');
 
-    it('Precondition - new folder should be added and published',
-        async () => {
-            let contentWizard = new ContentWizard();
-            let displayName = contentBuilder.generateRandomName('folder');
-            TEST_FOLDER = contentBuilder.buildFolder(displayName);
-            await studioUtils.doAddReadyFolder(TEST_FOLDER);
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            await contentWizard.doPublish();
-        });
+    it('Precondition - new folder should be added and published', async () => {
+        let contentWizard = new ContentWizard();
+        let displayName = contentBuilder.generateRandomName('folder');
+        TEST_FOLDER = contentBuilder.buildFolder(displayName);
+        await studioUtils.doAddReadyFolderByApi(TEST_FOLDER);
+        await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+        await contentWizard.doPublish();
+    });
 
     // Verifies: Modified display name is rolled back after renaming a published content #5403
     // https://github.com/enonic/app-contentstudio/issues/5403
-    it("GIVEN display name is modified WHEN the content has been renamed THEN the display name should not be updated after the renaming",
-        async () => {
-            let contentWizard = new ContentWizard();
-            // 1. Open the published content in the wizard:
-            await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
-            // 2. Update the display name:
-            await contentWizard.typeDisplayName(NEW_NAME);
-            // 3.  Click on the 'path input' and open the modal dialog:
-            let renamePublishedContentDialog = await contentWizard.clickOnNameInputOpenModifyPathDialog();
-            await renamePublishedContentDialog.typeInNewNameInput(NEW_NAME);
-            // 4. Click on 'Rename' button and wait for the dialog is closed:
-            await renamePublishedContentDialog.clickOnRenameButton();
-            await contentWizard.pause(1200);
-            // 5. Verify the display name:
-            let actualDisplayName = await contentWizard.getDisplayName();
-            assert.equal(actualDisplayName, NEW_NAME, 'Display name should not be rolled back after renaming the content');
-        });
+    it('GIVEN display name is modified WHEN the content has been renamed THEN the display name should not be updated after the renaming', async () => {
+        let contentWizard = new ContentWizard();
+        let renameContentDialog = new RenameContentDialog();
+        // 1. Open the published content in the wizard:
+        await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
+        // 2. Update the display name:
+        await contentWizard.clearDisplayNameInput();
+        await contentWizard.typeDisplayName(NEW_NAME);
+        // 3.  Click on the 'path input' and open the modal dialog:
+        await contentWizard.clickOnRenameContentDialogButton(TEST_FOLDER.displayName);
+        await renameContentDialog.typeInNewNameInput(NEW_NAME);
+        // 4. Click on 'Rename' button and wait for the dialog is closed:
+        await renameContentDialog.clickOnRenameButton();
+        // 5. Verify the display name:
+        let actualDisplayName = await contentWizard.getDisplayName();
+        assert.equal(actualDisplayName, NEW_NAME, 'Display name should not be rolled back after renaming the content');
+    });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());
     afterEach(() => studioUtils.doCloseAllWindowTabsAndNavigateToHome());

@@ -5,7 +5,6 @@ const ContentDuplicateDialog = require('../content.duplicate.dialog');
 const CreateIssueDialog = require('../issue/create.issue.dialog');
 const { BUTTONS, TREE_GRID, COMMON, DROPDOWN, LIVE_VIEW, WIZARD } = require('../../libs/elements');
 const appConst = require('../../libs/app_const');
-const ConfirmationDialog = require('../confirmation.dialog');
 const CreateRequestPublishDialog = require('../issue/create.request.publish.dialog');
 const BrowseContextWindowPanel = require('./detailspanel/browse.context.window.panel');
 const BaseBrowsePanel = require('../base.browse.panel');
@@ -31,7 +30,6 @@ const XPATH = {
     hideSearchPanelButton: "//button[contains(@aria-label, 'Search Panel') and @aria-pressed='true']",
     showSearchPanelButton: "//button[contains(@aria-label, 'Search Panel') and @aria-pressed='false']",
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button", //'Assigned to Me' or 'Show Issues'
-    markAsReadyMenuItem: "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem') and text()='Mark as ready']",
     showIssuesButton: BUTTONS.buttonAriaLabel('View project issues'),
     clearSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
     numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
@@ -136,10 +134,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return toolbarTooltipButton('More actions');
     }
 
-    get markAsReadyMenuItem() {
-        return XPATH.toolbarDiv + XPATH.markAsReadyMenuItem;
-    }
-
     get createIssueButton() {
         return toolbarButton('Create issue');
     }
@@ -174,10 +168,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get publishTreeButton() {
         return toolbarButton('Publish tree');
-    }
-
-    get markAsReadyButton() {
-        return toolbarButton('Mark as ready');
     }
 
     get displayNames() {
@@ -252,16 +242,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
-    // Wait for `Publish Menu` Button gets 'Mark as ready'
-    async waitForMarkAsReadyButtonVisible() {
-        try {
-            await this.waitForElementDisplayed(this.markAsReadyButton);
-            await this.pause(300);
-        } catch (err) {
-            await this.handleError('Mark as Ready button should be visible', 'err_mark_as_ready_button', err);
-        }
-    }
-
     // Wait for `Publish Menu` Button gets 'Unpublish'
     async waitForUnPublishButtonVisible() {
         try {
@@ -297,22 +277,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async clickOnPublishTreeButton() {
         await this.waitForPublishTreeButtonVisible();
         return await this.clickOnElement(this.publishTreeButton);
-    }
-
-    // waits for button MARK AS READY appears on the toolbar, then click on it and confirm.
-    async clickOnMarkAsReadyButtonAndConfirm() {
-        await this.waitForMarkAsReadyButtonVisible();
-        await this.clickOnElement(this.markAsReadyButton);
-        let confirmationDialog = new ConfirmationDialog();
-        await confirmationDialog.waitForDialogOpened();
-        return await confirmationDialog.clickOnConfirmButton();
-    }
-
-    // When single content is selected, confirmation is no needed
-    async clickOnMarkAsReadyButton() {
-        await this.waitForMarkAsReadyButtonVisible();
-        await this.clickOnElement(this.markAsReadyButton);
-        return await this.pause(300);
     }
 
     async clickOnMoveButton() {
@@ -953,6 +917,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForPublishMenuItemNotDisplayed(menuItem) {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.publishMenuItemByName(menuItem));
+        } catch (err) {
+            await this.handleError(`${menuItem} should not be displayed`, 'err_publish_menuItem_displayed', err);
+        }
+    }
+
     async waitForRequestPublishingButtonDisplayed() {
         return await this.waitForElementDisplayed(this.requestPublishingButton);
     }
@@ -998,16 +970,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.REQUEST_PUBLISH);
         let createRequestPublishDialog = new CreateRequestPublishDialog();
         return await createRequestPublishDialog.waitForDialogLoaded();
-    }
-
-    async openPublishMenuAndClickOnMarAsReady() {
-        return await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
-    }
-
-    async openPublishMenuAndClickOnMarAsReadyAndConfirm() {
-        await this.openPublishMenuSelectItem(appConst.PUBLISH_MENU.MARK_AS_READY);
-        let confirmationDialog = new ConfirmationDialog();
-        return await confirmationDialog.clickOnConfirmButton();
     }
 
     async getWorkflowStateByDisplayName(displayName) {

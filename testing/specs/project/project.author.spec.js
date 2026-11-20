@@ -183,11 +183,17 @@ describe('project.author.spec - ui-tests for user with Author role', function ()
     // Verify that 'Author' can not publish content:
     it("GIVEN user with 'Author' role is logged in WHEN existing folder has been marked as ready THEN Publish menu item should be disabled for an user with Author role", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
+        let createRequestPublishDialog = new CreateRequestPublishDialog();
         // 1. Do log in with the user-author and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
         await studioUtils.findAndSelectItem(FOLDER_NAME);
-        // 2. The folder has been 'Marked as ready' in browse panel:
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
+        // 2. 'Request Publish...' is the default action for Author ('Mark as ready' is no longer offered in the browse toolbar),
+        // click on it and mark the folder as ready in the Request Publish dialog, then close the dialog:
+        await contentBrowsePanel.clickOnRequestPublishingButton();
+        await createRequestPublishDialog.waitForDialogLoaded();
+        await createRequestPublishDialog.clickOnMarkAsReadyButton();
+        await createRequestPublishDialog.waitForMarkAsReadyButtonNotDisplayed();
+        await createRequestPublishDialog.clickOnCloseButton();
         await studioUtils.saveScreenshot('project_author_6');
         // 3. Open Publish Menu:
         await contentBrowsePanel.openPublishMenu();

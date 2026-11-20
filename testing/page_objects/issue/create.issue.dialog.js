@@ -3,7 +3,7 @@
  */
 const Page = require('../page');
 const appConst = require('../../libs/app_const');
-const {BUTTONS, ISSUE} = require('../../libs/elements');
+const { BUTTONS, ISSUE, DIALOG_ITEMS } = require('../../libs/elements');
 const AssigneeSelectorDropdown = require('../components/selectors/assignee.selector.dropdown');
 const ContentSelectorDropdown = require('../components/selectors/content.selector.dropdown');
 const DependantsControls = require('./dependant.controls');
@@ -49,11 +49,11 @@ class CreateIssueDialog extends Page {
     }
 
     get showExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Show excluded');
+        return xpath.container + BUTTONS.buttonByLabel('Show excluded');
     }
 
     get hideExcludedItemsButton() {
-        return xpath.container + lib.togglerButton('Hide excluded');
+        return xpath.container + BUTTONS.buttonByLabel('Hide excluded');
     }
 
     async typeTextInDescriptionTextArea(text) {
@@ -62,7 +62,7 @@ class CreateIssueDialog extends Page {
 
     async waitForCreateIssueButtonEnabled() {
         try {
-            await this.waitForElementEnabled(this.createIssueButton, appConst.mediumTimeout);
+            await this.waitForElementEnabled(this.createIssueButton);
         } catch (err) {
             await this.handleError(
                 `Create Issue dialog, 'Create Issue' button should be enabled`,
@@ -74,7 +74,7 @@ class CreateIssueDialog extends Page {
 
     async waitForCreateIssueButtonDisabled() {
         try {
-            await this.waitForElementDisabled(this.createIssueButton, appConst.mediumTimeout);
+            await this.waitForElementDisabled(this.createIssueButton);
         } catch (err) {
             await this.handleError(
                 `Create Issue dialog, 'Create Issue' button should be disabled`,
@@ -86,7 +86,7 @@ class CreateIssueDialog extends Page {
 
     async clickOnCreateIssueButton() {
         try {
-            await this.waitForElementEnabled(this.createIssueButton, appConst.shortTimeout);
+            await this.waitForElementEnabled(this.createIssueButton);
             await this.clickOnElement(this.createIssueButton);
             await this.pause(1000);
         } catch (err) {
@@ -130,7 +130,7 @@ class CreateIssueDialog extends Page {
 
     async waitForDialogLoaded() {
         try {
-            await this.waitForElementDisplayed(xpath.container, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(xpath.container);
             await this.pause(500);
         } catch (err) {
             await this.handleError('Create issue dialog should be loaded! ', 'err_create_issue_dialog_loaded', err);
@@ -138,7 +138,7 @@ class CreateIssueDialog extends Page {
     }
 
     waitForDialogClosed() {
-        return this.waitForElementNotDisplayed(xpath.container, appConst.mediumTimeout);
+        return this.waitForElementNotDisplayed(xpath.container);
     }
 
     isTitleInputDisplayed() {
@@ -177,14 +177,17 @@ class CreateIssueDialog extends Page {
     async typeContentNameInOptionsFilterInput(contentName) {
         try {
             let contentSelector = new ContentSelectorDropdown(this.container);
-            await contentSelector.doFilterItem(contentName,);
+            await contentSelector.doFilterItem(contentName);
         } catch (err) {
-            await this.handleError("Error when typing the content name in the Options filter input: " + contentName,
-                'err_type_content_name', err);
+            await this.handleError(
+                'Error when typing the content name in the Options filter input: ' + contentName,
+                'err_type_content_name',
+                err,
+            );
         }
     }
 
-    async getCheckedOptionsDisplayNameInDropdownList(contentName) {
+    async getCheckedOptionsDisplayNameInDropdownList() {
         try {
             let contentSelector = new ContentSelectorDropdown();
             return await contentSelector.getCheckedOptionsDisplayNameInDropdownList(xpath.container);
@@ -217,7 +220,7 @@ class CreateIssueDialog extends Page {
         try {
             return await this.waitForElementDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
-            await this.handleError("Hide excluded items should be displayed", 'err_hide_excluded_btn', err);
+            await this.handleError('Hide excluded items should be displayed', 'err_hide_excluded_btn', err);
         }
     }
 
@@ -227,8 +230,11 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.showExcludedItemsButton);
             await this.pause(400);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_show_excluded_btn');
-            throw new Error(`Create Issue dialog, Show Excluded button, screenshot:${screenshot}  ` + err);
+            await this.handleError(
+                `Create Issue dialog, tried to click on 'Show excluded items' button`,
+                'err_show_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -256,8 +262,11 @@ class CreateIssueDialog extends Page {
             await this.clickOnElement(this.hideExcludedItemsButton);
             return await this.pause(1000);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error('Create issue dialog, Hide Excluded button, screenshot  ' + screenshot + ' ' + err);
+            await this.handleError(
+                `Create Issue dialog, tried to click on 'Hide excluded items' button`,
+                'err_hide_excluded_btn',
+                err,
+            );
         }
     }
 
@@ -265,27 +274,29 @@ class CreateIssueDialog extends Page {
         try {
             return this.waitForElementNotDisplayed(this.hideExcludedItemsButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_hide_excluded_btn');
-            throw new Error(`'Hide excluded items' button should be hidden! screenshot: ${screenshot} ` + err);
+            await this.handleError(
+                `Create Issue dialog, 'Hide excluded items' button should be hidden`,
+                'err_hide_excluded_btn',
+                err,
+            );
         }
     }
 
     // TODO
-    async getDisplayNameInDependentItems() {
-    }
+    async getDisplayNameInDependentItems() {}
 
     async isDependantCheckboxSelected(displayName) {
         return await this.dependantsControls.isDependantCheckboxSelected(displayName);
     }
 
     async waitForDependenciesListDisplayed() {
-        let locator = xpath.container + xpath.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+        const locator = xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
         return await this.waitForElementDisplayed(locator);
     }
 
     async waitForDependenciesListNotDisplayed() {
         try {
-            let locator = XPATH.container + XPATH.dependantList + lib.DEPENDANTS.DEPENDANT_ITEM_VIEWER;
+            let locator = xpath.container + DIALOG_ITEMS.SECONDARY_DATA_COMPONENT_DIV + DIALOG_ITEMS.ITEMS_NAME_SPAN;
             return await this.waitForElementNotDisplayed(locator);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_dependencies_list');
@@ -323,30 +334,6 @@ class CreateIssueDialog extends Page {
                 err,
             );
         }
-    }
-
-    async clickOnDropDownHandleInItemsToPublishCombobox() {
-        try {
-            let contentSelector = new ContentSelectorDropdown(this.container);
-            await contentSelector.clickOnDropdownHandle();
-            return await this.pause(300);
-        } catch (err) {
-            await this.handleError(
-                'CReate issue dialog -  tried to click on items to publish dropdown handle',
-                'err_click_items_to_publish_dropdown',
-                err,
-            );
-        }
-    }
-
-    async clickOnExpanderIconInOptionsList(optionName) {
-        let contentSelector = new ContentSelectorDropdown(xpath.container);
-        return await contentSelector.clickOnExpanderIconInOptionsList(optionName);
-    }
-
-    async clickOnSelectRowCheckboxByDisplayName(contentDisplayName) {
-        let contentSelector = new ContentSelectorDropdown(xpath.container);
-        return await contentSelector.clickOnSelectRowCheckboxByDisplayName(contentDisplayName);
     }
 }
 

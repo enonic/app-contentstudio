@@ -47,7 +47,7 @@ describe('wizard.publish.menu.workflow.spec - publishes and unpublishes single f
         let contentWizard = new ContentWizard();
         let displayName = contentBuilder.generateRandomName('folder');
         TEST_FOLDER = contentBuilder.buildFolder(displayName);
-        await studioUtils.doAddReadyFolder(TEST_FOLDER);
+        await studioUtils.doAddReadyFolderByApi(TEST_FOLDER);
         await studioUtils.selectAndOpenContentInWizard(TEST_FOLDER.displayName);
         // 1. Publish the folder:
         await contentWizard.doPublish();

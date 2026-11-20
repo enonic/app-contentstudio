@@ -17,17 +17,17 @@ describe('browse.panel.mark.as.ready.single.content.spec - tests for Request Pub
     }
     let TEST_FOLDER;
 
-    it("WHEN 'Work in progress' folder is selected AND 'Publish...' menu item has been clicked THEN publishing wizard should be opened AND the folder is Work in progress", async () => {
+    it("WHEN 'Work in progress' folder is selected AND 'Publish' button has been clicked THEN publishing wizard should be opened AND the folder is Work in progress", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         let name = contentBuilder.generateRandomName('folder');
         TEST_FOLDER = contentBuilder.buildFolder(name);
-        //1. 'Work in progress' folder has been added:
+        // 1. 'Work in progress' folder has been added:
         await studioUtils.doAddFolder(TEST_FOLDER);
-        //2. Click on checkbox and select the folder:
+        // 2. Click on checkbox and select the folder:
         await studioUtils.findContentAndClickCheckBox(name);
-        //3. Click on 'Publish...' menu item
-        await contentBrowsePanel.openPublishMenuSelectItem(appConst.PUBLISH_MENU.PUBLISH);
+        // 3. Click on 'Publish' button
+        await contentBrowsePanel.clickOnPublishButton();
         // 4. Verify that Publishing wizard is opened:
         await contentPublishDialog.waitForDialogOpened();
         // 5. Verify that 'Exclude items in progress' button is not displayed in the dialog:

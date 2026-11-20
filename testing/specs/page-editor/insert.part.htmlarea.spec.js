@@ -140,7 +140,7 @@ describe('insert.part.htmlarea.spec - insert a html-part in htlmlarea-content', 
 
     // Verify issue 7543
     // need to preselect layout/part/text of the fragment when nothing is selected in the Page Component view of a fragment. If it's selected and then unselected, then controller stays correctly selected in the Inspect panel.
-    it(`GIVEN a part with html-example has been inserted WHEN text has been typed in the html-area THEN the text should appear in the Page Editor`, async () => {
+    it(`GIVEN fragment created from a part is opened WHEN the part has been clicked in Page Component view then clicked again THEN the part's descriptor should remain selected in the Inspection panel`, async () => {
         let pageComponentsWizardStepForm = new PageComponentsWizardStepForm();
         let partInspectionPanel = new PartInspectionPanel();
         let contentWizard = new ContentWizard();

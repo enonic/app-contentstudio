@@ -44,8 +44,8 @@ describe('close.issue.by.user.spec: create a issue for user and close it', funct
         let issueDetailsDialog = new IssueDetailsDialog();
         let displayName = contentBuilder.generateRandomName('folder');
         TEST_FOLDER = contentBuilder.buildFolder(displayName);
-        // 1.Add new folder:
-        await studioUtils.doAddReadyFolder(TEST_FOLDER);
+        // 1. Add new folder:
+        await studioUtils.doAddReadyFolderByApi(TEST_FOLDER);
         await studioUtils.findAndSelectItem(TEST_FOLDER.displayName);
         // 2. Select the folder and open Create Issue dialog:
         await contentBrowsePanel.openPublishMenuAndClickOnCreateIssue();

@@ -209,8 +209,8 @@ describe('project.owner.spec - ui-tests for user with Owner role', function () {
         // 1. Do log in with the user-owner and navigate to Content Browse Panel:
         await studioUtils.navigateToContentStudioApp(USER.displayName, PASSWORD);
         await studioUtils.findAndSelectItem(FOLDER_NAME);
-        // 2. The folder has been 'Marked as ready' in browse panel:
-        await contentBrowsePanel.clickOnMarkAsReadyButton();
+        // 2. Click on 'Publish...' in browse panel, the folder has been 'Marked as ready' in the Publish dialog:
+        await studioUtils.openPublishDialogAndMarkAsReady();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnCloseButton();
         await contentPublishDialog.waitForDialogClosed();

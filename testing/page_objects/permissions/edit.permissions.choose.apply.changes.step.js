@@ -9,7 +9,6 @@ const xpath = {
 
 // Step 2 of 3 - Choose how to apply changes
 class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
-
     get stepDescription() {
         return this.container + xpath.stepDescriptionP;
     }
@@ -45,8 +44,11 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.stepDescription);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Edit permissions - Choose how to apply changes step should be loaded`,
-                'err_edit_perm_choose_apply_changes_loaded', err);
+            await this.handleError(
+                `Edit permissions - Choose how to apply changes step should be loaded`,
+                'err_edit_perm_choose_apply_changes_loaded',
+                err,
+            );
         }
     }
 
@@ -54,8 +56,13 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
         try {
             await this.waitForElementDisplayed(this.childrenOnlyRadioButton);
             await this.clickOnElement(this.childrenOnlyRadioButton);
+            await this.pause(300);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Click on 'Children only' radio button`, 'err_edit_perm_children_only', err);
+            await this.handleError(
+                `Edit Permissions - Click on 'Children only' radio button`,
+                'err_edit_perm_children_only',
+                err,
+            );
         }
     }
 
@@ -64,8 +71,11 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.thisItemAndChildrenRadioButton);
             await this.clickOnElement(this.thisItemAndChildrenRadioButton);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Click on 'This item and all children' radio button`,
-                'err_edit_perm_this_item_and_children', err);
+            await this.handleError(
+                `Edit Permissions - Click on 'This item and all children' radio button`,
+                'err_edit_perm_this_item_and_children',
+                err,
+            );
         }
     }
 
@@ -74,7 +84,11 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.thisItemRadioButton);
             await this.clickOnElement(this.thisItemRadioButton);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Click on 'This item' radio button`, 'err_edit_perm_this_item', err);
+            await this.handleError(
+                `Edit Permissions - Click on 'This item' radio button`,
+                'err_edit_perm_this_item',
+                err,
+            );
         }
     }
 
@@ -82,8 +96,11 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
         try {
             await this.waitForElementNotDisplayed(this.replaceAllChildChildPermissionsCheckbox);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Wait for 'Replace existing child permissions' checkbox should not be not displayed`,
-                'err_edit_perm_replace_existing_child_permissions_checkbox', err);
+            await this.handleError(
+                `Edit Permissions - Wait for 'Replace existing child permissions' checkbox should not be not displayed`,
+                'err_edit_perm_replace_existing_child_permissions_checkbox',
+                err,
+            );
         }
     }
 
@@ -92,7 +109,11 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             await this.waitForElementDisplayed(this.replaceAllChildChildPermissionsCheckbox);
             await this.clickOnElement(this.replaceAllChildChildPermissionsCheckbox);
         } catch (err) {
-            await this.handleError(`Edit Permissions - Click on 'Replace existing child permissions' checkbox`, 'err_perm_dialog', err);
+            await this.handleError(
+                `Edit Permissions - Click on 'Replace existing child permissions' checkbox`,
+                'err_perm_dialog',
+                err,
+            );
         }
     }
 
@@ -103,10 +124,13 @@ class EditPermissionsChooseApplyChangesStep extends BaseStepPermissionsDialog {
             let ariaChecked = await this.getAttribute(inputLocator, 'aria-checked');
             return ariaChecked === 'true';
         } catch (err) {
-            await this.handleError(`Edit Permissions - 'Replace all child permissions' checkbox`, 'err_edit_perm_replace_checkbox', err);
+            await this.handleError(
+                `Edit Permissions - 'Replace all child permissions' checkbox`,
+                'err_edit_perm_replace_checkbox',
+                err,
+            );
         }
     }
 }
 
 module.exports = EditPermissionsChooseApplyChangesStep;
-
