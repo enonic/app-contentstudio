@@ -45,6 +45,24 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         await this.#applicationsCombobox.clickFilteredByAppNameItemAndClickOnOk(appName);
     }
 
+    // Types an application name in the options filter input, the dropdown list gets filtered:
+    async filterOptions(appName) {
+        try {
+            await this.#applicationsCombobox.doFilterItem(appName);
+        } catch (err) {
+            await this.handleError(`Applications step, tried to filter options: ${appName}`, 'err_filter_app', err);
+        }
+    }
+
+    // Option of an inherited app is disabled in the dropdown list
+    async isOptionDisabled(appName) {
+        return await this.#applicationsCombobox.isOptionDisabled(appName);
+    }
+
+    async isCheckboxDisplayedInOption(appName) {
+        return await this.#applicationsCombobox.isCheckboxDisplayedInOption(appName);
+    }
+
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
         try {

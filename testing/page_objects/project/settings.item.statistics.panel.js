@@ -14,6 +14,8 @@ const XPATH = {
     // the identifier inside 'h2' carries the same class:
     headerSubtitle: "//header[@data-component='ItemHeader']//h2/following-sibling::span",
     statisticsColumnByHeader: (header) => `//div[@data-component='StatisticsColumn' and child::dt[text()='${header}']]`,
+    // 'Applications' block - displayed when the project has applications:
+    applicationsBlock: "//section[@data-component='ProjectApplicationsBlock']",
     // 'Projects graph' - displayed for the 'Projects' folder only:
     projectsGraph: "//div[@data-component='ProjectDag']",
     projectsGraphViewport: "//div[@aria-label='Projects graph']",
@@ -277,6 +279,46 @@ class SettingsItemStatisticsPanel extends Page {
             return await this.getTextInElements(locator);
         } catch (err) {
             await this.handleError('Get contributors in statistics panel', 'err_get_contributors', err);
+        }
+    }
+
+    // Returns display names of principals in the 'Editors' column (Roles block)
+    async getEditors() {
+        try {
+            let locator =
+                XPATH.container +
+                XPATH.statisticsColumnByHeader('Editors') +
+                "//li//span[contains(@class,'font-semibold')]";
+            await this.waitForElementDisplayed(locator);
+            return await this.getTextInElements(locator);
+        } catch (err) {
+            await this.handleError('Get editors in statistics panel', 'err_get_editors', err);
+        }
+    }
+
+    // Waits for the application in the 'Applications' block. Until the installed applications are loaded
+    // the block shows application keys, so the display name should be waited:
+    async waitForApplicationDisplayed(appDisplayName) {
+        try {
+            let locator = XPATH.container + XPATH.applicationsBlock + `//li//span[text()='${appDisplayName}']`;
+            return await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `Application '${appDisplayName}' should be displayed in statistics panel`,
+                'err_statistics_application',
+                err,
+            );
+        }
+    }
+
+    // Returns display names of the applications in the 'Applications' block
+    async getApplications() {
+        try {
+            let locator = XPATH.container + XPATH.applicationsBlock + "//li//span[contains(@class,'font-semibold')]";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getTextInElements(locator);
+        } catch (err) {
+            await this.handleError('Get applications in statistics panel', 'err_get_applications', err);
         }
     }
 }

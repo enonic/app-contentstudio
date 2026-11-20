@@ -1504,7 +1504,7 @@ class ContentWizardPanel extends Page {
     }
 
     async clickOnNavigateToBrowsePanelButton(projectName) {
-        let locator = XPATH.container + `//div[@role='toolbar']//button[@aria-label='${projectName}']`;
+        let locator = XPATH.container + `//div[@role='toolbar']//button[starts-with(@aria-label,'${projectName}')]`;
         try {
             await this.waitForElementDisplayed(locator);
             await this.clickOnElement(locator);
