@@ -233,6 +233,7 @@ class CreateIssueDialog extends Page {
             await this.handleError(
                 `Create Issue dialog, tried to click on 'Show excluded items' button`,
                 'err_show_excluded_btn',
+                err,
             );
         }
     }

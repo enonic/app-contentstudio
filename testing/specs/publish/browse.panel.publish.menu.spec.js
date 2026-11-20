@@ -40,6 +40,20 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await contentBrowsePanel.waitForCreateIssueButtonDisplayed();
     });
 
+    // Verifies https://github.com/enonic/app-contentstudio/issues/11791
+    it(`GIVEN 'Work in progress' folder is selected WHEN publish menu has been expanded THEN 'Publish...' should be the default action AND 'Mark as ready' menu item should not be present`, async () => {
+        let contentBrowsePanel = new ContentBrowsePanel();
+        // 1. Select the 'Work in progress' folder:
+        await studioUtils.findAndSelectItem(FOLDER.displayName);
+        // 2. 'Publish...' should be the default action in the browse-toolbar:
+        await contentBrowsePanel.waitForPublishButtonVisible();
+        // 3. Open Publish Menu and verify that 'Mark as ready' menu item is not present:
+        await contentBrowsePanel.openPublishMenu();
+        await studioUtils.saveScreenshot('publish_menu_Folder_in_progress');
+        await contentBrowsePanel.waitForPublishMenuItemEnabled(appConst.PUBLISH_MENU.CREATE_ISSUE);
+        await contentBrowsePanel.waitForPublishMenuItemNotDisplayed(appConst.PUBLISH_MENU.MARK_AS_READY);
+    });
+
     it(`GIVEN 'Work in progress' folder is selected AND 'Publish...' button has been pressed in the browse-toolbar WHEN the folder has been marked as ready in the Publish dialog THEN 'Create Issue' menu item should be enabled AND the folder can be published`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();

@@ -917,6 +917,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    async waitForPublishMenuItemNotDisplayed(menuItem) {
+        try {
+            return await this.waitForElementNotDisplayed(XPATH.publishMenuItemByName(menuItem));
+        } catch (err) {
+            await this.handleError(`${menuItem} should not be displayed`, 'err_publish_menuItem_displayed', err);
+        }
+    }
+
     async waitForRequestPublishingButtonDisplayed() {
         return await this.waitForElementDisplayed(this.requestPublishingButton);
     }

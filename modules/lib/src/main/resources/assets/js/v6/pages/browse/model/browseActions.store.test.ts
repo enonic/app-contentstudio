@@ -152,6 +152,21 @@ describe('resolveBrowseActions', () => {
         ).toBe(false);
     });
 
+    it('should offer Publish, not Mark as ready, for a valid item in progress', () => {
+        const actions = resolve({ items: [createItem({ inProgress: true })] });
+
+        expect(Object.keys(actions)).not.toContain('markAsReady');
+        expect(actions.publish).toMatchObject({ enabled: true, visible: true });
+        expect(actions.requestPublish.enabled).toBe(true);
+    });
+
+    it('should fall back to Request publish for an item in progress without the publish permission', () => {
+        const actions = resolve({ items: [createItem({ inProgress: true })], permissions: ['MODIFY'] });
+
+        expect(actions.publish.enabled).toBe(false);
+        expect(actions.requestPublish.enabled).toBe(true);
+    });
+
     it('should not publish an item in progress without the modify permission', () => {
         const items = [createItem({ inProgress: true })];
 
