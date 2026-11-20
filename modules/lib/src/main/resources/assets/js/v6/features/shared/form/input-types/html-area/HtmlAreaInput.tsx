@@ -3,12 +3,11 @@
 import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import type { Value } from '@enonic/input-types/data';
 import { ValueTypes } from '@enonic/input-types/data';
-import { FieldError } from '@enonic/input-types';
 import type { InputTypeComponentProps } from '@enonic/input-types';
 import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
 import { CKEditorEventAction, useCKEditor, type CKEditorEventDispatcher } from 'ckeditor4-react';
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import { useEffect, useId, useMemo, useRef, useState, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
@@ -52,6 +51,8 @@ import {
     type SetupEditorParams,
 } from './setupEditor';
 import { useCKEditorConfig } from './useCKEditorConfig';
+import { setEditorValidation } from './editorValidation';
+import { AnnouncedFieldError } from '../../AnnouncedFieldError';
 
 const sanitizer = new HtmlAreaSanitizer();
 const SORTABLE_MANAGED_TABINDEX_ATTR = 'data-sortable-list-navigation-target-tabindex';
@@ -74,6 +75,8 @@ type CKEditorWrapperProps = {
     applicationKeys: ApplicationKey[];
     assetsUri: string;
     hasError: boolean;
+    errorId: string;
+    errorMessage: string | undefined;
     editableSourceCode: boolean;
     inputRef?: (el: HTMLElement | null) => void;
     highlight?: number;
@@ -102,6 +105,8 @@ const CKEditorWrapper = ({
     applicationKeys,
     assetsUri,
     hasError,
+    errorId,
+    errorMessage,
     editableSourceCode,
     inputRef,
     highlight,
@@ -438,6 +443,24 @@ const CKEditorWrapper = ({
         };
     }, [enabled, status, editor, editorLabel]);
 
+    // Reconnect the error when CKEditor recreates the iframe.
+    useEffect(() => {
+        if (status !== 'ready' || !editor) {
+            return;
+        }
+
+        const apply = () =>
+            setEditorValidation(editor, {
+                errorId,
+                label: editorLabel,
+                invalid: hasError && !processing,
+                message: errorMessage,
+            });
+        apply();
+        editor.on('contentDom', apply);
+        return () => editor.removeListener('contentDom', apply);
+    }, [editor, status, editorLabel, errorId, hasError, errorMessage, processing]);
+
     // Sync external value changes (e.g., from undo/redo or remote sync)
     useEffect(() => {
         if (!editor || status !== 'ready') {
@@ -509,6 +532,8 @@ const CKEditorWrapper = ({
                 tabIndex={0}
                 data-sortable-list-composite-target="true"
                 aria-busy={processing || undefined}
+                aria-invalid={showErrorState || undefined}
+                aria-describedby={showErrorState ? errorId : undefined}
                 onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
                     if (event.target !== event.currentTarget) {
                         return;
@@ -555,6 +580,7 @@ export const HtmlAreaInput = ({
     inputRef,
     highlight,
 }: InputTypeComponentProps<HtmlAreaConfig>): JSX.Element => {
+    const errorId = `${useId()}-error`;
     const { applicationKeys, assetsUri } = useHtmlAreaContext();
     const { project, content: contentSummary } = useFormScope();
     const t = useInputTypesPhrases();
@@ -597,6 +623,7 @@ export const HtmlAreaInput = ({
         ? HTMLAreaHelper.convertRenderSrcToPreviewSrc(stringValue, contentSummary.getId(), project)
         : stringValue;
 
+    const errorMessage = processing ? undefined : getFirstError(errors, t);
     const hasError = errors.length > 0;
 
     // Don't mount CKEditorWrapper until config is fully ready (including
@@ -625,11 +652,13 @@ export const HtmlAreaInput = ({
                 applicationKeys={applicationKeys}
                 assetsUri={assetsUri}
                 hasError={hasError}
+                errorId={errorId}
+                errorMessage={errorMessage}
                 editableSourceCode={editableSourceCode}
                 inputRef={inputRef}
                 highlight={highlight}
             />
-            {!processing && <FieldError message={getFirstError(errors, t)} />}
+            <AnnouncedFieldError id={errorId} message={errorMessage} label={editorLabel} />
         </>
     );
 };

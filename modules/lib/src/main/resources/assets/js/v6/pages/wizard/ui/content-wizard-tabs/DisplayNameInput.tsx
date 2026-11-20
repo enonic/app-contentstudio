@@ -4,6 +4,7 @@ import { useStore } from '@nanostores/preact';
 import {
     useCallback,
     useEffect,
+    useId,
     useLayoutEffect,
     useRef,
     useState,
@@ -47,6 +48,7 @@ function normalizeSingleLineValue(value: string): string {
 }
 
 export const DisplayNameInput = (): ReactElement => {
+    const errorId = `${useId()}-error`;
     const displayName = useStore($displayName);
     const shouldFocus = useStore($displayNameInputFocusRequested);
     const visibility = useStore($validationVisibility);
@@ -188,6 +190,7 @@ export const DisplayNameInput = (): ReactElement => {
                     type="button"
                     data-component={DISPLAY_NAME_INPUT_NAME}
                     aria-invalid={showErrorBorder || undefined}
+                    aria-describedby={visibleError ? errorId : undefined}
                     aria-busy={aiProcessing || undefined}
                     disabled={readOnly || aiProcessing}
                     onClick={startEditing}
@@ -217,6 +220,7 @@ export const DisplayNameInput = (): ReactElement => {
                     value={displayName}
                     placeholder={placeholder}
                     aria-invalid={showErrorBorder || undefined}
+                    aria-describedby={visibleError ? errorId : undefined}
                     rows={1}
                     onChange={handleEditorChange}
                     onFocus={handleEditorFocus}
@@ -235,7 +239,9 @@ export const DisplayNameInput = (): ReactElement => {
                     )}
                 />
             )}
-            <FieldError className="mt-2" message={visibleError} />
+            <div id={errorId} aria-live="polite" aria-atomic="true">
+                <FieldError className="mt-2" message={visibleError} announce={false} />
+            </div>
         </div>
     );
 };

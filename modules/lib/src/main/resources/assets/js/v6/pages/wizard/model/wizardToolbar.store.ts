@@ -1,6 +1,7 @@
 import { Name } from '@enonic/lib-admin-ui/Name';
 import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
-import { map } from 'nanostores';
+import { NotifyManager } from '@enonic/lib-admin-ui/notify/NotifyManager';
+import { computed, map } from 'nanostores';
 import { ContentName } from '../../../../app/content/ContentName';
 import { ContentUnnamed } from '../../../../app/content/ContentUnnamed';
 import type { PublishStatus } from '../../../../app/publish/PublishStatus';
@@ -15,6 +16,9 @@ import {
     setDraftName,
 } from './wizardContent.store';
 import type { WizardToolbarCollaborator, WizardToolbarStore } from './wizardToolbar.types';
+import { $hasInvalidSiteConfig } from './wizardValidation.store';
+import { $contextContent } from '../../../entities/content';
+import { $siteConfigErrorAnnouncers } from '../../../features/shared/form/input-types/site-configurator/siteConfigAnnouncement.store';
 
 const createInitialState = (): WizardToolbarStore => ({
     projectLabel: '',
@@ -31,9 +35,12 @@ const createInitialState = (): WizardToolbarStore => ({
     isLayerProject: false,
     isContentInherited: false,
     isContentDataInherited: false,
+    feedback: null,
 });
 
 export const $wizardToolbar = map<WizardToolbarStore>(createInitialState());
+
+let feedbackSequence = 0;
 
 function isSimplifiedNameGeneration(): boolean {
     const isMedia = $contentType.get()?.getContentTypeName()?.isDescendantOfMedia() ?? false;
@@ -99,8 +106,28 @@ $wizardDraftName.subscribe((name) => {
     $wizardToolbar.setKey('contentName', normalizeContentName(nameStr));
 });
 
-$wizardContentState.subscribe((contentState) => {
+const $wizardContentFeedback = computed(
+    [$wizardContentState, $hasInvalidSiteConfig, $contextContent, $siteConfigErrorAnnouncers],
+    (contentState, hasInvalidSiteConfig, content, announcers) => ({
+        contentState,
+        hasDetailedAnnouncement: hasInvalidSiteConfig && (announcers[content?.getId() ?? ''] ?? 0) > 0,
+    }),
+);
+
+$wizardContentFeedback.subscribe(({ contentState, hasDetailedAnnouncement }) => {
+    const previous = $wizardToolbar.get().contentState;
     $wizardToolbar.setKey('contentState', contentState);
+    const feedback = $wizardToolbar.get().feedback;
+
+    if (contentState === 'invalid' && hasDetailedAnnouncement) {
+        if (feedback?.type === 'invalid') {
+            $wizardToolbar.setKey('feedback', null);
+        }
+    } else if (previous != null && previous !== 'invalid' && contentState === 'invalid') {
+        $wizardToolbar.setKey('feedback', { type: 'invalid', sequence: ++feedbackSequence });
+    } else if (contentState !== 'invalid' && feedback?.type === 'invalid') {
+        $wizardToolbar.setKey('feedback', null);
+    }
 });
 
 export function setWizardToolbarProjectLabel(projectLabel: string): void {
@@ -148,6 +175,15 @@ export function setWizardToolbarIsLayerProject(isLayerProject: boolean): void {
 export function setWizardToolbarContentInheritance(isInherited: boolean, isDataInherited: boolean): void {
     $wizardToolbar.setKey('isContentInherited', isInherited);
     $wizardToolbar.setKey('isContentDataInherited', isDataInherited);
+}
+
+export function showWizardSaveFeedback(message: string): void {
+    const manager = NotifyManager.get();
+    const notificationId = manager.showFeedback(message);
+    // The persistent toolbar live region announces this message instead of the newly mounted toast.
+    manager.getNotification(notificationId)?.setProps({ role: 'none', 'aria-live': 'off' });
+
+    $wizardToolbar.setKey('feedback', { type: 'saved', message, sequence: ++feedbackSequence });
 }
 
 export function resetWizardToolbar(): void {

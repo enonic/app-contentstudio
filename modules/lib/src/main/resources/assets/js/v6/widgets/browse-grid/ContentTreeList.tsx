@@ -644,6 +644,7 @@ export const ContentTreeList = ({
                                 if (hasDisplayNameData(data)) {
                                     const originalIndex = rawIndexById.get(id) ?? index;
                                     const itemProps = getItemProps(originalIndex, node);
+                                    const labelId = `${itemProps.id}-label`;
                                     const isSelected = selection.has(id);
                                     const isActive = activeId === id;
                                     // Active item with no selection should look like selected
@@ -655,6 +656,7 @@ export const ContentTreeList = ({
                                     return (
                                         <VirtualizedTreeList.Row
                                             {...itemProps}
+                                            aria-labelledby={labelId}
                                             active={activeAsSelected ? false : itemProps.active}
                                             selected={showAsSelected}
                                             data-tone={showAsSelected ? 'inverse' : undefined}
@@ -698,6 +700,7 @@ export const ContentTreeList = ({
                                                 <VirtualizedTreeList.RowSelectionControl
                                                     rowId={id}
                                                     selected={itemProps.selected}
+                                                    aria-labelledby={labelId}
                                                 />
                                                 <VirtualizedTreeList.RowLevelSpacer level={level} />
                                                 <VirtualizedTreeList.RowExpandControl
@@ -713,6 +716,7 @@ export const ContentTreeList = ({
                                             <VirtualizedTreeList.RowContent>
                                                 <ContentTreeListItem
                                                     content={data}
+                                                    primaryId={labelId}
                                                     showPath={isFilterActive}
                                                     selected={showAsSelected}
                                                 />

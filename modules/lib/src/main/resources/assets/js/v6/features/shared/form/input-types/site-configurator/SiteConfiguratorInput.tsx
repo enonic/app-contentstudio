@@ -13,7 +13,7 @@ import { IconButton } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Pencil, X } from 'lucide-react';
 import type { ReactElement } from 'react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentRequiresSaveEvent } from '../../../../../../app/event/ContentRequiresSaveEvent';
 import { ProjectHelper } from '../../../../../../app/settings/data/project/ProjectHelper';
@@ -34,6 +34,7 @@ import { ApplicationConfigDialog } from '../../ApplicationConfigDialog';
 import { seedFormDefaults } from '@enonic/input-types';
 import type { SiteConfiguratorConfig } from './SiteConfiguratorConfig';
 import { SITE_CONFIGURATOR_SCOPE_REQUIREMENT } from './SiteConfiguratorDescriptor';
+import { registerSiteConfigErrorAnnouncer } from './siteConfigAnnouncement.store';
 
 const COMPONENT_NAME = 'SiteConfiguratorInput';
 const PORTAL_APP_KEY = APPLICATION_KEY.PORTAL;
@@ -50,6 +51,7 @@ type AppItem = {
 };
 
 export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfiguratorConfig>): ReactElement => {
+    const errorId = `${useId()}-error`;
     const { values, onAdd, onRemove, onMove, input, enabled, errors } = props;
     const { content } = useFormScope();
     const { enabled: scopeEnabled } = useFormScopeRequirement(input, SITE_CONFIGURATOR_SCOPE_REQUIREMENT);
@@ -57,6 +59,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const { applications } = useStore($applications, { keys: ['applications'] });
     const [isReadOnly, setIsReadOnly] = useState(!isContentAdmin());
     const [editing, setEditing] = useState<EditingState | null>(null);
+    const [selectorOpen, setSelectorOpen] = useState(false);
 
     const placeholder = useI18n('field.option.placeholder');
     const emptyLabel = useI18n('dialog.project.wizard.application.noApplicationsFound');
@@ -234,6 +237,7 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
     const errorMessage = useMemo(() => {
         return errors.map((e) => getFirstError(e.validationResults, t)).find(Boolean);
     }, [errors, t]);
+    const announcementRef = useConfigErrorAnnouncement(errorMessage, selectorOpen || editing !== null, contentId);
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-1">
@@ -244,6 +248,9 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 placeholder={placeholder}
                 emptyLabel={emptyLabel}
                 closeOnBlur
+                onOpenChange={setSelectorOpen}
+                aria-describedby={errorMessage ? errorId : undefined}
+                aria-invalid={errorMessage ? true : undefined}
             />
 
             {appItems.length > 0 && (
@@ -266,7 +273,10 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
                 />
             )}
 
-            <FieldError message={errorMessage} />
+            <div id={errorId}>
+                <FieldError message={errorMessage} announce={false} />
+            </div>
+            <span ref={announcementRef} role="status" aria-live="polite" aria-atomic="true" className="sr-only" />
 
             {editing && (
                 <ApplicationConfigDialog
@@ -284,6 +294,54 @@ export const SiteConfiguratorInput = (props: SelfManagedComponentProps<SiteConfi
 };
 
 SiteConfiguratorInput.displayName = COMPONENT_NAME;
+
+// Only the outside error uses this region. Wait for popup focus restoration and
+// keep background validation silent while the configuration dialog is open.
+const useConfigErrorAnnouncement = (message: string | undefined, paused: boolean, contentId: string | undefined) => {
+    const regionRef = useRef<HTMLSpanElement>(null);
+    const lastAnnouncement = useRef<string | undefined>(undefined);
+
+    useLayoutEffect(() => {
+        if (message && !paused && contentId) {
+            return registerSiteConfigErrorAnnouncer(contentId);
+        }
+    }, [message, paused, contentId]);
+
+    useLayoutEffect(() => {
+        const region = regionRef.current;
+        if (!region) {
+            return;
+        }
+        region.textContent = '';
+        if (!message) {
+            lastAnnouncement.current = undefined;
+            return;
+        }
+        if (paused || lastAnnouncement.current === message) {
+            return;
+        }
+
+        const document = region.ownerDocument;
+        let timer: ReturnType<typeof setTimeout>;
+        const schedule = () => {
+            clearTimeout(timer);
+            timer = setTimeout(() => {
+                document.removeEventListener('focusin', schedule);
+                lastAnnouncement.current = message;
+                region.textContent = message;
+            }, 500);
+        };
+
+        document.addEventListener('focusin', schedule);
+        schedule();
+        return () => {
+            clearTimeout(timer);
+            document.removeEventListener('focusin', schedule);
+        };
+    }, [message, paused]);
+
+    return regionRef;
+};
 
 //
 // * Row component

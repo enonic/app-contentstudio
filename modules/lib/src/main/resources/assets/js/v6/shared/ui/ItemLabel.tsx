@@ -6,6 +6,7 @@ const ITEM_LABEL_NAME = 'ItemLabel';
 export type ItemLabelProps = {
     icon: ReactNode;
     primary: ReactNode;
+    primaryId?: string;
     secondary?: ReactNode;
     'data-component'?: string;
 } & ComponentPropsWithoutRef<'div'>;
@@ -13,6 +14,7 @@ export type ItemLabelProps = {
 export const ItemLabel = ({
     icon,
     primary,
+    primaryId,
     secondary,
     className,
     'data-component': dataComponent = ITEM_LABEL_NAME,
@@ -35,7 +37,10 @@ export const ItemLabel = ({
             )}
 
             <div className="flex flex-col text-left overflow-hidden">
-                <span className="font-semibold leading-5.5 truncate w-full group-data-[tone=inverse]:text-alt">
+                <span
+                    id={primaryId}
+                    className="font-semibold leading-5.5 truncate w-full group-data-[tone=inverse]:text-alt"
+                >
                     {primary}
                 </span>
 

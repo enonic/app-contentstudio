@@ -4,6 +4,7 @@ import { useStore } from '@nanostores/preact';
 import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
 import {
+    $currentIds,
     $isAllLoadedSelected,
     $isNoneSelected,
     $isReloading,
@@ -14,17 +15,19 @@ import {
     $rootLoadingState,
 } from '../../entities/content';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
+import { SelectionCountAnnouncement } from '../../shared/ui/SelectionCountAnnouncement';
 
 type TreeListToolbarProps = {
     enabled?: boolean;
 };
 
-const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement => {
+export const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement => {
     const loadingState = useStore($rootLoadingState);
     const isReloading = useStore($isReloading);
     const isLoading = loadingState === 'loading' || isReloading;
     const isAllSelected = useStore($isAllLoadedSelected);
     const totalSelected = useStore($selectionCount);
+    const currentIds = useStore($currentIds);
     const isNoneSelected = useStore($isNoneSelected);
     const reloadLabel = useI18n('action.reload.content');
     const selectAllLabel = isNoneSelected
@@ -47,6 +50,7 @@ const TreeListToolbar = ({ enabled = true }: TreeListToolbarProps): ReactElement
 
     return (
         <div className="bg-surface-neutral flex items-center justify-between max-sm:px-3.5 px-5 py-2.5 gap-2">
+            <SelectionCountAnnouncement ids={currentIds} checkboxSelection={totalSelected > 0} />
             <div className="ml-2.5 flex items-center gap-2.5">
                 <Checkbox
                     aria-label={selectAllLabel}
