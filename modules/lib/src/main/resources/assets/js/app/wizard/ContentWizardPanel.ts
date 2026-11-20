@@ -26,7 +26,7 @@ import {
     cleanupWizardContentSyncService,
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
-import { setWizardContent } from '../../v6/entities/content';
+import { $contextContent, setWizardContent } from '../../v6/entities/content';
 import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
 import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
@@ -115,6 +115,7 @@ import {
     shouldCollapseWizardContextInitially,
 } from '../../v6/pages/wizard/model/wizardLayout.store';
 import { isDeletedTemplateForContent } from '../../v6/shared/lib/page/templateEvent';
+import type { ContentSummary } from '../content/ContentSummary';
 import { ContentContext } from './ContentContext';
 import { ContentWizardDataLoader } from './ContentWizardDataLoader';
 import { ContentWizardHeader } from './ContentWizardHeader';
@@ -963,6 +964,39 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             if (deletedTemplateIds.length > 0) {
                 this.handleTemplateDelete(deletedTemplateIds);
             }
+
+            descendantsChangedHandler(items.map((item) => item.getPath()));
+        };
+
+        // The summary of the current content carries its children info, which
+        // changes without an update event when descendants come and go.
+        let descendantsRefreshId = 0;
+
+        const descendantsChangedHandler = (paths: ContentPath[]) => {
+            const persistedItem = this.getPersistedItem();
+            const persistedPath = persistedItem?.getPath();
+
+            if (!persistedPath || !paths.some((path) => path?.isDescendantOf(persistedPath))) {
+                return;
+            }
+
+            // Overlapping refreshes may resolve out of order, only the latest one counts.
+            const refreshId = ++descendantsRefreshId;
+
+            this.contentFetcher
+                .fetch(persistedItem.getContentId())
+                .then((summary: ContentSummaryAndCompareStatus) => {
+                    if (refreshId !== descendantsRefreshId || !this.isCurrentContentId(summary.getContentId())) {
+                        return;
+                    }
+
+                    this.updateWithContentSummary(summary);
+                })
+                .catch(DefaultErrorHandler.handle);
+        };
+
+        const createdHandler = (contents: ContentSummaryAndCompareStatus[]) => {
+            descendantsChangedHandler(contents.map((content) => content.getPath()));
         };
 
         const publishOrUnpublishHandler = (contents: ContentSummaryAndCompareStatus[]) => {
@@ -1039,7 +1073,12 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
             if (wasMoved) {
                 updateHandler(movedItems[0].item);
+                return;
             }
+
+            descendantsChangedHandler(
+                movedItems.flatMap((movedItem: MovedContentItem) => [movedItem.oldPath, movedItem.item.getPath()]),
+            );
         };
 
         const contentUpdatedHandler = (data: ContentSummaryAndCompareStatus[]) => {
@@ -1136,6 +1175,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             }
         };
 
+        serverEvents.onContentCreated(createdHandler);
+        serverEvents.onContentDuplicated(createdHandler);
         serverEvents.onContentMoved(movedHandler);
         serverEvents.onContentSorted(sortedHandler);
         serverEvents.onContentUpdated(contentUpdatedHandler);
@@ -1148,6 +1189,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
         serverEvents.onContentDeleted(deleteHandler);
 
         this.onClosed(() => {
+            serverEvents.unContentCreated(createdHandler);
+            serverEvents.unContentDuplicated(createdHandler);
             serverEvents.unContentMoved(movedHandler);
             serverEvents.unContentSorted(sortedHandler);
             serverEvents.unContentUpdated(contentUpdatedHandler);
@@ -1630,6 +1673,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     protected setPersistedItem(newPersistedItem: Content): void {
         super.setPersistedItem(newPersistedItem);
+        setWizardContent(newPersistedItem);
 
         setWizardPersistedContent(newPersistedItem);
 
@@ -1642,6 +1686,10 @@ export class ContentWizardPanel extends WizardPanel<Content> {
 
     protected convertToCurrentItem(content: Content): Content {
         return content ? content.clone() : null;
+    }
+
+    getPersistedSummary(): ContentSummary | null {
+        return $contextContent.get() ?? this.getPersistedItem() ?? null;
     }
 
     private setPersistedContent(content: ContentSummaryAndCompareStatus) {

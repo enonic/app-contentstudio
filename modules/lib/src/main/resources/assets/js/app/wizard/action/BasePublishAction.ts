@@ -53,7 +53,7 @@ export abstract class BasePublishAction extends Action {
     }
 
     private firePromptEvent(): void {
-        this.createPromptEvent([this.config.wizard.getPersistedItem()]);
+        this.createPromptEvent([this.config.wizard.getPersistedSummary()]);
     }
 
     private checkOnExecuted(callback: () => void) {
