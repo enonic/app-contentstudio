@@ -1,5 +1,5 @@
 import { ContentIcon } from './ContentIcon';
-import { StatusIcon } from './StatusIcon';
+import { ContentStatusIcon } from './ContentStatusIcon';
 import type { ContentState } from '../../../../app/content/ContentState';
 
 type Props = {
@@ -13,7 +13,7 @@ export function WorkflowContentIcon({ status, ...props }: Props): React.ReactEle
     return (
         <span className="relative inline-flex items-center">
             <ContentIcon className="size-6" {...props} />
-            {status && <StatusIcon status={status} withTooltip className="absolute -top-0.75 -right-0.75" />}
+            {status && <ContentStatusIcon status={status} />}
         </span>
     );
 }

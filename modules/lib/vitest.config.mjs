@@ -21,6 +21,7 @@ export default defineConfig({
             deps: {
                 // Inline UI dependencies so their React imports also follow the Preact aliases.
                 inline: [
+                    /@dnd-kit\//,
                     '@enonic/ui',
                     '@enonic/input-types',
                     '@enonic/ui-utils',
@@ -35,8 +36,13 @@ export default defineConfig({
     resolve: {
         alias: {
             '@': path.resolve(__dirname, './src/main/resources/assets/js'),
-            // Force the ESM build so the react import below gets aliased (the CJS build would require() real react)
+            // Force ESM builds so React imports follow the Preact aliases instead of requiring real React.
+            '@dnd-kit/core': '@dnd-kit/core/dist/core.esm.js',
+            '@dnd-kit/sortable': '@dnd-kit/sortable/dist/sortable.esm.js',
+            '@dnd-kit/utilities': '@dnd-kit/utilities/dist/utilities.esm.js',
+            '@dnd-kit/accessibility': '@dnd-kit/accessibility/dist/accessibility.esm.js',
             'react-resizable-panels': 'react-resizable-panels/dist/react-resizable-panels.js',
+            'lucide-react': path.resolve(__dirname, './node_modules/lucide-react/dist/esm/lucide-react.mjs'),
             // Preact compat aliases for @testing-library/react
             react: 'preact/compat',
             'react-dom': 'preact/compat',

@@ -157,7 +157,9 @@ ImageSelector.displayName = IMAGE_SELECTOR_NAME;
 const ImageComboboxRow = (props: ContentRowProps): ReactElement => (
     <ContentRow
         {...props}
-        renderFlatContent={(content, hideStatus) => <ImageSelectorItemView content={content} hideStatus={hideStatus} />}
+        renderFlatContent={(content, hideStatus) => (
+            <ImageSelectorItemView content={content} hideStatus={hideStatus} tooltipTabIndex={-1} />
+        )}
     />
 );
 

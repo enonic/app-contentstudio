@@ -47,8 +47,9 @@ export const MediaSelectorItemView = ({ content, hideStatus = false }: MediaSele
                 </span>
                 <Tooltip delay={300} value={subName}>
                     <span
+                        tabIndex={0}
                         dir="rtl"
-                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt"
+                        className="text-subtle text-sm block whitespace-nowrap overflow-hidden text-ellipsis text-left group-data-[tone=inverse]:text-alt focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
                     >
                         <bdi>{subName}</bdi>
                     </span>

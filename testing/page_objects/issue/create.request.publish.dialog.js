@@ -336,7 +336,7 @@ class CreateRequestPublishDialog extends Page {
         return await diffStatusBadge.getStatusText();
     }
 
-    // Returns 'ready', 'in-progress', or '' — read from aria-label of the SVG icon inside ContentLabel
+    // Returns 'ready', 'in-progress', or '' — read from data-status of the SVG icon inside ContentLabel
     async getWorkflowIconState(contentName) {
         const rowXpath = xpath.container + xpath.mainItemDivByName(contentName);
         const diffStatusBadge = new DiffStatusBadge(rowXpath);

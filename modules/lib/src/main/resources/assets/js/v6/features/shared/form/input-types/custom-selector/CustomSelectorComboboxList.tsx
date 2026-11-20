@@ -36,7 +36,7 @@ export const CustomSelectorInputComboboxList = ({
         >
             {items.map((item) => (
                 <Listbox.Item key={item.id} value={item.id}>
-                    <CustomSelectorItemView item={item} listMode={listMode} />
+                    <CustomSelectorItemView item={item} listMode={listMode} tooltipTabIndex={-1} />
                     {selectionMode !== 'single' && (
                         <Checkbox
                             tabIndex={-1}
