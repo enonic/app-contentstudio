@@ -12,12 +12,14 @@ export type ContentTreeListItemProps = {
     content: ContentData;
     showPath?: boolean;
     selected?: boolean;
+    primaryId?: string;
 };
 
 export const ContentTreeListItem = ({
     content,
     showPath = false,
     selected = false,
+    primaryId,
 }: ContentTreeListItemProps): React.ReactElement => {
     const { item } = content;
     const isInherited = item.isInherited();
@@ -39,7 +41,12 @@ export const ContentTreeListItem = ({
     return (
         <ListItem className="p-0" role="presentation">
             <ListItem.Left className="flex-1">
-                <ContentLabel content={item} variant={showPath ? 'detailed' : 'normal'} titleSource="list" />
+                <ContentLabel
+                    content={item}
+                    variant={showPath ? 'detailed' : 'normal'}
+                    titleSource="list"
+                    primaryId={primaryId}
+                />
             </ListItem.Left>
             <ListItem.Right>
                 {isInherited && (

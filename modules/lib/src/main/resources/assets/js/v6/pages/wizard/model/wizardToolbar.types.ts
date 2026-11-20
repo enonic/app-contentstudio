@@ -22,4 +22,5 @@ export type WizardToolbarStore = {
     isLayerProject: boolean;
     isContentInherited: boolean;
     isContentDataInherited: boolean;
+    feedback: (({ type: 'saved'; message: string } | { type: 'invalid' }) & { sequence: number }) | null;
 };

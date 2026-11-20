@@ -27,6 +27,7 @@ import {
     initWizardContentSyncService,
 } from '../../v6/pages/wizard/model/wizardContentSync.service';
 import { $contextContent, setWizardContent } from '../../v6/entities/content';
+import { showWizardSaveFeedback } from '../../v6/pages/wizard/model/wizardToolbar.store';
 import { fromLegacyApplicationConfig } from '../../v6/shared/lib/cms/application/applicationConfig';
 import { $activeWidgetId, setContextOpen } from '../../v6/widgets/context-panel/model/contextWidgets.store';
 import { getActiveProject, getActiveProjectName } from '../../v6/entities/project';
@@ -1552,7 +1553,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
             message = i18n('notify.item.saved', name);
         }
 
-        showFeedback(message);
+        showWizardSaveFeedback(message);
     }
 
     hasUnsavedChanges(): boolean {

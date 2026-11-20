@@ -1,11 +1,13 @@
 import { Form, Input } from '@enonic/input-types/schema';
 import { registerBuiltInTypes } from '@enonic/input-types';
 import { PropertyTree } from '@enonic/input-types/data';
-import { cleanup, render, screen } from '@testing-library/preact';
+import { act, cleanup, fireEvent, render, screen } from '@testing-library/preact';
 import type { ReactNode } from 'react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 
-const { formRendererProps } = vi.hoisted(() => ({ formRendererProps: { current: undefined as unknown } }));
+const { formRendererProps } = vi.hoisted(() => ({
+    formRendererProps: { current: undefined as unknown, render: undefined as (() => ReactNode) | undefined },
+}));
 
 vi.mock('@enonic/ui', () => {
     const passthrough = ({ children }: { children?: ReactNode }) => <div>{children}</div>;
@@ -17,7 +19,7 @@ vi.mock('@enonic/ui', () => {
             Title: passthrough,
             Description: passthrough,
             DefaultClose: () => null,
-            Body: passthrough,
+            Body: ({ children, ...props }: { children?: ReactNode }) => <div {...props}>{children}</div>,
             Footer: passthrough,
         },
     };
@@ -30,7 +32,7 @@ vi.mock('../../../shared/lib/hooks/useI18n', () => ({
 vi.mock('./FormRenderer', () => ({
     FormRenderer: (props: unknown) => {
         formRendererProps.current = props;
-        return <div data-testid="form-renderer" />;
+        return formRendererProps.render?.() ?? <div data-testid="form-renderer" />;
     },
 }));
 
@@ -85,6 +87,8 @@ describe('ApplicationConfigDialogContent', () => {
     afterEach(() => {
         cleanup();
         formRendererProps.current = undefined;
+        formRendererProps.render = undefined;
+        vi.useRealTimers();
         vi.restoreAllMocks();
     });
 
@@ -129,5 +133,55 @@ describe('ApplicationConfigDialogContent', () => {
         renderContent({ notice: 'Types appear after saving.' });
 
         expect(screen.getByText('Types appear after saving.')).toBeTruthy();
+    });
+
+    it('announces later error changes after input and restores the original region when released', async () => {
+        vi.useFakeTimers();
+        formRendererProps.render = () => (
+            <>
+                {['Title', 'Description'].map((label) => (
+                    <div key={label} data-component="Input">
+                        <input aria-label={label} />
+                        <div data-testid={`${label}-error`} aria-live="polite" />
+                    </div>
+                ))}
+            </>
+        );
+        const { unmount } = renderContent();
+        const titleError = screen.getByTestId('Title-error');
+        const descriptionError = screen.getByTestId('Description-error');
+        const announcement = screen.getByRole('status');
+
+        fireEvent.input(screen.getByRole('textbox', { name: 'Title' }));
+        expect(titleError.getAttribute('aria-live')).toBe('off');
+        await act(async () => {
+            vi.advanceTimersToNextFrame();
+        });
+        fireEvent.blur(screen.getByRole('textbox', { name: 'Title' }));
+        await act(async () => {
+            titleError.textContent = 'This field is required';
+        });
+        await act(async () => {
+            vi.advanceTimersByTime(500);
+        });
+        expect(announcement.textContent).toBe('Title: This field is required');
+
+        await act(async () => {
+            titleError.textContent = '';
+        });
+        expect(announcement.textContent).toBe('');
+        await act(async () => {
+            titleError.textContent = 'Another error';
+        });
+        await act(async () => {
+            vi.advanceTimersByTime(500);
+        });
+        expect(announcement.textContent).toBe('Title: Another error');
+
+        fireEvent.input(screen.getByRole('textbox', { name: 'Description' }));
+        expect(titleError.getAttribute('aria-live')).toBe('polite');
+        expect(descriptionError.getAttribute('aria-live')).toBe('off');
+        unmount();
+        expect(descriptionError.getAttribute('aria-live')).toBe('polite');
     });
 });

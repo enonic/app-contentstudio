@@ -3,8 +3,8 @@ import { type Form } from '@enonic/input-types/schema';
 import { ValidationVisibilityProvider } from '@enonic/input-types';
 import { Button, Dialog } from '@enonic/ui';
 import { AlertTriangle, Info } from 'lucide-react';
-import type { ReactElement } from 'react';
-import { useEffect, useState } from 'react';
+import type { FormEvent, ReactElement } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Application } from '../../../entities/application';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { StatusBarEntry } from '../../../shared/ui/dialogs/status-bar/StatusBarEntry';
@@ -12,6 +12,7 @@ import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { FormRenderer } from './FormRenderer';
 import { hasScopeDisabledInputs, isFormValidInScope } from './formScopeRequirements';
 import type { FormScope } from './FormScopeContext';
+import { PoliteAnnouncement } from './PoliteAnnouncement';
 
 const COMPONENT_NAME = 'ApplicationConfigDialogContent';
 
@@ -57,6 +58,7 @@ export const ApplicationConfigDialogContent = ({
     const applyLabel = useI18n('action.apply');
     const disabledInputsText = useI18n('dialog.applicationConfig.disabledInputs');
     const hasDisabledInputs = hasScopeDisabledInputs(form, { project, content });
+    const { message, handleInput } = useInputErrorAnnouncement();
 
     return (
         <>
@@ -75,7 +77,7 @@ export const ApplicationConfigDialogContent = ({
                 <Dialog.DefaultClose className="self-start" />
             </Dialog.Header>
 
-            <Dialog.Body className="p-2 -m-2">
+            <Dialog.Body onInputCapture={handleInput} className="p-2 -m-2">
                 {hasDisabledInputs && (
                     <StatusBarEntry className="mb-4 bg-surface-warn">
                         <AlertTriangle className="size-6 shrink-0" />
@@ -99,6 +101,7 @@ export const ApplicationConfigDialogContent = ({
                         content={content}
                     />
                 </ValidationVisibilityProvider>
+                <PoliteAnnouncement message={message} />
             </Dialog.Body>
 
             <Dialog.Footer>
@@ -117,6 +120,66 @@ export const ApplicationConfigDialogContent = ({
 };
 
 ApplicationConfigDialogContent.displayName = COMPONENT_NAME;
+
+// The toolkit's Input owns its visible error and description. Announce an edited
+// field through one separate region instead of competing with its keyboard feedback.
+const useInputErrorAnnouncement = () => {
+    const [message, setMessage] = useState<string>();
+    const frame = useRef<number | undefined>(undefined);
+    const observed = useRef<{ region: HTMLElement; release: () => void } | undefined>(undefined);
+
+    useEffect(
+        () => () => {
+            cancelAnimationFrame(frame.current);
+            observed.current?.release();
+        },
+        [],
+    );
+
+    // Capture runs before the input's change handler inserts its error text.
+    const handleInput = (event: FormEvent<HTMLDivElement>) => {
+        cancelAnimationFrame(frame.current);
+        setMessage(undefined);
+        if (!(event.target instanceof HTMLElement)) {
+            return;
+        }
+        const input = event.target.closest('[data-component="Input"]');
+        const region = input?.querySelector<HTMLElement>(':scope > [aria-live]');
+        if (observed.current?.region !== region) {
+            observed.current?.release();
+            observed.current = undefined;
+        }
+        if (!region) {
+            return;
+        }
+
+        const label = event.target.getAttribute('aria-label');
+        const updateMessage = () => {
+            const error = region.textContent?.trim();
+            setMessage(error && label ? `${label}: ${error}` : error || undefined);
+        };
+        if (!observed.current) {
+            const originalLive = region.getAttribute('aria-live');
+            const observer = new MutationObserver(updateMessage);
+            observer.observe(region, { childList: true, characterData: true, subtree: true });
+            region.setAttribute('aria-live', 'off');
+            observed.current = {
+                region,
+                release: () => {
+                    observer.disconnect();
+                    if (originalLive == null) region.removeAttribute('aria-live');
+                    else region.setAttribute('aria-live', originalLive);
+                },
+            };
+        }
+        frame.current = requestAnimationFrame(() => {
+            frame.current = undefined;
+            updateMessage();
+        });
+    };
+
+    return { message, handleInput };
+};
 
 //
 // * Apply button

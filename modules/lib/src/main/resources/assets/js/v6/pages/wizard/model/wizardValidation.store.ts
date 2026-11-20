@@ -58,6 +58,9 @@ export const $invalidTabs = atom<ReadonlySet<string>>(new Set());
 
 export const $invalidComponentPaths = atom<ReadonlySet<string>>(new Set());
 
+// The Site Configurator announces its detailed error instead of toolbar "Invalid".
+export const $hasInvalidSiteConfig = atom(false);
+
 const $dataServerErrors = atom<DataValidationError[]>([]);
 
 // Server data errors flattened for the form fields to display by data path.
@@ -103,6 +106,7 @@ function runValidation(): void {
     const dataServerErrors = $dataServerErrors.get();
 
     if (!contentType || !draftData) {
+        $hasInvalidSiteConfig.set(false);
         setWizardFormValidation(true);
         $invalidTabs.set(new Set());
         $invalidComponentPaths.set(new Set());
@@ -162,6 +166,7 @@ function runValidation(): void {
 
     $invalidComponentPaths.set(allInvalidPaths);
     $invalidTabs.set(nextInvalidTabs);
+    $hasInvalidSiteConfig.set(hasInvalidSiteConfig);
     setWizardFormValidation(
         isContentFormValid && allMixinsValid && allInvalidPaths.size === 0 && !hasAttachmentErrors && !hasGeneralErrors,
     );
@@ -514,6 +519,7 @@ export function resetValidation(): void {
     $validationVisibility.set('none');
     $invalidTabs.set(new Set());
     $invalidComponentPaths.set(new Set());
+    $hasInvalidSiteConfig.set(false);
     $dataServerErrors.set([]);
     $componentConfigErrors.set([]);
     $attachmentServerErrors.set([]);

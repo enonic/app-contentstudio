@@ -1,7 +1,7 @@
 import { type Application } from '../../../entities/application';
 import { Checkbox, cn, Combobox, type ComboboxRootProps, Listbox, useCombobox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { type ReactElement, type RefObject, useId, useMemo, useState } from 'react';
+import { type AriaAttributes, type ReactElement, type RefObject, useId, useMemo, useState } from 'react';
 import { $applications } from '../../../entities/application';
 import { ApplicationIcon } from '../../../shared/ui/icons/ApplicationIcon';
 import { ItemLabel } from '../../../shared/ui/ItemLabel';
@@ -16,10 +16,11 @@ type ApplicationSelectorProps = {
     placeholder?: string;
     emptyLabel?: string;
     closeOnBlur?: boolean;
+    onOpenChange?: ComboboxRootProps['onOpenChange'];
     inputRef?: RefObject<HTMLInputElement | null>;
     className?: string;
     inheritedKeys?: ReadonlySet<string>;
-};
+} & Pick<AriaAttributes, 'aria-describedby' | 'aria-invalid'>;
 
 export const ApplicationSelector = (props: ApplicationSelectorProps): ReactElement => {
     const { applications } = useStore($applications);
@@ -34,9 +35,12 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
         placeholder,
         emptyLabel,
         closeOnBlur,
+        onOpenChange,
         inputRef,
         className,
         inheritedKeys,
+        'aria-describedby': describedBy,
+        'aria-invalid': invalid,
     } = props;
 
     const filtered = useMemo(() => {
@@ -61,13 +65,20 @@ export const ApplicationSelector = (props: ApplicationSelectorProps): ReactEleme
                 onSelectionChange={onSelectionChange}
                 selectionMode={selectionMode}
                 closeOnBlur={closeOnBlur}
+                onOpenChange={onOpenChange}
                 contentType="listbox"
             >
                 <Combobox.Content>
                     <Combobox.Control>
                         <Combobox.Search>
                             <Combobox.SearchIcon />
-                            <Combobox.Input ref={inputRef} id={inputId} placeholder={placeholder} />
+                            <Combobox.Input
+                                ref={inputRef}
+                                id={inputId}
+                                placeholder={placeholder}
+                                aria-describedby={describedBy}
+                                aria-invalid={invalid}
+                            />
                             {selectionMode === 'staged' && <Combobox.Apply />}
                             <Combobox.Toggle />
                         </Combobox.Search>

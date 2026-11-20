@@ -4,8 +4,10 @@ import { RefreshCcw } from 'lucide-react';
 import { type ReactElement, useMemo } from 'react';
 import { reloadProjects } from '../../../entities/project';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { SelectionCountAnnouncement } from '../../../shared/ui/SelectionCountAnnouncement';
 import { resetSettingsTreeForReload } from '../model/settings-tree.store';
 import {
+    $currentIds,
     $isAllSelected,
     $isNoneSelected,
     $selectionCount,
@@ -26,6 +28,7 @@ const handleReload = (): void => {
 export const SettingsTreeListToolbar = (): ReactElement => {
     const isAllSelected = useStore($isAllSelected);
     const totalSelected = useStore($selectionCount);
+    const currentIds = useStore($currentIds);
     const isNoneSelected = useStore($isNoneSelected);
     const reloadLabel = useI18n('action.reload.projects');
     const selectAllLabel = useI18n('field.selection.selectAll');
@@ -51,6 +54,7 @@ export const SettingsTreeListToolbar = (): ReactElement => {
             data-component={SETTINGS_TREE_LIST_TOOLBAR_NAME}
             className="bg-surface-neutral flex items-center justify-between px-3.5 sm:px-5 py-2.5 gap-2"
         >
+            <SelectionCountAnnouncement ids={currentIds} checkboxSelection={totalSelected > 0} />
             <div className="ml-2.5 flex items-center gap-2.5">
                 <Checkbox
                     aria-label={checkboxLabel}
