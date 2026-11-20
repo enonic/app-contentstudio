@@ -167,6 +167,7 @@ class Page {
         let inputElement = await this.findElement(selector);
         for (const ch of text) {
             await inputElement.addValue(ch);
+            await this.pause(30);
         }
     }
 

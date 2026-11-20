@@ -63,14 +63,6 @@ class ProjectWizardDialogApplicationsStep extends ProjectWizardDialog {
         return await this.#applicationsCombobox.isCheckboxDisplayedInOption(appName);
     }
 
-    async tryToClickOnOption(appName) {
-        return await this.#applicationsCombobox.tryToClickOnOption(appName);
-    }
-
-    async isApplySelectionButtonDisplayed() {
-        return await this.#applicationsCombobox.isApplySelectionButtonDisplayed();
-    }
-
     //expand the dropdown and click on an option
     async expandDropdownListAndSelectApplication(appName) {
         try {

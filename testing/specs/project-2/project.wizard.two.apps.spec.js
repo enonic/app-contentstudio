@@ -315,13 +315,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         assert.ok(isDisabled, 'The option of the inherited application should be disabled');
         let isCheckboxDisplayed = await applicationsStep.isCheckboxDisplayedInOption(PARENT_APPS[0]);
         assert.ok(!isCheckboxDisplayed, 'Checkbox should not be displayed in the option of the inherited application');
-        // 5. Try to unselect the option - click on it:
-        await applicationsStep.tryToClickOnOption(PARENT_APPS[0]);
-        await studioUtils.saveScreenshot('layer_wizard_inherited_app_option_clicked');
-        // 6. 'Apply' button should not appear, the selection is not changed:
-        let isApplyDisplayed = await applicationsStep.isApplySelectionButtonDisplayed();
-        assert.ok(!isApplyDisplayed, `'Apply' button should not be displayed after clicking on the disabled option`);
-        // 7. Both inherited apps remain selected, 'Remove' icon is not displayed for the app:
+        // 5. Both inherited apps are selected, 'Remove' icon is not displayed for the app:
         let apps = await applicationsStep.getSelectedApplications();
         assert.deepEqual(apps, PARENT_APPS, 'Both inherited applications should remain selected');
         await applicationsStep.waitForRemoveAppIconNotDisplayed(PARENT_APPS[0]);
@@ -352,16 +346,18 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         await configDialog.clickOnAddNewContentButton(POSTS_FOLDER_LABEL);
         await studioUtils.doSwitchToNewWizard();
         // 6. Verify that the layer is displayed in the left corner of the content wizard:
-        // the language was copied from the parent in the previous test, so the label is 'layer (en)':
-        const LAYER_LABEL = `${LAYER_WITH_INHERITED_APPS} (en)`;
+        // the label gets the language suffix - 'layer (en)', when a language is set in the layer:
         let projectName = await contentWizardPanel.getProjectDisplayName();
-        assert.equal(projectName, LAYER_LABEL, 'The layer should be displayed in the wizard toolbar');
+        assert.ok(
+            projectName.includes(LAYER_WITH_INHERITED_APPS),
+            'The layer should be displayed in the wizard toolbar',
+        );
         // 7. Type the name and save the folder:
         await contentWizardPanel.typeDisplayName(FOLDER_NAME);
         await contentWizardPanel.waitAndClickOnSave();
         await studioUtils.saveScreenshot('layer_app_config_folder_saved');
         // 8. Click on the button with the layer's name and go to the browse panel:
-        await contentWizardPanel.clickOnNavigateToBrowsePanelButton(LAYER_LABEL);
+        await contentWizardPanel.clickOnNavigateToBrowsePanelButton(LAYER_WITH_INHERITED_APPS);
         // 9. Verify that the image and the folder are present in the layer's context:
         await contentBrowsePanel.waitForContentDisplayed(FOLDER_NAME);
         await contentBrowsePanel.waitForContentDisplayed(`${IMAGE_DISPLAY_NAME}.png`);

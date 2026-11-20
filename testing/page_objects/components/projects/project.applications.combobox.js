@@ -55,21 +55,6 @@ class ProjectApplicationsCombobox extends BasDropdown {
         let elements = await this.getDisplayedElements(DROPDOWN.listboxItemCheckboxByDisplayName(appDisplayName));
         return elements.length > 0;
     }
-
-    // Tries to click on the option. A disabled option does not receive the click, so the driver's error is ignored:
-    async tryToClickOnOption(appDisplayName) {
-        let option = await this.#getDisplayedOption(appDisplayName);
-        try {
-            await option.click();
-        } catch (err) {
-            console.log(`The option '${appDisplayName}' is not clickable: ` + err.message);
-        }
-        return await this.pause(300);
-    }
-
-    async isApplySelectionButtonDisplayed() {
-        return await this.isElementDisplayed(this.applySelectionButton);
-    }
 }
 
 module.exports = ProjectApplicationsCombobox;
