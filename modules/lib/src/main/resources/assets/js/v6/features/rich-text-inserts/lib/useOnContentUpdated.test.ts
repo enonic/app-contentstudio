@@ -1,4 +1,4 @@
-import { renderHook } from '@testing-library/preact';
+import { act, renderHook } from '@testing-library/preact';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { type ContentSummary } from '../../../../app/content/ContentSummary';
 import { emitContentUpdated } from '../../../shared/socket/socket.store';
@@ -57,7 +57,7 @@ describe('useOnContentUpdated', () => {
         const onUpdated = vi.fn();
         const { unmount } = renderHook(() => useOnContentUpdated('content-1', onUpdated));
 
-        unmount();
+        act(() => unmount());
         emitContentUpdated([summary('content-1')]);
 
         expect(onUpdated).not.toHaveBeenCalled();

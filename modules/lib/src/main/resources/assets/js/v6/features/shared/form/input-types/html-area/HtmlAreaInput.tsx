@@ -8,7 +8,7 @@ import type { InputTypeComponentProps } from '@enonic/input-types';
 import { getFirstError, useInputTypesPhrases } from '@enonic/input-types';
 import { cn, useBlinkAttention } from '@enonic/ui';
 import { CKEditorEventAction, useCKEditor, type CKEditorEventDispatcher } from 'ckeditor4-react';
-import { useEffect, useMemo, useRef, useState, type JSX } from 'react';
+import { useEffect, useMemo, useRef, useState, type FocusEvent, type JSX } from 'react';
 import type { ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import { shouldIgnoreHtmlAreaBlur } from '../../../../../../app/inputtype/ui/text/HtmlAreaOverlayState';
@@ -509,7 +509,7 @@ const CKEditorWrapper = ({
                 tabIndex={0}
                 data-sortable-list-composite-target="true"
                 aria-busy={processing || undefined}
-                onFocus={(event: JSX.TargetedFocusEvent<HTMLDivElement>) => {
+                onFocus={(event: FocusEvent<HTMLDivElement>) => {
                     if (event.target !== event.currentTarget) {
                         return;
                     }

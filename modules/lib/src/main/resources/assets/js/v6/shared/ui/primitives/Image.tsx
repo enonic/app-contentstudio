@@ -1,7 +1,16 @@
+import type { HTMLAttributeReferrerPolicy, TargetedEvent } from 'react';
+
 type ImageProps = {
     className?: string;
     src: string;
-} & Pick<React.ImgHTMLAttributes, 'alt' | 'width' | 'height' | 'loading' | 'decoding' | 'referrerPolicy' | 'onError'>;
+    alt?: string;
+    width?: number | string;
+    height?: number | string;
+    loading?: 'eager' | 'lazy';
+    decoding?: 'async' | 'auto' | 'sync';
+    referrerPolicy?: HTMLAttributeReferrerPolicy;
+    onError?: (event: TargetedEvent<HTMLImageElement>) => void;
+};
 
 export const Image = ({
     src,
