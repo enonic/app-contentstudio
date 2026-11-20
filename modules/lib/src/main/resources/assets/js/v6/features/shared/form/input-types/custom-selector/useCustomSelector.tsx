@@ -88,9 +88,9 @@ export const useCustomSelector = ({
     const { project, content } = useFormScope();
 
     // Refs
-    const contentIdRef = useRef<string>();
+    const contentIdRef = useRef<string>(undefined);
     contentIdRef.current = content?.getId();
-    const projectIdRef = useRef<string>();
+    const projectIdRef = useRef<string>(undefined);
     projectIdRef.current = project?.getName();
     const requestedIdsRef = useRef<Set<string>>(new Set());
 

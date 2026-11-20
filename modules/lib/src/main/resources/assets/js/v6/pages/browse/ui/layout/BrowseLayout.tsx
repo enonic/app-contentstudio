@@ -106,7 +106,7 @@ export const BrowseLayout = ({
     // Hosted legacy content re-measures only on ResponsiveManager events.
     // ? The timer is owned here instead of AppHelper.debounce, which returns
     // no handle to cancel a pending fire before unmount.
-    const resizeTimerRef = useRef<number>();
+    const resizeTimerRef = useRef<number>(undefined);
 
     useEffect(() => () => window.clearTimeout(resizeTimerRef.current), []);
 

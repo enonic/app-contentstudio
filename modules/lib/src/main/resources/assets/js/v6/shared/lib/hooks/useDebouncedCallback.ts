@@ -38,7 +38,7 @@ export function useDebouncedCallback<T extends (...args: never[]) => void>(
     }, [callback]);
 
     // Create stable debounced function (only once)
-    const debouncedFn = useRef<ReturnType<typeof createDebounce<T>>>();
+    const debouncedFn = useRef<ReturnType<typeof createDebounce<T>>>(undefined);
 
     if (!debouncedFn.current) {
         debouncedFn.current = createDebounce(
