@@ -90,8 +90,8 @@ importers:
         specifier: ^1.2.0
         version: 1.2.0
       jquery:
-        specifier: ^3.7.1
-        version: 3.7.1
+        specifier: ^4.1.0
+        version: 4.1.0
       jquery-simulate:
         specifier: ^1.0.2
         version: 1.0.2
@@ -184,8 +184,8 @@ importers:
         specifier: ^4.9.10
         version: 4.9.10
       '@types/jquery':
-        specifier: ^3.5.33
-        version: 3.5.34
+        specifier: ^4.0.1
+        version: 4.0.1
       '@types/jqueryui':
         specifier: ^1.12.25
         version: 1.12.25
@@ -873,8 +873,8 @@ packages:
   '@types/ckeditor@4.9.10':
     resolution: {integrity: sha512-dcOPCXM0Cr5Z0i6eF/aW5LvECrS+cdl2Gi7lU+rEUNWby0w9Yl6mBubjrs29OVAducpuZjB4mfDayE+o4/gGdQ==}
 
-  '@types/jquery@3.5.34':
-    resolution: {integrity: sha512-3m3939S3erqmTLJANS/uy0B6V7BorKx7RorcGZVjZ62dF5PAGbKEDZK1CuLtKombJkFA2T1jl8LAIIs7IV6gBQ==}
+  '@types/jquery@4.0.1':
+    resolution: {integrity: sha512-9a59A/tycXgYuPABcp6/3spSShn0NT2UOM4EfHvMumjYi4lJWTsK5SZWjhx3yRm9IHGCeWXdV2YfNsrWrft/CA==}
 
   '@types/jqueryui@1.12.25':
     resolution: {integrity: sha512-GOCUaVjCJZgkFuxXN3hU6PzbhfQOI0VLs2lNVd6wdSk27/CeUl7nP+L/0qsXBDF7y0yeaIjVJU3XniYRBjKxnA==}
@@ -895,9 +895,6 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
-
-  '@types/sizzle@2.3.10':
-    resolution: {integrity: sha512-TC0dmN0K8YcWEAEfiPi5gJP14eJe30TTGjkvek3iM/1NdHHsdCA/Td6GvNndMOo/iSnIsZ4HuuhrYPDAmbxzww==}
 
   '@types/trusted-types@2.0.7':
     resolution: {integrity: sha512-ScaPdn1dQczgbl0QFTeTOmVHFULt394XJgOQNoyVhZ6r2vLnMLJfBPd53SB52T/3G36VI1/g2MZaX0cwDuXsfw==}
@@ -1302,8 +1299,8 @@ packages:
   jquery-ui@1.14.2:
     resolution: {integrity: sha512-1gSl7PUjyipa2adSr780Ujk16faicrV7PjPPzPtvWk7tTqBnsqp67NNV9jZK2+BIxUPXWSnIUU/LBCgwgGZE+Q==}
 
-  jquery@3.7.1:
-    resolution: {integrity: sha512-m4avr8yL8kmFN8psrbFFFmB/If14iN5o9nw/NgnnM+kybDJpRsAynV2BsfpTYrTRysYUdADVD7CkUUizgkpLfg==}
+  jquery@4.1.0:
+    resolution: {integrity: sha512-tnN2N83S+xD3yhmdBP4nnJ1XOO0Fl586rG23FA5h/JAe8XN3W9a1zGwDMltBptn+UpcqEKicnO61+jQ0EiF2fw==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -2314,13 +2311,11 @@ snapshots:
 
   '@types/ckeditor@4.9.10': {}
 
-  '@types/jquery@3.5.34':
-    dependencies:
-      '@types/sizzle': 2.3.10
+  '@types/jquery@4.0.1': {}
 
   '@types/jqueryui@1.12.25':
     dependencies:
-      '@types/jquery': 3.5.34
+      '@types/jquery': 4.0.1
 
   '@types/less@3.0.8': {}
 
@@ -2337,8 +2332,6 @@ snapshots:
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.4
-
-  '@types/sizzle@2.3.10': {}
 
   '@types/trusted-types@2.0.7':
     optional: true
@@ -2685,9 +2678,9 @@ snapshots:
 
   jquery-ui@1.14.2:
     dependencies:
-      jquery: 3.7.1
+      jquery: 4.1.0
 
-  jquery@3.7.1: {}
+  jquery@4.1.0: {}
 
   js-tokens@4.0.0: {}
 
