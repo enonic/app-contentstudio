@@ -19,11 +19,12 @@ vi.mock('@enonic/ui', () => ({
             value: string;
             error?: string;
             onChange: (e: { currentTarget: HTMLInputElement }) => void;
+            'aria-required'?: boolean;
         }
-    >(({ label, value, error, onChange }, ref) => (
+    >(({ label, value, error, onChange, ...props }, ref) => (
         <label>
             {label}
-            <input ref={ref} value={value} onChange={onChange} />
+            <input ref={ref} value={value} onChange={onChange} {...props} />
             {error && <div role="alert">{error}</div>}
         </label>
     )),
@@ -76,6 +77,16 @@ describe('ProjectDialogNameStepContent', () => {
             description: screen.getByLabelText('field.description') as HTMLInputElement,
         };
     }
+
+    it('explains the required marker and exposes required inputs to assistive technology', () => {
+        render(<ProjectDialogNameStepContent />);
+        const { name, identifier, description } = getInputs();
+
+        expect(screen.getByText('field.requiredFields')).toBeDefined();
+        expect(name.getAttribute('aria-required')).toBe('true');
+        expect(identifier.getAttribute('aria-required')).toBe('true');
+        expect(description.getAttribute('aria-required')).toBeNull();
+    });
 
     it('should keep a keystroke typed before the effects of the previous render have run', async () => {
         render(<ProjectDialogNameStepContent />);

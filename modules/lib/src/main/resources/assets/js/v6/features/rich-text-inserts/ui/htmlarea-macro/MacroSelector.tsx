@@ -68,7 +68,7 @@ export const MacroSelector = (): ReactElement => {
                         <Combobox.Control>
                             <Combobox.Search>
                                 <Combobox.SearchIcon />
-                                <Combobox.Input id={inputId} placeholder={label} />
+                                <Combobox.Input id={inputId} placeholder={label} aria-required={true} />
                                 <Combobox.Toggle />
                             </Combobox.Search>
                         </Combobox.Control>

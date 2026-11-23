@@ -744,6 +744,7 @@ export const IssueDialogDetailsContent = (): ReactElement => {
                                 disabled={isTitleDisabled}
                                 size="lg"
                                 allowEmpty={false}
+                                aria-required={true}
                                 aria-label={titleLabel}
                             />
                             {!isEditingTitle && issueIndex != null && (

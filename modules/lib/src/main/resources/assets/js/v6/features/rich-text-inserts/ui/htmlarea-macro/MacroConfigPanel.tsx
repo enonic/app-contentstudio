@@ -34,7 +34,13 @@ export const MacroConfigPanel = (): ReactElement => {
     return (
         <div data-component={COMPONENT_NAME} className="relative py-2">
             <ValidationVisibilityProvider visibility={validationVisibility}>
-                <FormRenderer form={form} propertySet={data} enabled={!configLoading} applicationKey={applicationKey} />
+                <FormRenderer
+                    form={form}
+                    propertySet={data}
+                    enabled={!configLoading}
+                    applicationKey={applicationKey}
+                    showRequiredFieldsLegend={false}
+                />
             </ValidationVisibilityProvider>
             {configLoading && (
                 <div className="absolute inset-0 flex items-center justify-center bg-surface/50">

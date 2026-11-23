@@ -7,9 +7,11 @@ import { useStore } from '@nanostores/preact';
 import type { ReactElement, ReactNode } from 'react';
 import { $config } from '../../../shared/config/config.store';
 import { FormI18nProvider } from '../../../shared/ui/providers/FormI18nProvider';
+import { RequiredFieldsLegend } from '../../../shared/ui/RequiredFieldsLegend';
 import { useApplicationKeys } from '../hooks/useApplicationKeys';
 import { type FormScope, FormScopeProvider, useFormScope } from './FormScopeContext';
 import { HtmlAreaProvider, useOptionalHtmlAreaContext } from './input-types/html-area';
+import { hasRequiredFields } from './hasRequiredFields';
 
 type FormRendererOwnProps = {
     form: Form;
@@ -18,6 +20,8 @@ type FormRendererOwnProps = {
     applicationKey?: ApplicationKey;
     excludeInputTypes?: readonly string[];
     revealFreshOccurrences?: boolean;
+    /** Set to false when the surrounding form already explains the required-field marker. */
+    showRequiredFieldsLegend?: boolean;
 };
 
 type FormRendererProps = FormScope & FormRendererOwnProps;
@@ -49,16 +53,30 @@ type ScopedFormProps = FormRendererOwnProps & {
     ownScope: boolean;
 };
 
-const ScopedForm = ({ applicationKey, ownScope, ...props }: ScopedFormProps): ReactElement => {
+const ScopedForm = ({
+    applicationKey,
+    ownScope,
+    showRequiredFieldsLegend = true,
+    ...props
+}: ScopedFormProps): ReactElement => {
     const { project, content } = useFormScope();
     const existingHtmlAreaContext = useOptionalHtmlAreaContext();
     // A content without a language gets none, not the project's.
     const language = content ? content.getLanguage() : project?.getLanguage();
     const reuseHtmlAreaContext = existingHtmlAreaContext !== undefined && !ownScope;
 
-    const renderedForm = (
+    const toolkitForm = (
         <ToolkitFormRenderer {...props} applicationKey={applicationKey?.toString()} notify={notifyWarning} />
     );
+    const renderedForm =
+        showRequiredFieldsLegend && hasRequiredFields(props.form, props.excludeInputTypes) ? (
+            <div className="flex flex-col gap-5">
+                <RequiredFieldsLegend />
+                {toolkitForm}
+            </div>
+        ) : (
+            toolkitForm
+        );
 
     return (
         <FormI18nProvider>

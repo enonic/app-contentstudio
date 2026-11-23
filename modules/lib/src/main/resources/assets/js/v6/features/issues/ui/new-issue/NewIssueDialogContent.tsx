@@ -6,6 +6,7 @@ import { useCallback, useMemo, useRef, type ReactElement } from 'react';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { IssueType } from '../../../../../app/issue/IssueType';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { RequiredFieldsLegend } from '../../../../shared/ui/RequiredFieldsLegend';
 import { useDialogInitialFocus } from '../../../../shared/lib/hooks/useDialogInitialFocus';
 import { useContentSelectionView } from '../../../../shared/lib/hooks/useContentSelectionView';
 import {
@@ -172,8 +173,10 @@ export const NewIssueDialogContent = (): ReactElement => {
 
             <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <div className="flex min-h-0 flex-col gap-7.5 px-5">
+                    <RequiredFieldsLegend />
                     <Input
                         label={titleLabel}
+                        aria-required={true}
                         ref={titleInputRef}
                         value={title}
                         onChange={(event) => setNewIssueTitle(event.currentTarget.value)}
