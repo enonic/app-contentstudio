@@ -19,8 +19,14 @@ import { DateRangeAggregationQuery } from '@enonic/lib-admin-ui/query/aggregatio
 import { DateRange } from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ContentId } from '../../content/ContentId';
-import { ContentAggregation } from './ContentAggregation';
+import { ContentAggregation, MODIFIED_BUCKET_KEY } from './ContentAggregation';
 import { WorkflowState } from '../../content/WorkflowState';
+
+// Helper aggregations for the "Modified" count: contents having `publish.from`
+// minus contents having `publish.time`. They are not filter sections.
+// The normal publish flow never keeps `publish.time` without `publish.from`.
+export const PUBLISH_FROM_COUNT_AGGREGATION = 'publishFromCount';
+export const PUBLISH_TIME_COUNT_AGGREGATION = 'publishTimeCount';
 
 export class SearchContentQueryCreator {
     private readonly searchInputValues: SearchInputValues;
@@ -263,6 +269,11 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((bucket: Bucket) => {
+            if (bucket.getKey() === MODIFIED_BUCKET_KEY) {
+                booleanFilter.addShould(this.createModifiedFilter());
+                return;
+            }
+
             booleanFilter.addShould(new ValueFilter('workflow.state', bucket.getKey().toUpperCase()));
 
             if (bucket.key === WorkflowState.READY.toString()) {
@@ -271,6 +282,13 @@ export class SearchContentQueryCreator {
         });
 
         this.contentQuery.addQueryFilter(booleanFilter);
+    }
+
+    private createModifiedFilter(): BooleanFilter {
+        const modifiedFilter: BooleanFilter = new BooleanFilter();
+        modifiedFilter.addMust(new ExistsFilter('publish.from'));
+        modifiedFilter.addMustNot(new ExistsFilter('publish.time'));
+        return modifiedFilter;
     }
 
     private createWorkflowNotExistsFilter(): BooleanFilter {
@@ -348,6 +366,18 @@ export class SearchContentQueryCreator {
 
     private appendWorkflowAggregationQuery() {
         this.addTermsAggregation(ContentAggregation.WORKFLOW, 'workflow.state');
+        this.appendExistsCountAggregationQuery(PUBLISH_FROM_COUNT_AGGREGATION, 'publish.from');
+        this.appendExistsCountAggregationQuery(PUBLISH_TIME_COUNT_AGGREGATION, 'publish.time');
+    }
+
+    private appendExistsCountAggregationQuery(name: string, fieldName: string): void {
+        const existsCountAgg: DateRangeAggregationQuery = new DateRangeAggregationQuery(name);
+
+        existsCountAgg.setFieldName(fieldName);
+        // No upper bound, so the single bucket counts every content having the field
+        existsCountAgg.addRange(new DateRange('now-100y', null, name));
+
+        this.contentQuery.addAggregationQuery(existsCountAgg);
     }
 
     private appendModifierAggregationQuery() {

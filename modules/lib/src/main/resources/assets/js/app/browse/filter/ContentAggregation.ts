@@ -6,3 +6,7 @@ export enum ContentAggregation {
     OWNER = 'owner',
     LANGUAGE = 'lang',
 }
+
+// Bucket of the Workflow section for published content with pending changes.
+// Not a workflow state
+export const MODIFIED_BUCKET_KEY = 'modified';

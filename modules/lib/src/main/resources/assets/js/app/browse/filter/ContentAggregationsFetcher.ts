@@ -3,7 +3,11 @@ import { AggregationSelection } from '@enonic/lib-admin-ui/aggregation/Aggregati
 import { SearchInputValues } from '@enonic/lib-admin-ui/query/SearchInputValues';
 import Q from 'q';
 import { type ContentQuery } from '../../content/ContentQuery';
-import { SearchContentQueryCreator } from './SearchContentQueryCreator';
+import {
+    PUBLISH_FROM_COUNT_AGGREGATION,
+    PUBLISH_TIME_COUNT_AGGREGATION,
+    SearchContentQueryCreator,
+} from './SearchContentQueryCreator';
 import { ContentQueryRequest } from '../../resource/ContentQueryRequest';
 import { type ContentSummaryJson } from '../../content/ContentSummaryJson';
 import { type ContentSummary } from '../../content/ContentSummary';
@@ -11,8 +15,8 @@ import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
 import { type ContentQueryResult } from '../../resource/ContentQueryResult';
 import { type ContentId } from '../../content/ContentId';
 import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import { ContentAggregation } from './ContentAggregation';
-import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
+import { ContentAggregation, MODIFIED_BUCKET_KEY } from './ContentAggregation';
+import { Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
 import { WorkflowState } from '../../content/WorkflowState';
 import { AggregationsQueryResult } from './AggregationsQueryResult';
 import { ContentResourceRequest } from '../../resource/ContentResourceRequest';
@@ -64,6 +68,10 @@ export class ContentAggregationsFetcher {
         return this.sendQueryRequest(this.createContentQuery(this.searchInputValues).setSize(0)).then(
             (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 queryResult.getAggregations().forEach((aggregation: Aggregation) => {
+                    if (this.isModifiedCountAggregation(aggregation)) {
+                        return;
+                    }
+
                     const hasBucketsSelected: boolean = this.hasBucketsSelected(aggregation);
 
                     if (hasBucketsSelected) {
@@ -75,10 +83,7 @@ export class ContentAggregationsFetcher {
                         );
                     } else {
                         if (aggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                            this.updateWorkflowAggregation(
-                                aggregation as BucketAggregation,
-                                queryResult.getMetadata().getTotalHits(),
-                            );
+                            this.updateWorkflowAggregation(aggregation as BucketAggregation, queryResult);
                         }
 
                         result.push(aggregation);
@@ -108,15 +113,26 @@ export class ContentAggregationsFetcher {
                     .find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
 
                 if (fetchedAggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                    this.updateWorkflowAggregation(
-                        fetchedAggregation as BucketAggregation,
-                        queryResult.getMetadata().getTotalHits(),
-                    );
+                    this.updateWorkflowAggregation(fetchedAggregation as BucketAggregation, queryResult);
                 }
 
                 return fetchedAggregation;
             },
         );
+    }
+
+    private isModifiedCountAggregation(aggregation: Aggregation): boolean {
+        const name: string = aggregation.getName();
+        return name === PUBLISH_FROM_COUNT_AGGREGATION || name === PUBLISH_TIME_COUNT_AGGREGATION;
+    }
+
+    private getModifiedCount(aggregations: Aggregation[]): number {
+        const countContents = (name: string): number => {
+            const aggregation = aggregations.find((aggr: Aggregation) => aggr.getName() === name) as BucketAggregation;
+            return aggregation?.getBuckets()[0]?.getDocCount() ?? 0;
+        };
+
+        return countContents(PUBLISH_FROM_COUNT_AGGREGATION) - countContents(PUBLISH_TIME_COUNT_AGGREGATION);
     }
 
     private sendQueryRequest(
@@ -159,7 +175,11 @@ export class ContentAggregationsFetcher {
         return aggregationSelect;
     }
 
-    private updateWorkflowAggregation(aggregation: BucketAggregation, total: number): void {
+    private updateWorkflowAggregation(
+        aggregation: BucketAggregation,
+        queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>,
+    ): void {
+        const total: number = queryResult.getMetadata().getTotalHits();
         // contents might not have a workflow property, thus aggregation won't see those contents, but they are treated as ready
         const inProgressBucket: Bucket = aggregation.getBucketByName(WorkflowState.IN_PROGRESS);
         const result: Bucket[] = [];
@@ -175,6 +195,12 @@ export class ContentAggregationsFetcher {
 
         if (inProgressBucket) {
             result.push(inProgressBucket);
+        }
+
+        const modifiedCount: number = this.getModifiedCount(queryResult.getAggregations());
+
+        if (modifiedCount > 0) {
+            result.push(new Bucket(MODIFIED_BUCKET_KEY, modifiedCount));
         }
 
         aggregation.setBuckets(result);

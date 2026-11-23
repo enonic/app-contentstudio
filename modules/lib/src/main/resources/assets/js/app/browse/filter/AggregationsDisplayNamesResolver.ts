@@ -3,7 +3,7 @@ import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
 import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
-import { ContentAggregation } from './ContentAggregation';
+import { ContentAggregation, MODIFIED_BUCKET_KEY } from './ContentAggregation';
 import { GetPrincipalsByKeysRequest } from '../../security/GetPrincipalsByKeysRequest';
 import Q from 'q';
 import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
@@ -58,6 +58,8 @@ export class AggregationsDisplayNamesResolver {
                 bucket.setDisplayName(i18n('field.workflow.status.ready'));
             } else if (key === 'in_progress') {
                 bucket.setDisplayName(i18n('field.workflow.status.inProgress'));
+            } else if (key === MODIFIED_BUCKET_KEY) {
+                bucket.setDisplayName(i18n('status.modified'));
             }
         });
     }
