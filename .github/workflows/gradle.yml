@@ -96,7 +96,7 @@ jobs:
           path: modules/app/build/libs
 
       - name: Run Selenium Tests
-        run: ./gradlew --refresh-dependencies :testing:${{ matrix.suite }}
+        run: ./gradlew :testing:${{ matrix.suite }}
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2

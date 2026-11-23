@@ -643,7 +643,8 @@ module.exports = {
 
     async openProjectSelectionDialogAndSelectContext(context) {
         try {
-            let browsePanel = new BrowsePanel();
+            let browsePanel = await this.switchToContentMode();
+            await browsePanel.waitForGridLoaded(appConst.mediumTimeout);
             return await browsePanel.selectContext(context);
         } catch (err) {
             let screenshot = await this.saveScreenshotUniqueName('err_select_context');
