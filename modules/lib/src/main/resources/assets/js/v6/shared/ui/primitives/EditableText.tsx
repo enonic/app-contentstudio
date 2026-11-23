@@ -44,7 +44,7 @@ export type EditableTextProps = {
     fullWidth?: boolean;
     error?: boolean;
 } & VariantProps<typeof editableTextVariants> &
-    Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type' | 'size'>;
+    Omit<ComponentPropsWithoutRef<'input'>, 'value' | 'onChange' | 'type' | 'size' | 'list' | 'role'>;
 
 const EDITABLE_TEXT_NAME = 'EditableText';
 
