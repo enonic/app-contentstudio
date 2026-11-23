@@ -1,27 +1,26 @@
-import {type Aggregation} from '@enonic/lib-admin-ui/aggregation/Aggregation';
-import {AggregationSelection} from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
-import {SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
+import { type Aggregation } from '@enonic/lib-admin-ui/aggregation/Aggregation';
+import { AggregationSelection } from '@enonic/lib-admin-ui/aggregation/AggregationSelection';
+import { SearchInputValues } from '@enonic/lib-admin-ui/query/SearchInputValues';
 import Q from 'q';
-import {type ContentQuery} from '../../content/ContentQuery';
-import {SearchContentQueryCreator} from './SearchContentQueryCreator';
-import {ContentQueryRequest} from '../../resource/ContentQueryRequest';
-import {type ContentSummaryJson} from '../../content/ContentSummaryJson';
-import {type ContentSummary} from '../../content/ContentSummary';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {type ContentQueryResult} from '../../resource/ContentQueryResult';
-import {type ContentId} from '../../content/ContentId';
-import {type BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {ContentAggregation} from './ContentAggregation';
-import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {WorkflowState} from '../../content/WorkflowState';
-import {AggregationsQueryResult} from './AggregationsQueryResult';
-import {ContentResourceRequest} from '../../resource/ContentResourceRequest';
-import {type Branch} from '../../versioning/Branch';
+import { type ContentQuery } from '../../content/ContentQuery';
+import { SearchContentQueryCreator } from './SearchContentQueryCreator';
+import { ContentQueryRequest } from '../../resource/ContentQueryRequest';
+import { type ContentSummaryJson } from '../../content/ContentSummaryJson';
+import { type ContentSummary } from '../../content/ContentSummary';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { type ContentQueryResult } from '../../resource/ContentQueryResult';
+import { type ContentId } from '../../content/ContentId';
+import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import { ContentAggregation } from './ContentAggregation';
+import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
+import { WorkflowState } from '../../content/WorkflowState';
+import { AggregationsQueryResult } from './AggregationsQueryResult';
+import { ContentResourceRequest } from '../../resource/ContentResourceRequest';
+import { type Branch } from '../../versioning/Branch';
 
 export class ContentAggregationsFetcher {
-
     private searchInputValues: SearchInputValues;
-    private dependency?: { isInbound: boolean, dependencyId: ContentId };
+    private dependency?: { isInbound: boolean; dependencyId: ContentId };
     private constraintItems?: string[];
     private rootPath?: string;
     private targetBranch?: Branch;
@@ -36,7 +35,7 @@ export class ContentAggregationsFetcher {
         return this;
     }
 
-    setDependency(value: { isInbound: boolean, dependencyId: ContentId }): ContentAggregationsFetcher {
+    setDependency(value: { isInbound: boolean; dependencyId: ContentId }): ContentAggregationsFetcher {
         this.dependency = value;
         return this;
     }
@@ -68,44 +67,62 @@ export class ContentAggregationsFetcher {
                     const hasBucketsSelected: boolean = this.hasBucketsSelected(aggregation);
 
                     if (hasBucketsSelected) {
-                        selectedAggregationPromises.push(this.fetchAggregation(aggregation).then((fetchedAggregation: Aggregation) => {
-                            result.push(fetchedAggregation);
-                            return Q.resolve(null);
-                        }));
+                        selectedAggregationPromises.push(
+                            this.fetchAggregation(aggregation).then((fetchedAggregation: Aggregation) => {
+                                result.push(fetchedAggregation);
+                                return Q.resolve(null);
+                            }),
+                        );
                     } else {
                         if (aggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                            this.updateWorkflowAggregation(aggregation as BucketAggregation, queryResult.getMetadata().getTotalHits());
+                            this.updateWorkflowAggregation(
+                                aggregation as BucketAggregation,
+                                queryResult.getMetadata().getTotalHits(),
+                            );
                         }
 
                         result.push(aggregation);
                     }
                 });
 
-                return Q.all(selectedAggregationPromises).thenResolve(new AggregationsQueryResult(result, queryResult.getMetadata()));
-            });
+                return Q.all(selectedAggregationPromises).thenResolve(
+                    new AggregationsQueryResult(result, queryResult.getMetadata()),
+                );
+            },
+        );
     }
 
     private hasBucketsSelected(aggregation: Aggregation): boolean {
         return this.searchInputValues.aggregationSelections.some(
-            (aggregationSelection: AggregationSelection) => aggregation.getName() === aggregationSelection.getName() &&
-                                                            aggregationSelection.getSelectedBuckets().length > 0);
+            (aggregationSelection: AggregationSelection) =>
+                aggregation.getName() === aggregationSelection.getName() &&
+                aggregationSelection.getSelectedBuckets().length > 0,
+        );
     }
 
     private fetchAggregation(aggregation: Aggregation): Q.Promise<Aggregation> {
-        return this.sendQueryRequest(this.createAggregationQuery(aggregation))
-            .then((queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
-                const fetchedAggregation: Aggregation =
-                    queryResult.getAggregations().find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
+        return this.sendQueryRequest(this.createAggregationQuery(aggregation)).then(
+            (queryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+                const fetchedAggregation: Aggregation = queryResult
+                    .getAggregations()
+                    .find((aggr: Aggregation) => aggr.getName() === aggregation.getName());
 
                 if (fetchedAggregation.getName() === ContentAggregation.WORKFLOW.toString()) {
-                    this.updateWorkflowAggregation(fetchedAggregation as BucketAggregation, queryResult.getMetadata().getTotalHits());
+                    this.updateWorkflowAggregation(
+                        fetchedAggregation as BucketAggregation,
+                        queryResult.getMetadata().getTotalHits(),
+                    );
                 }
 
                 return fetchedAggregation;
-            });
+            },
+        );
     }
 
-    private sendQueryRequest(query: ContentQuery, expand?: Expand): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
+    private sendQueryRequest(
+        query: ContentQuery,
+        expand?: Expand,
+    ): Q.Promise<ContentQueryResult<ContentSummary, ContentSummaryJson>> {
         return new ContentQueryRequest<ContentSummaryJson, ContentSummary>(query)
             .setContentRootPath(this.rootPath || ContentResourceRequest.CONTENT_PATH)
             .setExpand(expand ?? Expand.NONE)
@@ -132,7 +149,8 @@ export class ContentAggregationsFetcher {
 
     private copyAggregationsWithoutAggregation(aggregation: Aggregation): AggregationSelection[] {
         const aggregationSelect: AggregationSelection[] = this.searchInputValues.aggregationSelections.filter(
-            (aggrSelection: AggregationSelection) => aggrSelection.getName() !== aggregation.getName());
+            (aggrSelection: AggregationSelection) => aggrSelection.getName() !== aggregation.getName(),
+        );
 
         const emptyAggregationSelection: AggregationSelection = new AggregationSelection(aggregation.getName());
         emptyAggregationSelection.setValues([]);

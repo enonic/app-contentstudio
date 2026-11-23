@@ -1,33 +1,32 @@
-import {type Bucket} from '@enonic/lib-admin-ui/aggregation/Bucket';
-import {type SearchInputValues} from '@enonic/lib-admin-ui/query/SearchInputValues';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {ContentQuery} from '../../content/ContentQuery';
-import {ValueFilter} from './ValueFilter';
-import {ExistsFilter} from './ExistsFilter';
-import {BooleanFilter} from '@enonic/lib-admin-ui/query/filter/BooleanFilter';
-import {type DateRangeBucket} from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
-import {RangeFilter} from '@enonic/lib-admin-ui/query/filter/RangeFilter';
-import {QueryField} from '@enonic/lib-admin-ui/query/QueryField';
-import {ValueExpr} from '@enonic/lib-admin-ui/query/expr/ValueExpr';
-import {type Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
+import { type Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
+import { type SearchInputValues } from '@enonic/lib-admin-ui/query/SearchInputValues';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { ContentQuery } from '../../content/ContentQuery';
+import { ValueFilter } from './ValueFilter';
+import { ExistsFilter } from './ExistsFilter';
+import { BooleanFilter } from '@enonic/lib-admin-ui/query/filter/BooleanFilter';
+import { type DateRangeBucket } from '@enonic/lib-admin-ui/aggregation/DateRangeBucket';
+import { RangeFilter } from '@enonic/lib-admin-ui/query/filter/RangeFilter';
+import { QueryField } from '@enonic/lib-admin-ui/query/QueryField';
+import { ValueExpr } from '@enonic/lib-admin-ui/query/expr/ValueExpr';
+import { type Filter } from '@enonic/lib-admin-ui/query/filter/Filter';
 import {
     TermsAggregationOrderDirection,
     TermsAggregationOrderType,
-    TermsAggregationQuery
+    TermsAggregationQuery,
 } from '@enonic/lib-admin-ui/query/aggregation/TermsAggregationQuery';
-import {DateRangeAggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
-import {DateRange} from '@enonic/lib-admin-ui/query/aggregation/DateRange';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {type ContentId} from '../../content/ContentId';
-import {ContentAggregation} from './ContentAggregation';
-import {WorkflowState} from '../../content/WorkflowState';
+import { DateRangeAggregationQuery } from '@enonic/lib-admin-ui/query/aggregation/DateRangeAggregationQuery';
+import { DateRange } from '@enonic/lib-admin-ui/query/aggregation/DateRange';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { type ContentId } from '../../content/ContentId';
+import { ContentAggregation } from './ContentAggregation';
+import { WorkflowState } from '../../content/WorkflowState';
 
 export class SearchContentQueryCreator {
-
     private readonly searchInputValues: SearchInputValues;
     private readonly contentQuery: ContentQuery;
 
-    private dependency?: { isInbound: boolean, dependencyId: ContentId };
+    private dependency?: { isInbound: boolean; dependencyId: ContentId };
     private constraintItems?: string[];
 
     constructor(searchInputValues: SearchInputValues) {
@@ -35,7 +34,7 @@ export class SearchContentQueryCreator {
         this.contentQuery = new ContentQuery();
     }
 
-    setDependency(value: { isInbound: boolean, dependencyId: ContentId }): SearchContentQueryCreator {
+    setDependency(value: { isInbound: boolean; dependencyId: ContentId }): SearchContentQueryCreator {
         this.dependency = value;
         return this;
     }
@@ -58,17 +57,26 @@ export class SearchContentQueryCreator {
     protected appendAggregationsAndFilter(contentAggregations?: string[]): void {
         const hasAllAggregations: boolean = !contentAggregations;
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE.toString())) {
+        if (
+            hasAllAggregations ||
+            contentAggregations.some((a: string) => a === ContentAggregation.CONTENT_TYPE.toString())
+        ) {
             this.appendContentTypeFilter();
             this.appendContentTypesAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW.toString())) {
+        if (
+            hasAllAggregations ||
+            contentAggregations.some((a: string) => a === ContentAggregation.WORKFLOW.toString())
+        ) {
             this.appendWorkflowFilter();
             this.appendWorkflowAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.MODIFIED_BY.toString())) {
+        if (
+            hasAllAggregations ||
+            contentAggregations.some((a: string) => a === ContentAggregation.MODIFIED_BY.toString())
+        ) {
             this.appendModifierFilter();
             this.appendModifierAggregationQuery();
         }
@@ -78,12 +86,18 @@ export class SearchContentQueryCreator {
             this.appendOwnerAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED.toString())) {
+        if (
+            hasAllAggregations ||
+            contentAggregations.some((a: string) => a === ContentAggregation.LAST_MODIFIED.toString())
+        ) {
             this.appendLastModifiedFilter();
             this.appendLastModifiedAggregationQuery();
         }
 
-        if (hasAllAggregations || contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE.toString())) {
+        if (
+            hasAllAggregations ||
+            contentAggregations.some((a: string) => a === ContentAggregation.LANGUAGE.toString())
+        ) {
             this.appendLanguageFilter();
             this.appendLanguageAggregationQuery();
         }
@@ -108,21 +122,18 @@ export class SearchContentQueryCreator {
 
     private containsTextAndMatchesIdsOnConstraintsJson(): object {
         return {
-            'boolean': {
-                'must': [
-                    this.createContainsTextOrMatchesIdJson(),
-                    this.createConstraintsJson()
-                ]
-            }
+            boolean: {
+                must: [this.createContainsTextOrMatchesIdJson(), this.createConstraintsJson()],
+            },
         };
     }
 
     private createConstraintsJson(): object {
         return {
-            'in': {
-                'field': '_id',
-                'values': this.constraintItems
-            }
+            in: {
+                field: '_id',
+                values: this.constraintItems,
+            },
         };
     }
 
@@ -138,98 +149,87 @@ export class SearchContentQueryCreator {
         const textValue: string = this.searchInputValues.textSearchFieldValue;
 
         return {
-            'boolean': {
-                'should': [
+            boolean: {
+                should: [
                     {
-                        'boolean': {
-                            'should': [
+                        boolean: {
+                            should: [
                                 {
-                                    'fulltext': {
-                                        'fields': [
-                                            'displayName^5',
-                                            '_name^3',
-                                            '_allText'
-                                        ],
-                                        'query': textValue,
-                                        'operator': 'AND'
-                                    }
+                                    fulltext: {
+                                        fields: ['displayName^5', '_name^3', '_allText'],
+                                        query: textValue,
+                                        operator: 'AND',
+                                    },
                                 },
                                 {
-                                    'ngram': {
-                                        'fields': [
-                                            'displayName^5',
-                                            '_name^3',
-                                            '_allText'
-                                        ],
-                                        'query': textValue,
-                                        'operator': 'AND'
-                                    }
-                                }
-                            ]
-                        }
+                                    ngram: {
+                                        fields: ['displayName^5', '_name^3', '_allText'],
+                                        query: textValue,
+                                        operator: 'AND',
+                                    },
+                                },
+                            ],
+                        },
                     },
                     {
-                        'term': {
-                            'field': '_id',
-                            'value': textValue
-                        }
-                    }
-                ]
-            }
+                        term: {
+                            field: '_id',
+                            value: textValue,
+                        },
+                    },
+                ],
+            },
         };
     }
 
     private matchAllQuery(): object {
         return {
-            'matchAll': {}
+            matchAll: {},
         };
     }
 
     private containsTextOrMatchesIdOnInboundIds(): object {
         return {
-            'boolean': {
-                'must': [
-                    this.createContainsTextOrMatchesIdJson(),
-                    this.createInboundRefsJson()
-                ]
-            }
+            boolean: {
+                must: [this.createContainsTextOrMatchesIdJson(), this.createInboundRefsJson()],
+            },
         };
     }
 
     private createInboundRefsJson(): object {
-        return  {
-            'boolean': {
-                'must': [
+        return {
+            boolean: {
+                must: [
                     {
-                        'term': {
-                            'field': '_references',
-                            'value': this.dependency.dependencyId.toString()
-                        }
+                        term: {
+                            field: '_references',
+                            value: this.dependency.dependencyId.toString(),
+                        },
                     },
                     {
-                        'boolean': {
-                            'mustNot': {
-                                'term': {
-                                    'field': '_id',
-                                    'value': this.dependency.dependencyId.toString()
-                                }
-                            }
-                        }
-                    }
-                ]
-            }
+                        boolean: {
+                            mustNot: {
+                                term: {
+                                    field: '_id',
+                                    value: this.dependency.dependencyId.toString(),
+                                },
+                            },
+                        },
+                    },
+                ],
+            },
         };
     }
 
     private makeSort(): object[] {
         return [
             {
-                'field': '_score'
+                field: '_score',
             },
             {
-                'field': '_path',
-                'direction': 'ASC'
-            }
+                field: '_path',
+                direction: 'ASC',
+            },
         ];
     }
 
@@ -240,15 +240,21 @@ export class SearchContentQueryCreator {
     }
 
     private appendContentTypeFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregation.CONTENT_TYPE);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
+            ContentAggregation.CONTENT_TYPE,
+        );
 
         if (selectedBuckets?.length > 0) {
-            this.contentQuery.setContentTypeNames(selectedBuckets.map((bucket: Bucket) => new ContentTypeName(bucket.getKey())));
+            this.contentQuery.setContentTypeNames(
+                selectedBuckets.map((bucket: Bucket) => new ContentTypeName(bucket.getKey())),
+            );
         }
     }
 
     private appendWorkflowFilter(): void {
-        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(ContentAggregation.WORKFLOW);
+        const selectedBuckets: Bucket[] = this.searchInputValues.getSelectedValuesForAggregationName(
+            ContentAggregation.WORKFLOW,
+        );
 
         if (!selectedBuckets || selectedBuckets.length === 0) {
             return;
@@ -257,7 +263,7 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((bucket: Bucket) => {
-            booleanFilter.addShould(new ValueFilter('workflow.state',bucket.getKey().toUpperCase()));
+            booleanFilter.addShould(new ValueFilter('workflow.state', bucket.getKey().toUpperCase()));
 
             if (bucket.key === WorkflowState.READY.toString()) {
                 booleanFilter.addShould(this.createWorkflowNotExistsFilter());
@@ -315,9 +321,11 @@ export class SearchContentQueryCreator {
         const booleanFilter: BooleanFilter = new BooleanFilter();
 
         selectedBuckets.forEach((selectedBucket: DateRangeBucket) => {
-            const rangeFilter: RangeFilter =
-                new RangeFilter(fieldName, ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
-                    null);
+            const rangeFilter: RangeFilter = new RangeFilter(
+                fieldName,
+                ValueExpr.dateTime(selectedBucket.getFrom()).getValue(),
+                null,
+            );
 
             booleanFilter.addShould(rangeFilter as Filter);
         });
