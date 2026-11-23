@@ -105,7 +105,7 @@ describe('BrowseFilter', () => {
         render(<BrowseFilter hits={0} bucketAggregations={[]} />);
 
         expect(screen.queryByRole('button', { name: /results/ })).toBeNull();
-        expect(screen.getByText('0 results')).toBeTruthy();
+        expect(screen.getByText('0 results', { ignore: '.sr-only' })).toBeTruthy();
     });
 
     it('keeps plain text while the filter is untouched', () => {
@@ -114,7 +114,7 @@ describe('BrowseFilter', () => {
         render(<BrowseFilter hits={3} bucketAggregations={[]} />);
 
         expect(screen.queryByRole('button', { name: /results/ })).toBeNull();
-        expect(screen.getByText('3 results')).toBeTruthy();
+        expect(screen.getByText('3 results', { ignore: '.sr-only' })).toBeTruthy();
     });
 
     it('keeps plain text on desktop', () => {
@@ -123,12 +123,63 @@ describe('BrowseFilter', () => {
         render(<BrowseFilter hits={3} bucketAggregations={[]} />);
 
         expect(screen.queryByRole('button', { name: /results/ })).toBeNull();
-        expect(screen.getByText('3 results')).toBeTruthy();
+        expect(screen.getByText('3 results', { ignore: '.sr-only' })).toBeTruthy();
     });
 
     it('hides the export action on mobile', () => {
         render(<BrowseFilter hits={3} bucketAggregations={[]} exportOptions={{ label: 'Export', action: vi.fn() }} />);
 
         expect(screen.getByRole('button', { name: 'Export' }).className).toContain('max-sm:hidden');
+    });
+
+    it('updates only the result count in the same polite region without moving focus', async () => {
+        const { rerender } = render(<BrowseFilter hits={3} bucketAggregations={[]} />);
+        const input = screen.getByRole('textbox');
+        const region = screen.getByRole('status');
+        await waitFor(() => expect(document.activeElement).toBe(input));
+        expect(region.getAttribute('aria-live')).toBe('polite');
+        expect(region.getAttribute('aria-atomic')).toBe('true');
+        expect(region.classList.contains('sr-only')).toBe(true);
+
+        rerender(<BrowseFilter hits={0} bucketAggregations={[]} />);
+        await waitFor(() => expect(region.textContent).toBe('0 results'));
+        expect(document.activeElement).toBe(input);
+
+        const changes: MutationRecord[] = [];
+        const observer = new MutationObserver((records) => changes.push(...records));
+        observer.observe(region, { subtree: true, childList: true, characterData: true });
+        await act(async () => rerender(<BrowseFilter hits={0} bucketAggregations={[]} />));
+        observer.disconnect();
+        expect(changes).toHaveLength(0);
+        expect(screen.getByRole('status')).toBe(region);
+    });
+
+    it('announces each completed search even when consecutive result counts match', async () => {
+        const { rerender } = render(<BrowseFilter hits={0} resultVersion={1} bucketAggregations={[]} />);
+        const region = screen.getByRole('status');
+        await waitFor(() => expect(region.textContent).toBe('0 results'));
+        const previousMessage = region.firstChild;
+
+        rerender(<BrowseFilter hits={0} resultVersion={2} bucketAggregations={[]} />);
+        expect(region.textContent).toBe('\u00a0');
+        await waitFor(() => expect(region.textContent).toBe('0 results'));
+        expect(region.firstChild).not.toBe(previousMessage);
+        expect(screen.getByRole('status')).toBe(region);
+        expect(document.activeElement).toBe(screen.getByRole('textbox'));
+    });
+
+    it('keeps result counts empty while the filter is closed or dependency search is pending', async () => {
+        setDependencySearchPending(true);
+        const { rerender } = render(<BrowseFilter hits={3} bucketAggregations={[]} />);
+        const region = screen.getByRole('status');
+        rerender(<BrowseFilter hits={7} bucketAggregations={[]} />);
+        expect(region.textContent).toBe('');
+
+        act(() => setDependencySearchPending(false));
+        await waitFor(() => expect(region.textContent).toBe('7 results'));
+        act(() => setContentFilterOpen(false));
+        await waitFor(() => expect(region.textContent).toBe(''));
+        rerender(<BrowseFilter hits={9} bucketAggregations={[]} />);
+        expect(region.textContent).toBe('');
     });
 });

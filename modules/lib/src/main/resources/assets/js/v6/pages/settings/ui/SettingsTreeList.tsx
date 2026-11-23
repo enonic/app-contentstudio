@@ -123,6 +123,7 @@ export const SettingsTreeList = (): ReactElement => {
                                 }
 
                                 const itemProps = getItemProps(index, node);
+                                const labelId = `${itemProps.id}-label`;
                                 const isSelected = selection.has(id);
                                 const isActive = activeId === id;
                                 // Active item with no selection should look like selected
@@ -138,6 +139,7 @@ export const SettingsTreeList = (): ReactElement => {
                                 return (
                                     <VirtualizedTreeList.Row
                                         {...itemProps}
+                                        aria-labelledby={labelId}
                                         active={activeAsSelected ? false : itemProps.active}
                                         selected={showAsSelected}
                                         data-tone={showAsSelected ? 'inverse' : undefined}
@@ -187,6 +189,7 @@ export const SettingsTreeList = (): ReactElement => {
                                             <VirtualizedTreeList.RowSelectionControl
                                                 rowId={id}
                                                 selected={itemProps.selected}
+                                                aria-labelledby={labelId}
                                             />
                                             <VirtualizedTreeList.RowLevelSpacer level={level} />
                                             <VirtualizedTreeList.RowExpandControl
@@ -201,12 +204,14 @@ export const SettingsTreeList = (): ReactElement => {
                                             {isProjectViewItem(data) ? (
                                                 <ProjectLabel
                                                     project={data.getData()}
+                                                    primaryId={labelId}
                                                     className={isUnavailable ? 'opacity-50' : undefined}
                                                 />
                                             ) : (
                                                 <ItemLabel
                                                     icon={isExpanded ? <FolderOpen size={20} /> : <Folder size={20} />}
                                                     primary={data.getDisplayName()}
+                                                    primaryId={labelId}
                                                     secondary={secondaryText}
                                                 />
                                             )}

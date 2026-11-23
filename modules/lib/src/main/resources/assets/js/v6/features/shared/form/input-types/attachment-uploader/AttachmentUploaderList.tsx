@@ -1,4 +1,4 @@
-import { type ReactElement } from 'react';
+import { type ReactElement, useId } from 'react';
 import { cn, GridList, IconButton, Link } from '@enonic/ui';
 import { FieldError } from '@enonic/input-types';
 import { X } from 'lucide-react';
@@ -23,6 +23,7 @@ export const AttachmentUploaderList = ({
     disabled,
     errors,
 }: AttachmentUploaderListProps): ReactElement => {
+    const errorId = `${useId()}-error`;
     const removeLabel = useI18n('action.remove');
     if (names.length === 0) return null;
 
@@ -31,6 +32,7 @@ export const AttachmentUploaderList = ({
             {names.map((name, index) => {
                 const url = getCmsApiUrl(`media/${contentId}/${encodeURIComponent(name)}`, projectName);
                 const error = errors?.get(name);
+                const rowErrorId = `${errorId}-${index}`;
 
                 return (
                     <GridList.Row
@@ -38,14 +40,24 @@ export const AttachmentUploaderList = ({
                         id={index.toString()}
                         className={cn('flex items-center justify-between gap-2 py-1')}
                     >
-                        <GridList.Cell>
+                        <GridList.Cell aria-label={name} aria-describedby={error ? rowErrorId : undefined}>
                             <div className="flex flex-col gap-0.5 min-w-0">
                                 <GridList.Action>
-                                    <Link className="flex items-center gap-2 truncate" href={url} target="_blank">
+                                    <Link
+                                        className="flex items-center gap-2 truncate"
+                                        href={url}
+                                        target="_blank"
+                                        aria-describedby={error ? rowErrorId : undefined}
+                                    >
                                         {name}
                                     </Link>
                                 </GridList.Action>
-                                {error && <FieldError message={error} className="text-sm" />}
+                                <div aria-live="polite" aria-atomic="true">
+                                    {error && <span className="sr-only">{name}: </span>}
+                                    <div id={rowErrorId}>
+                                        <FieldError message={error} className="text-sm" announce={false} />
+                                    </div>
+                                </div>
                             </div>
                         </GridList.Cell>
                         <GridList.Cell>

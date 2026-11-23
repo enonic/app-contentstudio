@@ -2,7 +2,7 @@ import { type Action } from '@enonic/lib-admin-ui/ui/Action';
 import { Avatar, Button, cn, IconButton, Toggle, Toolbar, Tooltip } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Link2 } from 'lucide-react';
-import { type ReactElement, useEffect, useMemo, useState } from 'react';
+import { type ReactElement, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { LegacyElement } from '../../shared/ui/LegacyElement';
 import { JukeIcon } from '../../shared/ui/icons/JukeIcon';
@@ -50,6 +50,8 @@ export type ContentWizardToolbarProps = {
 };
 
 const CONTENT_WIZARD_TOOLBAR_NAME = 'ContentWizardToolbar';
+// VoiceOver can ignore identical messages separated by an empty live region.
+const IDLE_ANNOUNCEMENT = '\u00a0';
 
 export const ContentWizardToolbar = ({
     onProjectBack,
@@ -85,6 +87,7 @@ export const ContentWizardToolbar = ({
         isLayerProject,
         isContentInherited,
         isContentDataInherited,
+        feedback,
     } = useStore($wizardToolbar, {
         keys: [
             'projectLabel',
@@ -100,6 +103,7 @@ export const ContentWizardToolbar = ({
             'isLayerProject',
             'isContentInherited',
             'isContentDataInherited',
+            'feedback',
         ],
     });
     const { 'ai.contentOperator': isOperatorRegistered } = useStore($aiRegisteredPlugins, {
@@ -135,6 +139,33 @@ export const ContentWizardToolbar = ({
     const aiAssistantLabel = useI18n('tooltip.ai.assistant');
     const actionsLabel = useI18n('action.actions');
     const pathExistsLabel = useI18n('notify.path.not.available');
+    const invalidLabel = useI18n('field.invalid');
+    const feedbackMessage = feedback?.type === 'invalid' ? invalidLabel : feedback?.message;
+    const feedbackRef = useRef<HTMLSpanElement>(null);
+
+    useLayoutEffect(() => {
+        const region = feedbackRef.current;
+        if (!region) {
+            return;
+        }
+        region.textContent = IDLE_ANNOUNCEMENT;
+        if (feedbackMessage == null) {
+            return;
+        }
+
+        const publish = () => {
+            region.textContent = feedbackMessage;
+        };
+        if (feedback?.type === 'saved') {
+            publish();
+            return;
+        }
+
+        // Publish after the non-empty idle state has reached the accessibility tree.
+        const timer = setTimeout(publish, 100);
+        return () => clearTimeout(timer);
+    }, [feedback?.sequence, feedback?.type, feedbackMessage]);
+
     const projectViewLabel = projectLabel || projectRoot;
     const unnamedPathLabel = `<${unnamedFieldLabel}>`;
     const contentNameLabel = contentName || `<${nameFieldLabel}>`;
@@ -212,6 +243,7 @@ export const ContentWizardToolbar = ({
 
     return (
         <Toolbar data-component={CONTENT_WIZARD_TOOLBAR_NAME}>
+            <span ref={feedbackRef} role="status" aria-live="polite" aria-atomic="true" className="sr-only" />
             <Toolbar.Container
                 aria-label={toolbarLabel}
                 className={cn(

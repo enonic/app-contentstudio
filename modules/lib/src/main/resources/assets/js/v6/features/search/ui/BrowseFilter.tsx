@@ -4,7 +4,7 @@ import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketA
 import { Button, SearchField } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { Download } from 'lucide-react';
-import { useEffect, useMemo, useRef } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { useBreakpoints } from '../../../shared/lib/hooks/useBreakpoints';
 import {
     $contentFilterState,
@@ -23,6 +23,7 @@ import { LegacyElement } from '../../../shared/ui/LegacyElement';
 
 export type BrowseFilterProps = {
     hits?: number;
+    resultVersion?: number;
     bucketAggregations: BucketAggregation[];
     filterableAggregations?: {
         name: string;
@@ -36,6 +37,7 @@ export type BrowseFilterProps = {
 
 export const BrowseFilter = ({
     hits = 0,
+    resultVersion = 0,
     bucketAggregations,
     filterableAggregations,
     exportOptions,
@@ -46,6 +48,7 @@ export const BrowseFilter = ({
     const isDependencySearchPending = useStore($isDependencySearchPending);
 
     const inputRef = useRef<HTMLInputElement>(null);
+    const resultsRef = useRef<HTMLSpanElement>(null);
 
     const searchPlaceholder = useI18n('field.option.placeholder');
     const searchLabel = useI18n('panel.filter.search');
@@ -84,8 +87,23 @@ export const BrowseFilter = ({
         }
     }, [isOpen, isDependencySearchPending]);
 
+    useLayoutEffect(() => {
+        const region = resultsRef.current;
+        if (!region) return;
+        region.textContent = '';
+        if (!isOpen || isDependencySearchPending) return;
+
+        // A completed search can have the same count as the previous query.
+        region.textContent = '\u00a0';
+        const timer = setTimeout(() => {
+            region.textContent = resultsLabel;
+        }, 100);
+        return () => clearTimeout(timer);
+    }, [isOpen, isDependencySearchPending, resultsLabel, resultVersion]);
+
     return (
         <div className="bg-surface-neutral">
+            <span ref={resultsRef} role="status" aria-live="polite" aria-atomic="true" className="sr-only" />
             <div className="flex justify-between items-center gap-2.5 mb-2 min-h-9">
                 <h3 className="font-semibold">{searchLabel}</h3>
                 {isFilterDirty && (
@@ -167,6 +185,8 @@ export const BrowseFilter = ({
 BrowseFilter.displayName = 'BrowseFilter';
 
 export class BrowseFilterElement extends LegacyElement<typeof BrowseFilter, BrowseFilterProps> {
+    private resultVersion = 0;
+
     constructor(props: BrowseFilterProps) {
         super(props, BrowseFilter);
     }
@@ -176,6 +196,6 @@ export class BrowseFilterElement extends LegacyElement<typeof BrowseFilter, Brow
     }
 
     updateHitsCounter(hits: number): void {
-        this.props.setKey('hits', hits);
+        this.setProps({ hits, resultVersion: ++this.resultVersion });
     }
 }
