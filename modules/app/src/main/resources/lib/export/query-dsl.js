@@ -7,7 +7,7 @@ const makeSearchDSLQuery = (params) => {
 
     // return all content if no params are set
     return matchAllQuery();
-}
+};
 
 const hasAnySearchParamsSet = (actualParams) => {
     let hasParamsSet = false;
@@ -20,15 +20,15 @@ const hasAnySearchParamsSet = (actualParams) => {
     }
 
     return hasParamsSet;
-}
+};
 
 const makeMainSearchDSLExpr = (params) => {
     return {
-        "boolean": {
-            "must": makeSearchByParamsDSLExpr(params)
-        }
-    }
-}
+        boolean: {
+            must: makeSearchByParamsDSLExpr(params),
+        },
+    };
+};
 
 const makeSearchByParamsDSLExpr = (params) => {
     const selectedBucketsDSLQs = [];
@@ -44,7 +44,7 @@ const makeSearchByParamsDSLExpr = (params) => {
     }
 
     return selectedBucketsDSLQs;
-}
+};
 
 const makeBucketDSLQuery = (name, value) => {
     if (paramsDSLHandlers.has(name)) {
@@ -52,178 +52,200 @@ const makeBucketDSLQuery = (name, value) => {
     }
 
     return null;
-}
+};
 
 const createSearchTextDSLQuery = (text) => {
     return {
-        'boolean': {
-            'should': [
+        boolean: {
+            should: [
                 {
-                    'boolean': {
-                        'should': [
+                    boolean: {
+                        should: [
                             {
-                                'fulltext': {
-                                    'fields': [
-                                        'displayName^5',
-                                        '_name^3',
-                                        '_allText'
-                                    ],
-                                    'query': text,
-                                    'operator': 'AND'
-                                }
+                                fulltext: {
+                                    fields: ['displayName^5', '_name^3', '_allText'],
+                                    query: text,
+                                    operator: 'AND',
+                                },
                             },
                             {
-                                'ngram': {
-                                    'fields': [
-                                        'displayName^5',
-                                        '_name^3',
-                                        '_allText'
-                                    ],
-                                    'query': text,
-                                    'operator': 'AND'
-                                }
-                            }
-                        ]
-                    }
+                                ngram: {
+                                    fields: ['displayName^5', '_name^3', '_allText'],
+                                    query: text,
+                                    operator: 'AND',
+                                },
+                            },
+                        ],
+                    },
                 },
                 {
-                    'term': {
-                        'field': '_id',
-                        'value': text
-                    }
-                }
-            ]
-        }
+                    term: {
+                        field: '_id',
+                        value: text,
+                    },
+                },
+            ],
+        },
     };
-}
+};
 
 const createLangDSLQuery = (lang) => {
     return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "language",
-                    "values": lang.split(',')
-                }
-            }
-        }
-    }
-}
+        boolean: {
+            must: {
+                in: {
+                    field: 'language',
+                    values: lang.split(','),
+                },
+            },
+        },
+    };
+};
 
 const createWorkflowDSLQuery = (state) => {
-    return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "workflow.state",
-                    "values": state.toUpperCase().split(',')
-                }
-            }
-        }
+    const states = state.split(',');
+    const workflowStates = states.filter((value) => value !== 'modified');
+    const queries = [];
+
+    if (workflowStates.length > 0) {
+        queries.push({
+            in: {
+                field: 'workflow.state',
+                values: workflowStates.map((value) => value.toUpperCase()),
+            },
+        });
     }
-}
+
+    if (workflowStates.length < states.length) {
+        queries.push(createModifiedDSLQuery());
+    }
+
+    return {
+        boolean: {
+            should: queries,
+        },
+    };
+};
+
+// 'modified' is not a workflow state: it is published content without 'publish.time'
+const createModifiedDSLQuery = () => {
+    return {
+        boolean: {
+            must: {
+                exists: {
+                    field: 'publish.from',
+                },
+            },
+            mustNot: {
+                exists: {
+                    field: 'publish.time',
+                },
+            },
+        },
+    };
+};
 
 const createOwnerDSLQuery = (owners) => {
     return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "owner",
-                    "values": owners.split(',')
-                }
-            }
-        }
-    }
-}
+        boolean: {
+            must: {
+                in: {
+                    field: 'owner',
+                    values: owners.split(','),
+                },
+            },
+        },
+    };
+};
 
 const createModifierDSLQuery = (modifiers) => {
     return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "modifier",
-                    "values": modifiers.split(',')
-                }
-            }
-        }
-    }
-}
+        boolean: {
+            must: {
+                in: {
+                    field: 'modifier',
+                    values: modifiers.split(','),
+                },
+            },
+        },
+    };
+};
 
 const createLastModifiedDSLQuery = (lastModified) => {
     const values = lastModified.split(',');
     const ranges = values.map((value) => {
         return {
-            "range": {
-                "field": "modifiedTime",
-                "type": "dateTime",
-                "gt": value
-            }
-        }
+            range: {
+                field: 'modifiedTime',
+                type: 'dateTime',
+                gt: value,
+            },
+        };
     });
 
     return {
-        "boolean": {
-            "should": ranges
-        }
-    }
-}
+        boolean: {
+            should: ranges,
+        },
+    };
+};
 
 const createConstraintIdsDSLQuery = (constraintIds) => {
     return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "_id",
-                    "values": constraintIds.split(',')
-                }
-            }
-        }
-    }
-}
+        boolean: {
+            must: {
+                in: {
+                    field: '_id',
+                    values: constraintIds.split(','),
+                },
+            },
+        },
+    };
+};
 
 const createInboundDSLQuery = (inboundId) => {
     return {
-        "boolean": {
-            "must": [
+        boolean: {
+            must: [
                 {
-                    "term": {
-                        "field": "_references",
-                        "value": inboundId
-                    }
+                    term: {
+                        field: '_references',
+                        value: inboundId,
+                    },
                 },
                 {
-                    "boolean": {
-                        "mustNot": {
-                            "term": {
-                                "field": "_id",
-                                "value": inboundId
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    }
-}
+                    boolean: {
+                        mustNot: {
+                            term: {
+                                field: '_id',
+                                value: inboundId,
+                            },
+                        },
+                    },
+                },
+            ],
+        },
+    };
+};
 
 const createOutboundDSLQuery = (outboundIds) => {
     return {
-        "boolean": {
-            "must": {
-                "in": {
-                    "field": "_id",
-                    "values": outboundIds
-                }
-            }
-        }
-    }
-}
+        boolean: {
+            must: {
+                in: {
+                    field: '_id',
+                    values: outboundIds,
+                },
+            },
+        },
+    };
+};
 
 const matchAllQuery = () => {
     return {
-        'matchAll': {}
+        matchAll: {},
     };
-}
+};
 
 paramsDSLHandlers.set('searchText', createSearchTextDSLQuery);
 paramsDSLHandlers.set('lang', createLangDSLQuery);
