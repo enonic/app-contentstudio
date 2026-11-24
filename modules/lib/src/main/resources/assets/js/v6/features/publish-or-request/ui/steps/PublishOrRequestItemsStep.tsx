@@ -1,17 +1,29 @@
-// First step of the publish or request dialog: the items to publish and their checks.
+// First step of the publish or request dialog: the items to publish, their dependencies
+// and their checks.
 
 import { Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
+import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { ContentRow, SplitList } from '../../../shared/lists';
-import { $publishOrRequestDialog, type PublishOrRequestDialogStep } from '../../model/publishOrRequestDialog.store';
+import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
+import {
+    $hasMorePublishOrRequestDependants,
+    $publishOrRequestDialog,
+    type PublishOrRequestDialogStep,
+} from '../../model/publishOrRequestDialog.store';
 
 const PUBLISH_OR_REQUEST_ITEMS_STEP_NAME = 'PublishOrRequestItemsStep';
 
 const STEP: PublishOrRequestDialogStep = 'items';
 
 export const PublishOrRequestItemsStep = (): ReactElement => {
-    const { items } = useStore($publishOrRequestDialog, { keys: ['items'] });
+    const { items, dependants, loading } = useStore($publishOrRequestDialog, {
+        keys: ['items', 'dependants', 'loading'],
+    });
+    const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
+
+    const dependenciesLabel = useI18n('dialog.dependencies');
 
     return (
         <Dialog.StepContent step={STEP}>
@@ -22,6 +34,24 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                     renderRow={(item) => (
                         <ContentRow key={item.getId()} content={item} id={item.getId()} layout="mobile-status-below">
                             <ContentRow.Label action="edit" variant="detailed" />
+                            <ContentRow.Status />
+                        </ContentRow>
+                    )}
+                />
+
+                <SplitList.Separator hidden={dependants.length === 0}>
+                    <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
+                </SplitList.Separator>
+
+                <SplitList.Secondary
+                    items={dependants}
+                    getItemId={(item) => item.getId()}
+                    loading={loading}
+                    hasMore={hasMoreDependants}
+                    onEndReached={loadMorePublishOrRequestDependants}
+                    renderRow={(item) => (
+                        <ContentRow key={item.getId()} content={item} id={item.getId()} layout="mobile-status-below">
+                            <ContentRow.Label action="edit" />
                             <ContentRow.Status />
                         </ContentRow>
                     )}
