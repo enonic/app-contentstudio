@@ -6,11 +6,16 @@ import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { ContentRow, SplitList } from '../../../shared/lists';
 import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
-import { setPublishOrRequestDependantIncluded } from '../../model/commands/selection';
+import {
+    setPublishOrRequestDependantIncluded,
+    togglePublishOrRequestDependantsSelection,
+} from '../../model/commands/selection';
 import {
     $hasMorePublishOrRequestDependants,
+    $publishOrRequestDependantsSelection,
     $publishOrRequestDialog,
     type PublishOrRequestDialogStep,
 } from '../../model/publishOrRequestDialog.store';
@@ -25,6 +30,7 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
         { keys: ['items', 'dependants', 'loading', 'excludedDependantIds', 'requiredDependantIds'] },
     );
     const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
+    const dependantsSelection = useStore($publishOrRequestDependantsSelection);
 
     const dependenciesLabel = useI18n('dialog.dependencies');
 
@@ -46,31 +52,40 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                     <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
                 </SplitList.Separator>
 
-                <SplitList.Secondary
-                    items={dependants}
-                    getItemId={(item) => item.getId()}
-                    loading={loading}
-                    hasMore={hasMoreDependants}
-                    onEndReached={loadMorePublishOrRequestDependants}
-                    renderRow={(item) => (
-                        <ContentRow
-                            key={item.getId()}
-                            content={item}
-                            id={item.getId()}
-                            layout="mobile-selectable-status-below"
-                        >
-                            <ContentRow.Checkbox
-                                checked={!hasContentIdInIds(item.getContentId(), excludedDependantIds)}
-                                onCheckedChange={(checked) =>
-                                    setPublishOrRequestDependantIncluded(item.getContentId(), checked)
-                                }
-                                disabled={hasContentIdInIds(item.getContentId(), requiredDependantIds)}
-                            />
-                            <ContentRow.Label action="edit" />
-                            <ContentRow.Status />
-                        </ContentRow>
-                    )}
-                />
+                {dependantsSelection.count > 0 && (
+                    <div>
+                        <DependantsSelectAll
+                            selection={dependantsSelection}
+                            onToggle={togglePublishOrRequestDependantsSelection}
+                        />
+
+                        <SplitList.Secondary
+                            items={dependants}
+                            getItemId={(item) => item.getId()}
+                            loading={loading}
+                            hasMore={hasMoreDependants}
+                            onEndReached={loadMorePublishOrRequestDependants}
+                            renderRow={(item) => (
+                                <ContentRow
+                                    key={item.getId()}
+                                    content={item}
+                                    id={item.getId()}
+                                    layout="mobile-selectable-status-below"
+                                >
+                                    <ContentRow.Checkbox
+                                        checked={!hasContentIdInIds(item.getContentId(), excludedDependantIds)}
+                                        onCheckedChange={(checked) =>
+                                            setPublishOrRequestDependantIncluded(item.getContentId(), checked)
+                                        }
+                                        disabled={hasContentIdInIds(item.getContentId(), requiredDependantIds)}
+                                    />
+                                    <ContentRow.Label action="edit" />
+                                    <ContentRow.Status />
+                                </ContentRow>
+                            )}
+                        />
+                    </div>
+                )}
             </SplitList>
         </Dialog.StepContent>
     );

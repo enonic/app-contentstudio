@@ -6,6 +6,7 @@
 import { computed, map } from 'nanostores';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { calcDependantsSelection, type DependantsSelection } from '../../../shared/lib/cms/content/dependantsSelection';
 
 export const PUBLISH_OR_REQUEST_DIALOG_STEPS = ['items', 'publishing'] as const;
 
@@ -63,4 +64,11 @@ export const $publishOrRequestDialog = map<PublishOrRequestDialogStore>({
 export const $hasMorePublishOrRequestDependants = computed(
     $publishOrRequestDialog,
     ({ dependantIds, dependantWindow }): boolean => dependantWindow < dependantIds.length,
+);
+
+/** State of the "All (N)" checkbox over the dependencies. Counts every id, loaded or not. */
+export const $publishOrRequestDependantsSelection = computed(
+    $publishOrRequestDialog,
+    ({ dependantIds, requiredDependantIds, excludedDependantIds }): DependantsSelection =>
+        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
 );

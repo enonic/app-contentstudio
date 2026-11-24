@@ -40,7 +40,8 @@ export const PublishOrRequestDialog = (): ReactElement => {
                 <Dialog.Content className={CONTENT_CLASS_NAME}>
                     <PublishOrRequestDialogHeader />
 
-                    <Dialog.Body>
+                    {/* ? The body clips what overflows it; the padding leaves room for focus rings. */}
+                    <Dialog.Body className="p-2 -m-2">
                         <PublishOrRequestItemsStep />
                         <PublishOrRequestPublishingStep />
                     </Dialog.Body>
