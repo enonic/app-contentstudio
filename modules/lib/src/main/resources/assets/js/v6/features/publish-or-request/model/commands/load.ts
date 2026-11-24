@@ -1,37 +1,44 @@
 // Commands that load the dependencies of the items listed in the publish or request dialog.
 // The server resolves the ids; their summaries are then loaded a window at a time.
 
-import { resolvePublishDependencies } from '../../../../entities/content/api/publish.api';
+import type { ContentId } from '../../../../../app/content/ContentId';
 import {
     createDependantWindowLoader,
     DEPENDANT_LOAD_SIZE,
     fetchDependantWindowSlice,
     orderSummariesByIds,
 } from '../../../../entities/content/lib/dependantWindow';
+import { resolveAppliedPublishDependencies } from '../../../../entities/content/lib/publishDependencies';
+import { pruneExcludedDependantIds } from '../../../../shared/lib/cms/content/dependantsSelection';
 import { $publishOrRequestDialog, type PublishOrRequestDialogStore } from '../publishOrRequestDialog.store';
 
-/** Resolves the dependencies of the opened-with items and loads their first window. */
+/**
+ * Resolves the dependencies of the items with the applied selection and loads their first window.
+ * The list shown stays in place until the answer arrives.
+ */
 export async function loadPublishOrRequestDialogData(): Promise<void> {
     const currentRun = ++runId;
-    const ids = $publishOrRequestDialog.get().items.map((item) => item.getContentId());
-
-    patchDialog({
-        loading: ids.length > 0,
-        failed: false,
-        dependants: [],
-        dependantIds: [],
-        dependantWindow: 0,
-        requiredDependantIds: [],
-    });
+    const { items, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
+    const ids = items.map((item) => item.getContentId());
 
     if (ids.length === 0) return;
 
+    patchDialog({ loading: true, failed: false });
+
     // Children are left out: `excludeChildrenIds` lists the items whose children are not wanted.
-    const resolved = await resolvePublishDependencies({ ids, excludeChildrenIds: ids });
+    const resolved = await resolveAppliedPublishDependencies({
+        ids,
+        excludeChildrenIds: ids,
+        excludedIds: appliedExcludedDependantIds,
+    });
     if (currentRun !== runId) return;
     if (resolved.isErr()) return markLoadFailed();
 
-    const dependantIds = resolved.value.getDependants();
+    // `maxResult` has every dependency; `minResult` tells which are required once the excluded are out.
+    const { maxResult, minResult } = resolved.value;
+    const dependantIds = maxResult.getDependants();
+    const requiredDependantIds = minResult.getRequired();
+
     const { summaries, failed } = await fetchDependantWindowSlice(dependantIds, 0);
     if (currentRun !== runId) return;
     if (failed) return markLoadFailed();
@@ -41,7 +48,8 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         dependants: orderSummariesByIds(summaries, dependantIds),
         dependantIds,
         dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
-        requiredDependantIds: resolved.value.getRequired(),
+        requiredDependantIds,
+        ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }
 
@@ -57,6 +65,8 @@ export function cancelPublishOrRequestDialogLoad(): void {
 // * Internal
 // *
 
+type Exclusions = Pick<PublishOrRequestDialogStore, 'excludedDependantIds' | 'appliedExcludedDependantIds'>;
+
 // Number of the latest load. An answer that belongs to an older number is dropped.
 let runId = 0;
 
@@ -66,4 +76,14 @@ function patchDialog(patch: Partial<PublishOrRequestDialogStore>): void {
 
 function markLoadFailed(): void {
     patchDialog({ loading: false, failed: true });
+}
+
+// Drops the exclusions of dependencies that are gone from the list or have become required.
+function pruneExclusions(dependantIds: ContentId[], requiredIds: ContentId[]): Exclusions {
+    const { excludedDependantIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
+
+    return {
+        excludedDependantIds: pruneExcludedDependantIds(excludedDependantIds, dependantIds, requiredIds),
+        appliedExcludedDependantIds: pruneExcludedDependantIds(appliedExcludedDependantIds, dependantIds, requiredIds),
+    };
 }

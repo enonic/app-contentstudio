@@ -52,6 +52,11 @@ const openWith = (...ids: string[]): void => {
     });
 };
 
+const exclude = (applied: ContentId[], staged: ContentId[] = applied): void => {
+    $publishOrRequestDialog.setKey('appliedExcludedDependantIds', applied);
+    $publishOrRequestDialog.setKey('excludedDependantIds', staged);
+};
+
 describe('publish or request dialog load commands', () => {
     beforeEach(() => {
         mockResolvePublishDependencies.mockReset();
@@ -74,6 +79,79 @@ describe('publish or request dialog load commands', () => {
             const [params] = mockResolvePublishDependencies.mock.calls[0];
             expect(params.ids.map(String)).toEqual(['a']);
             expect(params.excludeChildrenIds.map(String)).toEqual(['a']);
+        });
+
+        it('should resolve once when no dependency is excluded', async () => {
+            mockResolved(createIds(2));
+
+            await loadPublishOrRequestDialogData();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledOnce();
+        });
+
+        it('should resolve a second time with the applied exclusions, not the staged ones', async () => {
+            const ids = createIds(3);
+            exclude([ids[2]], [ids[1], ids[2]]);
+            mockResolved(ids);
+
+            await loadPublishOrRequestDialogData();
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledTimes(2);
+            const [first] = mockResolvePublishDependencies.mock.calls[0];
+            const [second] = mockResolvePublishDependencies.mock.calls[1];
+            expect(first.excludedIds).toBeUndefined();
+            expect(second.excludedIds.map(String)).toEqual(['d2']);
+        });
+
+        it('should list every dependency and take the required ones from the second answer', async () => {
+            const ids = createIds(3);
+            exclude([ids[2]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync(createResolved(ids, [ids[0], ids[1]])))
+                .mockReturnValueOnce(okAsync(createResolved([ids[0], ids[1]], [ids[0]])));
+
+            await loadPublishOrRequestDialogData();
+
+            const { dependantIds, requiredDependantIds, excludedDependantIds } = $publishOrRequestDialog.get();
+            expect(dependantIds).toEqual(ids);
+            expect(requiredDependantIds).toEqual([ids[0]]);
+            expect(excludedDependantIds).toEqual([ids[2]]);
+        });
+
+        it('should drop the exclusions of dependencies that are gone or have become required', async () => {
+            const ids = createIds(3);
+            const gone = new ContentId('gone');
+            exclude([ids[0], gone], [ids[0], ids[1], gone]);
+            mockResolved(ids, [ids[0]]);
+
+            await loadPublishOrRequestDialogData();
+
+            const { excludedDependantIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
+            expect(excludedDependantIds).toEqual([ids[1]]);
+            expect(appliedExcludedDependantIds).toEqual([]);
+        });
+
+        it('should keep the list shown while it loads again', async () => {
+            const ids = createIds(2);
+            mockResolved(ids);
+            await loadPublishOrRequestDialogData();
+
+            const load = loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get()).toMatchObject({ loading: true, dependantIds: ids });
+            await load;
+        });
+
+        it('should mark the load as failed when the second resolve fails', async () => {
+            const ids = createIds(2);
+            exclude([ids[1]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync(createResolved(ids)))
+                .mockReturnValueOnce(errAsync(new Error('boom')));
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get()).toMatchObject({ loading: false, failed: true });
         });
 
         it('should store the dependency ids and their summaries in the resolved order', async () => {

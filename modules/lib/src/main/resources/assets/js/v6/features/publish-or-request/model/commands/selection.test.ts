@@ -1,14 +1,30 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
-import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { setPublishOrRequestDependantIncluded, togglePublishOrRequestDependantsSelection } from './selection';
+import {
+    $isPublishOrRequestSelectionSynced,
+    $publishOrRequestDialog,
+    INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
+} from '../publishOrRequestDialog.store';
+import {
+    applyPublishOrRequestSelection,
+    cancelPublishOrRequestSelection,
+    setPublishOrRequestDependantIncluded,
+    togglePublishOrRequestDependantsSelection,
+} from './selection';
+
+const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
+
+vi.mock('./load', () => ({ loadPublishOrRequestDialogData: mockLoad }));
 
 const excludedIds = (): string[] => $publishOrRequestDialog.get().excludedDependantIds.map(String);
+
+const appliedExcludedIds = (): string[] => $publishOrRequestDialog.get().appliedExcludedDependantIds.map(String);
 
 const toIds = (...ids: string[]): ContentId[] => ids.map((id) => new ContentId(id));
 
 describe('publish or request dialog selection commands', () => {
     beforeEach(() => {
+        mockLoad.mockReset();
         $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE, open: true });
     });
 
@@ -51,6 +67,14 @@ describe('publish or request dialog selection commands', () => {
 
             expect(excludedIds()).toEqual([]);
         });
+
+        it('should only stage the change, without applying or loading', () => {
+            setPublishOrRequestDependantIncluded(new ContentId('a'), false);
+
+            expect(appliedExcludedIds()).toEqual([]);
+            expect($isPublishOrRequestSelectionSynced.get()).toBe(false);
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
     });
 
     describe('togglePublishOrRequestDependantsSelection', () => {
@@ -87,6 +111,52 @@ describe('publish or request dialog selection commands', () => {
             const unsubscribe = $publishOrRequestDialog.listen(listener);
 
             togglePublishOrRequestDependantsSelection();
+            unsubscribe();
+
+            expect(listener).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('applyPublishOrRequestSelection', () => {
+        it('should make the staged selection the applied one and load the dependencies again', () => {
+            $publishOrRequestDialog.setKey('excludedDependantIds', toIds('a', 'b'));
+
+            applyPublishOrRequestSelection();
+
+            expect(appliedExcludedIds()).toEqual(['a', 'b']);
+            expect($isPublishOrRequestSelectionSynced.get()).toBe(true);
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should do nothing when there is nothing to apply', () => {
+            const listener = vi.fn();
+            const unsubscribe = $publishOrRequestDialog.listen(listener);
+
+            applyPublishOrRequestSelection();
+            unsubscribe();
+
+            expect(listener).not.toHaveBeenCalled();
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('cancelPublishOrRequestSelection', () => {
+        it('should bring back the applied selection without loading', () => {
+            $publishOrRequestDialog.setKey('appliedExcludedDependantIds', toIds('a'));
+            $publishOrRequestDialog.setKey('excludedDependantIds', toIds('b', 'c'));
+
+            cancelPublishOrRequestSelection();
+
+            expect(excludedIds()).toEqual(['a']);
+            expect($isPublishOrRequestSelectionSynced.get()).toBe(true);
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+
+        it('should do nothing when there is nothing to cancel', () => {
+            const listener = vi.fn();
+            const unsubscribe = $publishOrRequestDialog.listen(listener);
+
+            cancelPublishOrRequestSelection();
             unsubscribe();
 
             expect(listener).not.toHaveBeenCalled();
