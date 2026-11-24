@@ -1,5 +1,6 @@
 // State of the publish or request dialog: whether it is open, which step it shows,
-// the items it was opened with and their dependencies resolved by the server.
+// the items it was opened with, their dependencies resolved by the server
+// and which of those the user has left out.
 // The commands that change this state live in `./commands`.
 
 import { computed, map } from 'nanostores';
@@ -26,6 +27,9 @@ export type PublishOrRequestDialogStore = {
     dependants: ContentSummary[];
     dependantIds: ContentId[];
     dependantWindow: number;
+
+    // Selection: the dependencies the user has unticked
+    excludedDependantIds: ContentId[];
 };
 
 export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStore = {
@@ -44,6 +48,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
     dependants: [],
     dependantIds: [],
     dependantWindow: 0,
+
+    // Selection: the dependencies the user has unticked
+    excludedDependantIds: [],
 };
 
 export const $publishOrRequestDialog = map<PublishOrRequestDialogStore>({

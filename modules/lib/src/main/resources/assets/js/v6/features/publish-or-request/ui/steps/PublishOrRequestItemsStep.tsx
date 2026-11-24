@@ -4,9 +4,11 @@
 import { Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
+import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { ContentRow, SplitList } from '../../../shared/lists';
 import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
+import { setPublishOrRequestDependantIncluded } from '../../model/commands/selection';
 import {
     $hasMorePublishOrRequestDependants,
     $publishOrRequestDialog,
@@ -18,8 +20,8 @@ const PUBLISH_OR_REQUEST_ITEMS_STEP_NAME = 'PublishOrRequestItemsStep';
 const STEP: PublishOrRequestDialogStep = 'items';
 
 export const PublishOrRequestItemsStep = (): ReactElement => {
-    const { items, dependants, loading } = useStore($publishOrRequestDialog, {
-        keys: ['items', 'dependants', 'loading'],
+    const { items, dependants, loading, excludedDependantIds } = useStore($publishOrRequestDialog, {
+        keys: ['items', 'dependants', 'loading', 'excludedDependantIds'],
     });
     const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
 
@@ -50,7 +52,18 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                     hasMore={hasMoreDependants}
                     onEndReached={loadMorePublishOrRequestDependants}
                     renderRow={(item) => (
-                        <ContentRow key={item.getId()} content={item} id={item.getId()} layout="mobile-status-below">
+                        <ContentRow
+                            key={item.getId()}
+                            content={item}
+                            id={item.getId()}
+                            layout="mobile-selectable-status-below"
+                        >
+                            <ContentRow.Checkbox
+                                checked={!hasContentIdInIds(item.getContentId(), excludedDependantIds)}
+                                onCheckedChange={(checked) =>
+                                    setPublishOrRequestDependantIncluded(item.getContentId(), checked)
+                                }
+                            />
                             <ContentRow.Label action="edit" />
                             <ContentRow.Status />
                         </ContentRow>
