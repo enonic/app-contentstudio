@@ -1,0 +1,57 @@
+// The publish or request dialog: one dialog with steps that either publishes
+// the listed items or creates a publish request for them. See #11792.
+
+import { Dialog } from '@enonic/ui';
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { closePublishOrRequestDialog } from '../model/commands/open';
+import { setPublishOrRequestDialogStep } from '../model/commands/steps';
+import { $publishOrRequestDialog } from '../model/publishOrRequestDialog.store';
+import { PublishOrRequestDialogHeader } from './PublishOrRequestDialogHeader';
+import { PublishOrRequestItemsStep } from './steps/PublishOrRequestItemsStep';
+import { PublishOrRequestPublishingStep } from './steps/PublishOrRequestPublishingStep';
+
+const PUBLISH_OR_REQUEST_DIALOG_NAME = 'PublishOrRequestDialog';
+
+const CONTENT_CLASS_NAME =
+    'w-full h-full max-sm:max-h-none sm:h-fit gap-10 md:min-w-180 md:max-w-184 md:max-h-[90vh] lg:max-w-220';
+
+export const PublishOrRequestDialog = (): ReactElement => {
+    const { open, step } = useStore($publishOrRequestDialog, { keys: ['open', 'step'] });
+
+    const previousLabel = useI18n('action.previous');
+    const nextLabel = useI18n('action.next');
+
+    const handleOpenChange = (next: boolean) => {
+        if (!next) closePublishOrRequestDialog();
+    };
+
+    return (
+        <Dialog.Root
+            data-component={PUBLISH_OR_REQUEST_DIALOG_NAME}
+            open={open}
+            onOpenChange={handleOpenChange}
+            step={step}
+            onStepChange={setPublishOrRequestDialogStep}
+        >
+            <Dialog.Portal>
+                <Dialog.Overlay />
+                <Dialog.Content className={CONTENT_CLASS_NAME}>
+                    <PublishOrRequestDialogHeader />
+
+                    <Dialog.Body>
+                        <PublishOrRequestItemsStep />
+                        <PublishOrRequestPublishingStep />
+                    </Dialog.Body>
+
+                    <Dialog.Footer className="flex flex-col">
+                        <Dialog.StepIndicator dots previousLabel={previousLabel} nextLabel={nextLabel} />
+                    </Dialog.Footer>
+                </Dialog.Content>
+            </Dialog.Portal>
+        </Dialog.Root>
+    );
+};
+
+PublishOrRequestDialog.displayName = PUBLISH_OR_REQUEST_DIALOG_NAME;
