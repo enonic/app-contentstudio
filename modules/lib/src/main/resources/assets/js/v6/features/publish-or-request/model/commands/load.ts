@@ -15,7 +15,14 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
     const currentRun = ++runId;
     const ids = $publishOrRequestDialog.get().items.map((item) => item.getContentId());
 
-    patchDialog({ loading: ids.length > 0, failed: false, dependants: [], dependantIds: [], dependantWindow: 0 });
+    patchDialog({
+        loading: ids.length > 0,
+        failed: false,
+        dependants: [],
+        dependantIds: [],
+        dependantWindow: 0,
+        requiredDependantIds: [],
+    });
 
     if (ids.length === 0) return;
 
@@ -34,6 +41,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         dependants: orderSummariesByIds(summaries, dependantIds),
         dependantIds,
         dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
+        requiredDependantIds: resolved.value.getRequired(),
     });
 }
 

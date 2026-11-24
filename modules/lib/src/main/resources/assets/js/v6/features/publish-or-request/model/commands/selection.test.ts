@@ -41,5 +41,13 @@ describe('publish or request dialog selection commands', () => {
 
             expect(listener).not.toHaveBeenCalled();
         });
+
+        it('should keep a required dependency included', () => {
+            $publishOrRequestDialog.setKey('requiredDependantIds', [new ContentId('a')]);
+
+            setPublishOrRequestDependantIncluded(new ContentId('a'), false);
+
+            expect(excludedIds()).toEqual([]);
+        });
     });
 });

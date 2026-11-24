@@ -33,8 +33,15 @@ const createIds = (count: number): ContentId[] => Array.from({ length: count }, 
 
 const toItems = (ids: ContentId[]): ContentSummary[] => ids.map((id) => createItem(id.toString()));
 
-const mockResolved = (dependantIds: ContentId[]): void => {
-    mockResolvePublishDependencies.mockReturnValue(okAsync({ getDependants: () => dependantIds }));
+type Resolved = { getDependants: () => ContentId[]; getRequired: () => ContentId[] };
+
+const createResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): Resolved => ({
+    getDependants: () => dependantIds,
+    getRequired: () => requiredIds,
+});
+
+const mockResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): void => {
+    mockResolvePublishDependencies.mockReturnValue(okAsync(createResolved(dependantIds, requiredIds)));
 };
 
 const openWith = (...ids: string[]): void => {
@@ -84,6 +91,15 @@ describe('publish or request dialog load commands', () => {
             expect(failed).toBe(false);
         });
 
+        it('should store which dependencies are required', async () => {
+            const ids = createIds(3);
+            mockResolved(ids, [ids[1]]);
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().requiredDependantIds).toEqual([ids[1]]);
+        });
+
         it('should report loading while the load runs', async () => {
             mockResolved([]);
 
@@ -121,13 +137,13 @@ describe('publish or request dialog load commands', () => {
         });
 
         it('should ignore the answer of a cancelled load', async () => {
-            let answer: (value: { getDependants: () => ContentId[] }) => void = () => undefined;
-            const pending = new Promise<{ getDependants: () => ContentId[] }>((resolve) => (answer = resolve));
+            let answer: (value: Resolved) => void = () => undefined;
+            const pending = new Promise<Resolved>((resolve) => (answer = resolve));
             mockResolvePublishDependencies.mockReturnValue(ResultAsync.fromSafePromise(pending));
 
             const load = loadPublishOrRequestDialogData();
             cancelPublishOrRequestDialogLoad();
-            answer({ getDependants: () => createIds(2) });
+            answer(createResolved(createIds(2)));
             await load;
 
             expect($publishOrRequestDialog.get().dependantIds).toEqual([]);

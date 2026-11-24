@@ -20,9 +20,10 @@ const PUBLISH_OR_REQUEST_ITEMS_STEP_NAME = 'PublishOrRequestItemsStep';
 const STEP: PublishOrRequestDialogStep = 'items';
 
 export const PublishOrRequestItemsStep = (): ReactElement => {
-    const { items, dependants, loading, excludedDependantIds } = useStore($publishOrRequestDialog, {
-        keys: ['items', 'dependants', 'loading', 'excludedDependantIds'],
-    });
+    const { items, dependants, loading, excludedDependantIds, requiredDependantIds } = useStore(
+        $publishOrRequestDialog,
+        { keys: ['items', 'dependants', 'loading', 'excludedDependantIds', 'requiredDependantIds'] },
+    );
     const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
 
     const dependenciesLabel = useI18n('dialog.dependencies');
@@ -63,6 +64,7 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                                 onCheckedChange={(checked) =>
                                     setPublishOrRequestDependantIncluded(item.getContentId(), checked)
                                 }
+                                disabled={hasContentIdInIds(item.getContentId(), requiredDependantIds)}
                             />
                             <ContentRow.Label action="edit" />
                             <ContentRow.Status />
