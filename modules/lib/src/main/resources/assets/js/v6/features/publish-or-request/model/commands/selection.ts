@@ -50,3 +50,8 @@ export function cancelPublishOrRequestSelection(): void {
     const { appliedExcludedDependantIds } = $publishOrRequestDialog.get();
     $publishOrRequestDialog.setKey('excludedDependantIds', appliedExcludedDependantIds);
 }
+
+/** Shows or hides the dependencies that are applied as excluded. */
+export function togglePublishOrRequestShowExcluded(): void {
+    $publishOrRequestDialog.setKey('showExcluded', !$publishOrRequestDialog.get().showExcluded);
+}

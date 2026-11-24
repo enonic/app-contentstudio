@@ -10,6 +10,7 @@ import {
     cancelPublishOrRequestSelection,
     setPublishOrRequestDependantIncluded,
     togglePublishOrRequestDependantsSelection,
+    togglePublishOrRequestShowExcluded,
 } from './selection';
 
 const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
@@ -160,6 +161,29 @@ describe('publish or request dialog selection commands', () => {
             unsubscribe();
 
             expect(listener).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('togglePublishOrRequestShowExcluded', () => {
+        it('should hide the excluded dependencies, then show them again', () => {
+            togglePublishOrRequestShowExcluded();
+            expect($publishOrRequestDialog.get().showExcluded).toBe(false);
+
+            togglePublishOrRequestShowExcluded();
+            expect($publishOrRequestDialog.get().showExcluded).toBe(true);
+        });
+
+        it('should leave the hidden dependencies alone when all the listed ones are toggled', () => {
+            $publishOrRequestDialog.setKey('dependantIds', toIds('a', 'b', 'c'));
+            $publishOrRequestDialog.setKey('excludedDependantIds', toIds('a'));
+            $publishOrRequestDialog.setKey('appliedExcludedDependantIds', toIds('a'));
+            togglePublishOrRequestShowExcluded();
+
+            togglePublishOrRequestDependantsSelection();
+            expect(excludedIds()).toEqual(['a', 'b', 'c']);
+
+            togglePublishOrRequestDependantsSelection();
+            expect(excludedIds()).toEqual(['a']);
         });
     });
 });

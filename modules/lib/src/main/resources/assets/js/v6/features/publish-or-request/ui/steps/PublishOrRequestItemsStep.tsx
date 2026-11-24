@@ -9,16 +9,20 @@ import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { StatusBarEntry } from '../../../../shared/ui/dialogs/status-bar/StatusBarEntry';
-import { ContentRow, SplitList } from '../../../shared/lists';
+import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
 import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
 import {
     setPublishOrRequestDependantIncluded,
     togglePublishOrRequestDependantsSelection,
+    togglePublishOrRequestShowExcluded,
 } from '../../model/commands/selection';
 import {
     $hasMorePublishOrRequestDependants,
+    $hasPublishOrRequestExcludedDependants,
+    $isPublishOrRequestSelectionSynced,
     $publishOrRequestDependantsSelection,
     $publishOrRequestDialog,
+    $publishOrRequestShownDependants,
     type PublishOrRequestDialogStep,
 } from '../../model/publishOrRequestDialog.store';
 import { PublishOrRequestWarnings } from '../warnings/PublishOrRequestWarnings';
@@ -28,14 +32,22 @@ const PUBLISH_OR_REQUEST_ITEMS_STEP_NAME = 'PublishOrRequestItemsStep';
 const STEP: PublishOrRequestDialogStep = 'items';
 
 export const PublishOrRequestItemsStep = (): ReactElement => {
-    const { items, dependants, loading, excludedDependantIds, requiredDependantIds } = useStore(
+    const { items, dependantIds, loading, excludedDependantIds, requiredDependantIds, showExcluded } = useStore(
         $publishOrRequestDialog,
-        { keys: ['items', 'dependants', 'loading', 'excludedDependantIds', 'requiredDependantIds'] },
+        {
+            keys: ['items', 'dependantIds', 'loading', 'excludedDependantIds', 'requiredDependantIds', 'showExcluded'],
+        },
     );
+    const shownDependants = useStore($publishOrRequestShownDependants);
     const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
+    const hasExcludedDependants = useStore($hasPublishOrRequestExcludedDependants);
     const dependantsSelection = useStore($publishOrRequestDependantsSelection);
+    const isSelectionSynced = useStore($isPublishOrRequestSelectionSynced);
 
     const dependenciesLabel = useI18n('dialog.dependencies');
+    const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
+
+    const hasDependencies = dependantIds.length > 0;
 
     return (
         <Dialog.StepContent step={STEP}>
@@ -55,21 +67,30 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                     )}
                 />
 
-                <SplitList.Separator hidden={dependants.length === 0}>
-                    <SplitList.SeparatorLabel>{dependenciesLabel}</SplitList.SeparatorLabel>
-                </SplitList.Separator>
+                {/* The toggle is offered once the exclusions are applied; a staged one is never hidden. */}
+                <DependantsSeparator
+                    label={dependenciesLabel}
+                    hasExcluded={hasExcludedDependants && isSelectionSynced}
+                    showExcluded={showExcluded}
+                    onToggleExcluded={togglePublishOrRequestShowExcluded}
+                    hidden={!hasDependencies}
+                    disabled={loading}
+                />
 
-                {dependantsSelection.count > 0 && (
+                {hasDependencies && (
                     <div>
-                        <DependantsSelectAll
-                            selection={dependantsSelection}
-                            onToggle={togglePublishOrRequestDependantsSelection}
-                            disabled={loading}
-                        />
+                        {dependantsSelection.count > 0 && (
+                            <DependantsSelectAll
+                                selection={dependantsSelection}
+                                onToggle={togglePublishOrRequestDependantsSelection}
+                                disabled={loading}
+                            />
+                        )}
 
                         <SplitList.Secondary
-                            items={dependants}
+                            items={shownDependants}
                             getItemId={(item) => item.getId()}
+                            emptyMessage={allExcludedMessage}
                             disabled={loading}
                             loading={loading}
                             hasMore={hasMoreDependants}

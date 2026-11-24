@@ -6,7 +6,13 @@
 import { computed, map } from 'nanostores';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { calcDependantsSelection, type DependantsSelection } from '../../../shared/lib/cms/content/dependantsSelection';
+import {
+    calcDependantsSelection,
+    type DependantsSelection,
+    filterShownDependantIds,
+    filterShownDependants,
+    hasHideableExcludedDependants,
+} from '../../../shared/lib/cms/content/dependantsSelection';
 import { isIdsEqual } from '../../../shared/lib/cms/content/ids';
 
 export const PUBLISH_OR_REQUEST_DIALOG_STEPS = ['items', 'publishing'] as const;
@@ -38,6 +44,9 @@ export type PublishOrRequestDialogStore = {
 
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: ContentId[];
+
+    // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
+    showExcluded: boolean;
 };
 
 export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStore = {
@@ -65,6 +74,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
 
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: [],
+
+    // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
+    showExcluded: true,
 };
 
 export const $publishOrRequestDialog = map<PublishOrRequestDialogStore>({
@@ -77,11 +89,27 @@ export const $hasMorePublishOrRequestDependants = computed(
     ({ dependantIds, dependantWindow }): boolean => dependantWindow < dependantIds.length,
 );
 
-/** State of the "All (N)" checkbox over the dependencies. Counts every id, loaded or not. */
-export const $publishOrRequestDependantsSelection = computed(
+/** True when some dependency is applied as excluded, i.e. there is something to hide. */
+export const $hasPublishOrRequestExcludedDependants = computed(
     $publishOrRequestDialog,
-    ({ dependantIds, requiredDependantIds, excludedDependantIds }): DependantsSelection =>
-        calcDependantsSelection(dependantIds, requiredDependantIds, excludedDependantIds),
+    ({ dependantIds, appliedExcludedDependantIds }): boolean =>
+        hasHideableExcludedDependants(dependantIds, appliedExcludedDependantIds),
+);
+
+/** The loaded dependencies to list: without the ones applied as excluded while those are hidden. */
+export const $publishOrRequestShownDependants = computed(
+    $publishOrRequestDialog,
+    ({ dependants, appliedExcludedDependantIds, showExcluded }): ContentSummary[] =>
+        filterShownDependants(dependants, appliedExcludedDependantIds, showExcluded),
+);
+
+/** State of the "All (N)" checkbox over the dependencies. Counts every listed id, loaded or not. */
+export const $publishOrRequestDependantsSelection = computed($publishOrRequestDialog, (state): DependantsSelection =>
+    calcDependantsSelection(
+        filterShownDependantIds(state.dependantIds, state.appliedExcludedDependantIds, state.showExcluded),
+        state.requiredDependantIds,
+        state.excludedDependantIds,
+    ),
 );
 
 /** True when the selection on screen is the applied one, i.e. there is nothing to apply. */
