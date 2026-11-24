@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
 import { closePublishOrRequestDialog, openPublishOrRequestDialog } from './open';
+
+const createItem = (id: string): ContentSummary => ({ getId: () => id }) as unknown as ContentSummary;
 
 describe('publish or request dialog open commands', () => {
     beforeEach(() => {
@@ -12,24 +15,36 @@ describe('publish or request dialog open commands', () => {
     });
 
     describe('openPublishOrRequestDialog', () => {
-        it('should open the dialog on the first step', () => {
-            openPublishOrRequestDialog();
+        it('should open the dialog on the first step with the given items', () => {
+            const items = [createItem('a'), createItem('b')];
 
-            expect($publishOrRequestDialog.get()).toEqual({ open: true, step: 'items' });
+            openPublishOrRequestDialog(items);
+
+            expect($publishOrRequestDialog.get()).toEqual({ open: true, step: 'items', items });
         });
 
-        it('should drop the step of an earlier run', () => {
-            $publishOrRequestDialog.set({ open: false, step: 'publishing' });
+        it('should keep its own copy of the items', () => {
+            const items = [createItem('a')];
 
-            openPublishOrRequestDialog();
+            openPublishOrRequestDialog(items);
+            items.push(createItem('b'));
 
-            expect($publishOrRequestDialog.get().step).toBe('items');
+            expect($publishOrRequestDialog.get().items).toHaveLength(1);
+        });
+
+        it('should drop the state of an earlier run', () => {
+            $publishOrRequestDialog.set({ open: false, step: 'publishing', items: [createItem('a')] });
+            const items = [createItem('b')];
+
+            openPublishOrRequestDialog(items);
+
+            expect($publishOrRequestDialog.get()).toEqual({ open: true, step: 'items', items });
         });
     });
 
     describe('closePublishOrRequestDialog', () => {
         it('should close the dialog and reset its state', () => {
-            $publishOrRequestDialog.set({ open: true, step: 'publishing' });
+            $publishOrRequestDialog.set({ open: true, step: 'publishing', items: [createItem('a')] });
 
             closePublishOrRequestDialog();
 
