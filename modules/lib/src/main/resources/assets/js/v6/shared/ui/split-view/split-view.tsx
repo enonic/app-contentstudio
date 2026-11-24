@@ -36,6 +36,8 @@ const SplitViewContext = createContext<SplitViewContextValue>({
 // * SplitView.Root
 //
 
+const RESIZE_TARGET_MINIMUM_SIZE = { coarse: 20, fine: 17 };
+
 const haveSamePanels = (a: Layout, b: Layout): boolean => {
     const aKeys = Object.keys(a);
     return aKeys.length === Object.keys(b).length && aKeys.every((key) => key in b);
@@ -217,11 +219,21 @@ const SplitViewRoot = forwardRef<HTMLDivElement, SplitViewRootProps>(
                     defaultLayout={storedLayout}
                     onLayoutChanged={handleLayoutChanged}
                     onPointerDownCapture={handlePointerDownCapture}
+                    resizeTargetMinimumSize={RESIZE_TARGET_MINIMUM_SIZE}
+                    disableCursor
                     className={cn('relative', String.raw`[&[data-dragging]_iframe]:pointer-events-none`, className)}
                     {...props}
                 >
                     {children}
-                    {isDragging && <div data-component="SplitView.DragShield" className="absolute inset-0 z-50" />}
+                    {isDragging && (
+                        <div
+                            data-component="SplitView.DragShield"
+                            className={cn(
+                                'absolute inset-0 z-50',
+                                orientation === 'horizontal' ? 'cursor-col-resize' : 'cursor-row-resize',
+                            )}
+                        />
+                    )}
                 </Group>
             </SplitViewContext.Provider>
         );
@@ -317,6 +329,7 @@ SplitViewPanel.displayName = 'SplitView.Panel';
 const handleVariants = cva(
     [
         'bg-bdr-soft transition-colors',
+        String.raw`relative z-10 after:absolute after:content-[""]`,
         'data-[separator=active]:bg-bdr-select hover:bg-bdr-select',
         'focus-visible:ring-3 focus-visible:ring-ring focus-visible:z-10',
     ],
@@ -327,8 +340,8 @@ const handleVariants = cva(
                 thin: '',
             },
             orientation: {
-                horizontal: '',
-                vertical: '',
+                horizontal: 'cursor-col-resize after:inset-y-0 after:-inset-x-2',
+                vertical: 'cursor-row-resize after:inset-x-0 after:-inset-y-2',
             },
         },
         compoundVariants: [
