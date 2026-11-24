@@ -6,6 +6,7 @@ import { IssueDialog } from '../../../../features/issues/ui/issue/IssueDialog';
 import { MoveDialog } from '../../../../features/move/ui/MoveDialog';
 import { NewIssueDialog } from '../../../../features/issues/ui/new-issue/NewIssueDialog';
 import { PublishDialog } from '../../../../features/publish/ui/PublishDialog';
+import { PublishOrRequestDialog } from '../../../../features/publish-or-request/ui/PublishOrRequestDialog';
 import { RequestPublishDialog } from '../../../../features/request-publish/ui/RequestPublishDialog';
 import { RenameContentDialog } from '../../../../features/rename/ui/RenameContentDialog';
 import { SortDialog } from '../../../../features/sort/ui/SortDialog';
@@ -28,6 +29,7 @@ export const WizardAppShell = (): ReactElement => {
             <MoveDialog />
             <NewIssueDialog />
             <PublishDialog />
+            <PublishOrRequestDialog />
             <RequestPublishDialog />
             <RenameContentDialog />
             <UnpublishDialog />
