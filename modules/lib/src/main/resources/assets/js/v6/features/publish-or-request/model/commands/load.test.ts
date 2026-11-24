@@ -214,6 +214,19 @@ describe('publish or request dialog load commands', () => {
             expect($publishOrRequestDialog.get()).toMatchObject({ loading: false, failed: true, dependants: [] });
         });
 
+        it('should clear the failure when loading again', async () => {
+            mockResolvePublishDependencies.mockReturnValueOnce(errAsync(new Error('boom')));
+            await loadPublishOrRequestDialogData();
+            const ids = createIds(2);
+            mockResolved(ids);
+
+            const load = loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get()).toMatchObject({ loading: true, failed: false });
+            await load;
+            expect($publishOrRequestDialog.get()).toMatchObject({ loading: false, failed: false, dependantIds: ids });
+        });
+
         it('should ignore the answer of a cancelled load', async () => {
             let answer: (value: Resolved) => void = () => undefined;
             const pending = new Promise<Resolved>((resolve) => (answer = resolve));
