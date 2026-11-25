@@ -4,6 +4,7 @@ import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
 import {
     applyPublishOrRequestContentChanges,
+    applyPublishOrRequestUnpublishedContents,
     refreshPublishOrRequestItemsWithNewDescendants,
     removePublishOrRequestContents,
 } from './events';
@@ -101,6 +102,24 @@ describe('publish or request dialog events commands', () => {
             const { excludedDependantIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
             expect(excludedDependantIds).toEqual([applied, staged]);
             expect(appliedExcludedDependantIds).toEqual([applied]);
+        });
+    });
+
+    describe('applyPublishOrRequestUnpublishedContents', () => {
+        it('should take the new version of a main item and load again', () => {
+            applyPublishOrRequestUnpublishedContents([createItem('b', 'b2')]);
+
+            expect(itemNames()).toEqual(['a', 'b2']);
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+
+        it('should load again for a content that is not listed, as it may be a dependency now', () => {
+            const { items } = $publishOrRequestDialog.get();
+
+            applyPublishOrRequestUnpublishedContents([createItem('x')]);
+
+            expect($publishOrRequestDialog.get().items).toBe(items);
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
         });
     });
 

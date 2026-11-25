@@ -16,12 +16,20 @@ import { closePublishOrRequestDialog, getPublishOrRequestDialogSessionId } from 
  * as a main item or as a dependency; the others do not concern the dialog.
  */
 export function applyPublishOrRequestContentChanges(changed: readonly ContentSummary[]): void {
-    const { items, dependantIds } = $publishOrRequestDialog.get();
-    const patched = patchContentItemsByContentId(items, changed);
+    const { dependantIds } = $publishOrRequestDialog.get();
     const isDependencyChanged = changed.some((item) => hasContentIdInIds(item.getContentId(), dependantIds));
+    const isMainItemChanged = patchItems(changed);
 
-    if (patched.changed) $publishOrRequestDialog.setKey('items', patched.items);
-    if (patched.changed || isDependencyChanged) loadPublishOrRequestDialogDataDebounced();
+    if (isMainItemChanged || isDependencyChanged) loadPublishOrRequestDialogDataDebounced();
+}
+
+/**
+ * Takes the new version of the contents that were unpublished and always resolves again: one
+ * that is not listed has something to publish again, so it may be a dependency from now on.
+ */
+export function applyPublishOrRequestUnpublishedContents(unpublished: readonly ContentSummary[]): void {
+    patchItems(unpublished);
+    loadPublishOrRequestDialogDataDebounced();
 }
 
 /**
@@ -59,8 +67,19 @@ export async function refreshPublishOrRequestItemsWithNewDescendants(
     // The dialog was closed or opened again meanwhile: its state is no longer ours to touch.
     if (sessionId !== getPublishOrRequestDialogSessionId()) return;
 
-    const patched = patchContentItemsByContentId($publishOrRequestDialog.get().items, refreshed);
-
-    if (patched.changed) $publishOrRequestDialog.setKey('items', patched.items);
+    patchItems(refreshed);
     loadPublishOrRequestDialogDataDebounced();
+}
+
+// *
+// * Internal
+// *
+
+// Swaps the main items for their new version among the given ones. Tells whether any was swapped.
+function patchItems(updates: readonly ContentSummary[]): boolean {
+    const { items, changed } = patchContentItemsByContentId($publishOrRequestDialog.get().items, updates);
+
+    if (changed) $publishOrRequestDialog.setKey('items', items);
+
+    return changed;
 }

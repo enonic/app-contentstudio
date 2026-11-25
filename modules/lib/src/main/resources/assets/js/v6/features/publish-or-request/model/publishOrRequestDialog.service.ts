@@ -9,11 +9,14 @@ import {
     $contentCreated,
     $contentDeleted,
     $contentDuplicated,
+    $contentPublished,
     $contentRenamed,
+    $contentUnpublished,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
 import {
     applyPublishOrRequestContentChanges,
+    applyPublishOrRequestUnpublishedContents,
     refreshPublishOrRequestItemsWithNewDescendants,
     removePublishOrRequestContents,
 } from './commands/events';
@@ -25,6 +28,8 @@ export const start = (): void => {
     unsubscribers = [
         $contentUpdated.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
         $contentRenamed.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data.items))),
+        $contentPublished.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
+        $contentUnpublished.subscribe(onEvent((event) => applyPublishOrRequestUnpublishedContents(event.data))),
         $contentDeleted.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentArchived.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentCreated.subscribe(onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data))),
