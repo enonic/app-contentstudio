@@ -31,7 +31,7 @@
     "@enonic/input-types": "^0.7.0",
     "@enonic/lib-admin-ui": "link:.xp/dev/lib-admin-ui",
     "@enonic/lib-contentstudio": "link:.xp/dev/lib-contentstudio",
-    "@enonic/page-editor": "2.0.2",
+    "@enonic/page-editor": "2.0.3",
     "@enonic/ui": "^1.7.1",
     "@enonic/ui-kit": "^0.7.0",
     "@enonic/ui-types": "^0.7.0",
