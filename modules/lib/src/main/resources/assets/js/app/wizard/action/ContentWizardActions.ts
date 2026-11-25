@@ -9,6 +9,10 @@ import {
     $wizardContentState,
     $wizardHasChanges,
 } from '../../../v6/pages/wizard/model/wizardContent.store';
+import {
+    bindWizardActions,
+    type WizardActionSources,
+} from '../../../v6/features/wizard-actions/model/wizardActions.store';
 import { CloseAction } from '@enonic/lib-admin-ui/app/wizard/CloseAction';
 import { WizardActions } from '@enonic/lib-admin-ui/app/wizard/WizardActions';
 import { type ManagedActionExecutor } from '@enonic/lib-admin-ui/managedaction/ManagedActionExecutor';
@@ -595,6 +599,29 @@ export class ContentWizardActions extends WizardActions<Content> {
         this.actionsUnstashedListeners.forEach((listener) => {
             listener();
         });
+    }
+
+    bindStore(): void {
+        bindWizardActions(this.getStoreSources());
+    }
+
+    getStoreSources(): WizardActionSources {
+        return {
+            save: this.getSaveAction(),
+            reset: this.getResetAction(),
+            localize: this.getLocalizeAction(),
+            archive: this.getArchiveAction(),
+            duplicate: this.getDuplicateAction(),
+            move: this.getMoveAction(),
+            preview: this.getPreviewAction(),
+            markAsReady: this.getMarkAsReadyAction(),
+            publish: this.getPublishAction(),
+            publishTree: this.getPublishTreeAction(),
+            unpublish: this.getUnpublishAction(),
+            requestPublish: this.getRequestPublishAction(),
+            openRequest: this.getOpenRequestAction(),
+            createIssue: this.getCreateIssueAction(),
+        };
     }
 
     getArchiveAction(): Action {
