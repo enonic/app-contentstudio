@@ -37,16 +37,19 @@ type Resolved = {
     getDependants: () => ContentId[];
     getRequired: () => ContentId[];
     getInProgress: () => ContentId[];
+    getInvalid: () => ContentId[];
 };
 
 const createResolved = (
     dependantIds: ContentId[],
     requiredIds: ContentId[] = [],
     inProgressIds: ContentId[] = [],
+    invalidIds: ContentId[] = [],
 ): Resolved => ({
     getDependants: () => dependantIds,
     getRequired: () => requiredIds,
     getInProgress: () => inProgressIds,
+    getInvalid: () => invalidIds,
 });
 
 const mockResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): void => {
@@ -199,6 +202,19 @@ describe('publish or request dialog load commands', () => {
             await loadPublishOrRequestDialogData();
 
             expect($publishOrRequestDialog.get().inProgressIds).toEqual([ids[0]]);
+        });
+
+        it('should store which items are invalid, and list an item that is also in progress as invalid only', async () => {
+            const ids = createIds(3);
+            mockResolvePublishDependencies.mockReturnValue(
+                okAsync(createResolved(ids, [], [ids[0], ids[1]], [ids[1], ids[2]])),
+            );
+
+            await loadPublishOrRequestDialogData();
+
+            const { invalidIds, inProgressIds } = $publishOrRequestDialog.get();
+            expect(invalidIds).toEqual([ids[1], ids[2]]);
+            expect(inProgressIds).toEqual([ids[0]]);
         });
 
         it('should report loading while the load runs', async () => {

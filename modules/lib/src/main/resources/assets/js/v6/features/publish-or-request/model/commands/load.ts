@@ -10,6 +10,7 @@ import {
 } from '../../../../entities/content/lib/dependantWindow';
 import { resolveAppliedPublishDependencies } from '../../../../entities/content/lib/publishDependencies';
 import { pruneExcludedDependantIds } from '../../../../shared/lib/cms/content/dependantsSelection';
+import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { $publishOrRequestDialog, type PublishOrRequestDialogStore } from '../publishOrRequestDialog.store';
 
 /**
@@ -37,6 +38,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
     const { maxResult, minResult } = resolved.value;
     const dependantIds = maxResult.getDependants();
     const requiredDependantIds = minResult.getRequired();
+    const invalidIds = minResult.getInvalid();
 
     const { summaries, failed } = await fetchDependantWindowSlice(dependantIds, 0);
     if (currentRun !== runId) return;
@@ -48,7 +50,8 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         dependantIds,
         dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
         requiredDependantIds,
-        inProgressIds: minResult.getInProgress(),
+        invalidIds,
+        inProgressIds: minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds)),
         ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }

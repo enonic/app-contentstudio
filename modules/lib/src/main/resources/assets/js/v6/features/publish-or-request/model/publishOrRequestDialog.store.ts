@@ -48,7 +48,9 @@ export type PublishOrRequestDialogStore = {
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: ContentId[];
 
-    // Checks of the applied selection: what stands in the way of publishing
+    // Checks of the applied selection: what stands in the way of publishing.
+    // An item that is both invalid and in progress is listed as invalid only.
+    invalidIds: ContentId[];
     inProgressIds: ContentId[];
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
@@ -84,7 +86,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: [],
 
-    // Checks of the applied selection: what stands in the way of publishing
+    // Checks of the applied selection: what stands in the way of publishing.
+    // An item that is both invalid and in progress is listed as invalid only.
+    invalidIds: [],
     inProgressIds: [],
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
@@ -134,6 +138,11 @@ export const $isPublishOrRequestSelectionSynced = computed(
 /** True when "Exclude" can clear the in progress check, i.e. when all those items can be unticked. */
 export const $isPublishOrRequestInProgressExcludable = computed($publishOrRequestDialog, (state): boolean =>
     isEveryIdExcludable(state.inProgressIds, state),
+);
+
+/** True when "Exclude" can clear the invalid check, i.e. when all those items can be unticked. */
+export const $isPublishOrRequestInvalidExcludable = computed($publishOrRequestDialog, (state): boolean =>
+    isEveryIdExcludable(state.invalidIds, state),
 );
 
 // *

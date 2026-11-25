@@ -5,7 +5,11 @@ import { markAsReady } from '../../../../entities/content/api/publish.api';
 import { i18n } from '../../../../shared/i18n';
 import { uniqueIds } from '../../../../shared/lib/cms/content/ids';
 import { notifyError, notifyInfo } from '../../../../shared/notifications';
-import { $isPublishOrRequestInProgressExcludable, $publishOrRequestDialog } from '../publishOrRequestDialog.store';
+import {
+    $isPublishOrRequestInProgressExcludable,
+    $isPublishOrRequestInvalidExcludable,
+    $publishOrRequestDialog,
+} from '../publishOrRequestDialog.store';
 import { loadPublishOrRequestDialogData } from './load';
 
 /** Unticks the dependencies that are in progress. Does nothing when some of them cannot be unticked. */
@@ -13,6 +17,13 @@ export function excludePublishOrRequestInProgress(): void {
     if (!$isPublishOrRequestInProgressExcludable.get()) return;
 
     excludeDependants($publishOrRequestDialog.get().inProgressIds);
+}
+
+/** Unticks the dependencies that are invalid. Does nothing when some of them cannot be unticked. */
+export function excludePublishOrRequestInvalid(): void {
+    if (!$isPublishOrRequestInvalidExcludable.get()) return;
+
+    excludeDependants($publishOrRequestDialog.get().invalidIds);
 }
 
 /**

@@ -3,7 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { excludePublishOrRequestInProgress, markPublishOrRequestInProgressAsReady } from './checks';
+import {
+    excludePublishOrRequestInProgress,
+    excludePublishOrRequestInvalid,
+    markPublishOrRequestInProgressAsReady,
+} from './checks';
 
 const { mockLoad, mockMarkAsReady, mockNotifyInfo, mockNotifyError } = vi.hoisted(() => ({
     mockLoad: vi.fn(),
@@ -94,6 +98,27 @@ describe('publish or request dialog checks commands', () => {
         it('should do nothing when nothing is in progress', () => {
             excludePublishOrRequestInProgress();
 
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('excludePublishOrRequestInvalid', () => {
+        it('should untick the invalid dependencies, apply it and load again', () => {
+            $publishOrRequestDialog.setKey('invalidIds', toIds('d1'));
+
+            excludePublishOrRequestInvalid();
+
+            expect(excludedIds()).toEqual(['d1']);
+            expect(appliedExcludedIds()).toEqual(['d1']);
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should do nothing when an invalid item cannot be unticked', () => {
+            $publishOrRequestDialog.setKey('invalidIds', toIds('d1', 'main'));
+
+            excludePublishOrRequestInvalid();
+
+            expect(excludedIds()).toEqual([]);
             expect(mockLoad).not.toHaveBeenCalled();
         });
     });
