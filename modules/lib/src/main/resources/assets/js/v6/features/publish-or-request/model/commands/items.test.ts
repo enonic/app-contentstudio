@@ -39,6 +39,14 @@ describe('publish or request dialog items commands', () => {
             expect(mockLoad).toHaveBeenCalledOnce();
         });
 
+        it('should forget whether the children of the removed item were left out', () => {
+            $publishOrRequestDialog.setKey('excludeChildrenIds', [new ContentId('a'), new ContentId('b')]);
+
+            removePublishOrRequestItem(new ContentId('b'));
+
+            expect($publishOrRequestDialog.get().excludeChildrenIds.map(String)).toEqual(['a']);
+        });
+
         it('should keep the last item', () => {
             openWith('a');
 

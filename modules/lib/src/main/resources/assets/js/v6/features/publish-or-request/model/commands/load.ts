@@ -18,17 +18,16 @@ import { $publishOrRequestDialog, type PublishOrRequestDialogStore } from '../pu
  */
 export async function loadPublishOrRequestDialogData(): Promise<void> {
     const currentRun = ++runId;
-    const { items, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
+    const { items, excludeChildrenIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
     const ids = items.map((item) => item.getContentId());
 
     if (ids.length === 0) return;
 
     patchDialog({ loading: true, failed: false });
 
-    // Children are left out: `excludeChildrenIds` lists the items whose children are not wanted.
     const resolved = await resolveAppliedPublishDependencies({
         ids,
-        excludeChildrenIds: ids,
+        excludeChildrenIds,
         excludedIds: appliedExcludedDependantIds,
     });
     if (currentRun !== runId) return;

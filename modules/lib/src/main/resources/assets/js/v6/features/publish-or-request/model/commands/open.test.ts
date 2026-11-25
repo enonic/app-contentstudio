@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
 import { closePublishOrRequestDialog, openPublishOrRequestDialog } from './open';
@@ -13,7 +14,10 @@ vi.mock('./load', () => ({
     cancelPublishOrRequestDialogLoad: mockCancelLoad,
 }));
 
-const createItem = (id: string): ContentSummary => ({ getId: () => id }) as unknown as ContentSummary;
+const createItem = (id: string): ContentSummary =>
+    ({ getId: () => id, getContentId: () => new ContentId(id) }) as unknown as ContentSummary;
+
+const excludeChildrenIds = (): string[] => $publishOrRequestDialog.get().excludeChildrenIds.map(String);
 
 describe('publish or request dialog open commands', () => {
     beforeEach(() => {
@@ -32,11 +36,19 @@ describe('publish or request dialog open commands', () => {
 
             openPublishOrRequestDialog(items);
 
-            expect($publishOrRequestDialog.get()).toEqual({
-                ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
-                open: true,
-                items,
-            });
+            expect($publishOrRequestDialog.get()).toMatchObject({ open: true, step: 'items', items });
+        });
+
+        it('should leave out the children of every item by default', () => {
+            openPublishOrRequestDialog([createItem('a'), createItem('b')]);
+
+            expect(excludeChildrenIds()).toEqual(['a', 'b']);
+        });
+
+        it('should leave out no children when asked to include them', () => {
+            openPublishOrRequestDialog([createItem('a'), createItem('b')], true);
+
+            expect(excludeChildrenIds()).toEqual([]);
         });
 
         it('should keep its own copy of the items', () => {
@@ -64,6 +76,7 @@ describe('publish or request dialog open commands', () => {
                 ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
                 open: true,
                 items,
+                excludeChildrenIds: [new ContentId('b')],
             });
         });
 

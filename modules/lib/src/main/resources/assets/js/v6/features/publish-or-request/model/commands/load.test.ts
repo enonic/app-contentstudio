@@ -71,14 +71,16 @@ describe('publish or request dialog load commands', () => {
     });
 
     describe('loadPublishOrRequestDialogData', () => {
-        it('should resolve the dependencies of the items without their children', async () => {
+        it('should resolve the dependencies of the items, leaving out the children asked for', async () => {
+            openWith('a', 'b');
+            $publishOrRequestDialog.setKey('excludeChildrenIds', [new ContentId('b')]);
             mockResolved([]);
 
             await loadPublishOrRequestDialogData();
 
             const [params] = mockResolvePublishDependencies.mock.calls[0];
-            expect(params.ids.map(String)).toEqual(['a']);
-            expect(params.excludeChildrenIds.map(String)).toEqual(['a']);
+            expect(params.ids.map(String)).toEqual(['a', 'b']);
+            expect(params.excludeChildrenIds.map(String)).toEqual(['b']);
         });
 
         it('should resolve once when no dependency is excluded', async () => {

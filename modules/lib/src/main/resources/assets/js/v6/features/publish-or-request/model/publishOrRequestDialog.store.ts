@@ -27,6 +27,9 @@ export type PublishOrRequestDialogStore = {
     // Items the dialog was opened with
     items: ContentSummary[];
 
+    // Items whose children are left out; the children of the others come as dependencies
+    excludeChildrenIds: ContentId[];
+
     // Loading of the dependencies
     loading: boolean;
     failed: boolean;
@@ -56,6 +59,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
 
     // Items the dialog was opened with
     items: [],
+
+    // Items whose children are left out; the children of the others come as dependencies
+    excludeChildrenIds: [],
 
     // Loading of the dependencies
     loading: false,

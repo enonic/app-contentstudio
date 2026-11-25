@@ -10,11 +10,15 @@ import { loadPublishOrRequestDialogData } from './load';
  * The last item stays: the dialog always has something to publish.
  */
 export function removePublishOrRequestItem(id: ContentId): void {
-    const { items } = $publishOrRequestDialog.get();
-    const rest = items.filter((item) => !item.getContentId().equals(id));
+    const state = $publishOrRequestDialog.get();
+    const rest = state.items.filter((item) => !item.getContentId().equals(id));
 
-    if (rest.length === 0 || rest.length === items.length) return;
+    if (rest.length === 0 || rest.length === state.items.length) return;
 
-    $publishOrRequestDialog.setKey('items', rest);
+    $publishOrRequestDialog.set({
+        ...state,
+        items: rest,
+        excludeChildrenIds: state.excludeChildrenIds.filter((excludedId) => !excludedId.equals(id)),
+    });
     void loadPublishOrRequestDialogData();
 }
