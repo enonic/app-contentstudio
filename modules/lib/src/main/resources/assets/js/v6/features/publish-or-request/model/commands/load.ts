@@ -11,6 +11,7 @@ import {
 import { resolveAppliedPublishDependencies } from '../../../../entities/content/lib/publishDependencies';
 import { pruneExcludedDependantIds } from '../../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
+import { createDebounce } from '../../../../shared/lib/timing/createDebounce';
 import { $publishOrRequestDialog, type PublishOrRequestDialogStore } from '../publishOrRequestDialog.store';
 
 /**
@@ -18,6 +19,9 @@ import { $publishOrRequestDialog, type PublishOrRequestDialogStore } from '../pu
  * The list shown stays in place until the answer arrives.
  */
 export async function loadPublishOrRequestDialogData(): Promise<void> {
+    // This load answers for whatever a waiting one was asked for.
+    loadPublishOrRequestDialogDataDebounced.cancel();
+
     const currentRun = ++runId;
     const { items, excludeChildrenIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
     const ids = items.map((item) => item.getContentId());
@@ -63,11 +67,20 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
     });
 }
 
+/**
+ * Runs the load once the calls stop for 100ms. For server events, which come in bursts;
+ * the commands behind a click run the load directly.
+ */
+export const loadPublishOrRequestDialogDataDebounced = createDebounce(() => {
+    void loadPublishOrRequestDialogData();
+}, 100);
+
 /** Loads the next window of dependencies. Called when the list is scrolled to its end. */
 export const loadMorePublishOrRequestDependants = createDependantWindowLoader($publishOrRequestDialog, () => runId);
 
-/** Makes the answer of a load that is still running be ignored. */
+/** Makes the answer of a load that is still running be ignored, and drops one that is waiting. */
 export function cancelPublishOrRequestDialogLoad(): void {
+    loadPublishOrRequestDialogDataDebounced.cancel();
     runId += 1;
 }
 

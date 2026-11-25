@@ -14,6 +14,7 @@ import { start as startIssueDialogService } from '../features/issues/model/issue
 import { start as startIssueDialogDetailsService } from '../features/issues/model/issueDialogDetails.service';
 import { start as startNewIssueDialogService } from '../features/issues/model/newIssueDialog.service';
 import { start as startProjectDialogService } from '../features/manage-project/model/projectDialog.service';
+import { start as startPublishOrRequestDialogService } from '../features/publish-or-request/model/publishOrRequestDialog.service';
 import { start as startPublishDialogService } from '../features/publish/model/publishDialog.service';
 import { start as startRequestPublishDialogService } from '../features/request-publish/model/requestPublishDialog.service';
 import { start as startSortDialogService } from '../features/sort/model/sortDialog.service';
@@ -69,6 +70,7 @@ export function mountApp(): void {
     startNewIssueDialogService();
     startProjectDialogService();
     startPublishDialogService();
+    startPublishOrRequestDialogService();
     startRequestPublishDialogService();
     startSortDialogService();
     startUnpublishDialogService();

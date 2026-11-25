@@ -12,6 +12,7 @@ import {
     $publishOrRequestDialog,
 } from '../publishOrRequestDialog.store';
 import { loadPublishOrRequestDialogData } from './load';
+import { getPublishOrRequestDialogSessionId } from './open';
 
 /** Unticks the dependencies that are in progress. Does nothing when some of them cannot be unticked. */
 export function excludePublishOrRequestInProgress(): void {
@@ -42,15 +43,16 @@ export function excludePublishOrRequestNotPublishable(): void {
  * The dialog shows as loading from the start, so nothing else can be changed meanwhile.
  */
 export async function markPublishOrRequestInProgressAsReady(): Promise<void> {
-    const { items, inProgressIds, loading } = $publishOrRequestDialog.get();
+    const { inProgressIds, loading } = $publishOrRequestDialog.get();
     if (loading || inProgressIds.length === 0) return;
 
+    const sessionId = getPublishOrRequestDialogSessionId();
     $publishOrRequestDialog.setKey('loading', true);
 
     const result = await markAsReady(inProgressIds);
 
     // The dialog was closed or opened again meanwhile: its state is no longer ours to touch.
-    if ($publishOrRequestDialog.get().items !== items) return;
+    if (sessionId !== getPublishOrRequestDialogSessionId()) return;
 
     if (result.isErr()) {
         notifyError(i18n('notify.item.markedAsReady.error', inProgressIds.length));

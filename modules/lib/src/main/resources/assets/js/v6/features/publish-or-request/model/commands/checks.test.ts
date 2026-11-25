@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
+import { closePublishOrRequestDialog, openPublishOrRequestDialog } from './open';
 import {
     excludePublishOrRequestInProgress,
     excludePublishOrRequestInvalid,
@@ -17,7 +18,7 @@ const { mockLoad, mockMarkAsReady, mockNotifyInfo, mockNotifyError } = vi.hoiste
     mockNotifyError: vi.fn(),
 }));
 
-vi.mock('./load', () => ({ loadPublishOrRequestDialogData: mockLoad }));
+vi.mock('./load', () => ({ loadPublishOrRequestDialogData: mockLoad, cancelPublishOrRequestDialogLoad: vi.fn() }));
 
 vi.mock('../../../../entities/content/api/publish.api', () => ({ markAsReady: mockMarkAsReady }));
 
@@ -188,11 +189,33 @@ describe('publish or request dialog checks commands', () => {
             $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
 
             const marking = markPublishOrRequestInProgressAsReady();
-            $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE });
+            closePublishOrRequestDialog();
             await marking;
 
             expect(mockNotifyInfo).not.toHaveBeenCalled();
             expect(mockLoad).not.toHaveBeenCalled();
+        });
+
+        it('should leave the dialog alone when it was opened again meanwhile', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
+
+            const marking = markPublishOrRequestInProgressAsReady();
+            openPublishOrRequestDialog([createItem('other', 'Other')]);
+            mockLoad.mockReset();
+            await marking;
+
+            expect(mockNotifyInfo).not.toHaveBeenCalled();
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+
+        it('should still load again when the items were replaced by newer versions meanwhile', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('main'));
+
+            const marking = markPublishOrRequestInProgressAsReady();
+            $publishOrRequestDialog.setKey('items', [createItem('main', 'Main')]);
+            await marking;
+
+            expect(mockLoad).toHaveBeenCalledOnce();
         });
 
         it('should do nothing while loading or when nothing is in progress', async () => {

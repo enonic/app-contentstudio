@@ -9,6 +9,8 @@ import { cancelPublishOrRequestDialogLoad, loadPublishOrRequestDialogData } from
  * With `includeChildren`, the children of every item come along as dependencies.
  */
 export function openPublishOrRequestDialog(items: readonly ContentSummary[], includeChildren = false): void {
+    sessionId += 1;
+
     $publishOrRequestDialog.set({
         ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
         open: true,
@@ -21,7 +23,22 @@ export function openPublishOrRequestDialog(items: readonly ContentSummary[], inc
 
 /** Closes the dialog, resets its state and drops a load that is still running. */
 export function closePublishOrRequestDialog(): void {
+    sessionId += 1;
     cancelPublishOrRequestDialogLoad();
 
     $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE });
 }
+
+/**
+ * Number of the current run of the dialog. It changes when the dialog is opened or closed, so
+ * a command that awaits can tell whether the dialog it started on is still the one on screen.
+ */
+export function getPublishOrRequestDialogSessionId(): number {
+    return sessionId;
+}
+
+// *
+// * Internal
+// *
+
+let sessionId = 0;

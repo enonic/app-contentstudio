@@ -11,6 +11,7 @@ import {
     cancelPublishOrRequestDialogLoad,
     loadMorePublishOrRequestDependants,
     loadPublishOrRequestDialogData,
+    loadPublishOrRequestDialogDataDebounced,
 } from './load';
 
 const { mockResolvePublishDependencies, mockFetchContentSummaries } = vi.hoisted(() => ({
@@ -337,6 +338,46 @@ describe('publish or request dialog load commands', () => {
 
             expect($publishOrRequestDialog.get().dependantIds).toEqual([]);
             expect(mockFetchContentSummaries).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('loadPublishOrRequestDialogDataDebounced', () => {
+        beforeEach(() => {
+            vi.useFakeTimers();
+            mockResolved([]);
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('should load once after the calls stop', () => {
+            loadPublishOrRequestDialogDataDebounced();
+            vi.advanceTimersByTime(60);
+            loadPublishOrRequestDialogDataDebounced();
+            vi.advanceTimersByTime(60);
+
+            expect(mockResolvePublishDependencies).not.toHaveBeenCalled();
+
+            vi.advanceTimersByTime(40);
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledOnce();
+        });
+
+        it('should not load when the load is cancelled meanwhile', () => {
+            loadPublishOrRequestDialogDataDebounced();
+            cancelPublishOrRequestDialogLoad();
+            vi.advanceTimersByTime(200);
+
+            expect(mockResolvePublishDependencies).not.toHaveBeenCalled();
+        });
+
+        it('should not load again when a direct load ran meanwhile', () => {
+            loadPublishOrRequestDialogDataDebounced();
+            void loadPublishOrRequestDialogData();
+            vi.advanceTimersByTime(200);
+
+            expect(mockResolvePublishDependencies).toHaveBeenCalledOnce();
         });
     });
 

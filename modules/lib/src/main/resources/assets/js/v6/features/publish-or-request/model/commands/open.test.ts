@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { closePublishOrRequestDialog, openPublishOrRequestDialog } from './open';
+import { closePublishOrRequestDialog, getPublishOrRequestDialogSessionId, openPublishOrRequestDialog } from './open';
 
 const { mockLoad, mockCancelLoad } = vi.hoisted(() => ({
     mockLoad: vi.fn(),
@@ -106,6 +106,19 @@ describe('publish or request dialog open commands', () => {
             closePublishOrRequestDialog();
 
             expect(mockCancelLoad).toHaveBeenCalledOnce();
+        });
+    });
+
+    describe('getPublishOrRequestDialogSessionId', () => {
+        it('should change when the dialog is opened and when it is closed', () => {
+            const initial = getPublishOrRequestDialogSessionId();
+
+            openPublishOrRequestDialog([createItem('a')]);
+            const opened = getPublishOrRequestDialogSessionId();
+            closePublishOrRequestDialog();
+            const closed = getPublishOrRequestDialogSessionId();
+
+            expect(new Set([initial, opened, closed]).size).toBe(3);
         });
     });
 });
