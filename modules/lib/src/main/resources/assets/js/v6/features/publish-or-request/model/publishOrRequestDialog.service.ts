@@ -1,7 +1,9 @@
 // Keeps the publish or request dialog in line with what changes on the server while it is open.
 // Started from the app root; never a side effect of importing.
 
+import type { MovedContentItem } from '../../../../app/browse/MovedContentItem';
 import type { ContentId } from '../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
 import {
@@ -9,6 +11,8 @@ import {
     $contentCreated,
     $contentDeleted,
     $contentDuplicated,
+    $contentMoved,
+    $contentPermissionsUpdated,
     $contentPublished,
     $contentRenamed,
     $contentUnpublished,
@@ -16,6 +20,7 @@ import {
 } from '../../../shared/socket/socket.store';
 import {
     applyPublishOrRequestContentChanges,
+    applyPublishOrRequestPermissionChanges,
     applyPublishOrRequestUnpublishedContents,
     refreshPublishOrRequestItemsWithNewDescendants,
     removePublishOrRequestContents,
@@ -28,8 +33,10 @@ export const start = (): void => {
     unsubscribers = [
         $contentUpdated.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
         $contentRenamed.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data.items))),
+        $contentMoved.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(toSummaries(event.data)))),
         $contentPublished.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
         $contentUnpublished.subscribe(onEvent((event) => applyPublishOrRequestUnpublishedContents(event.data))),
+        $contentPermissionsUpdated.subscribe(onEvent((event) => applyPublishOrRequestPermissionChanges(event.data))),
         $contentDeleted.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentArchived.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentCreated.subscribe(onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data))),
@@ -54,3 +61,5 @@ let unsubscribers: (() => void)[] = [];
 const onEvent = createGuardedSocketHandler(() => $publishOrRequestDialog.get().open);
 
 const toContentIds = (items: ContentServerChangeItem[]): ContentId[] => items.map((item) => item.getContentId());
+
+const toSummaries = (moved: MovedContentItem[]): ContentSummary[] => moved.map(({ item }) => item.getContentSummary());

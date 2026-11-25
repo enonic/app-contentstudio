@@ -4,6 +4,7 @@ import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
 import {
     applyPublishOrRequestContentChanges,
+    applyPublishOrRequestPermissionChanges,
     applyPublishOrRequestUnpublishedContents,
     refreshPublishOrRequestItemsWithNewDescendants,
     removePublishOrRequestContents,
@@ -120,6 +121,34 @@ describe('publish or request dialog events commands', () => {
 
             expect($publishOrRequestDialog.get().items).toBe(items);
             expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+    });
+
+    describe('applyPublishOrRequestPermissionChanges', () => {
+        it('should load again when the permissions of a main item changed', () => {
+            applyPublishOrRequestPermissionChanges(toIds('x', 'b'));
+
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+
+        it('should load again when the permissions of a dependency changed, loaded or not', () => {
+            applyPublishOrRequestPermissionChanges(toIds('d1'));
+
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+
+        it('should ignore the contents that are not listed', () => {
+            applyPublishOrRequestPermissionChanges(toIds('x'));
+
+            expect(mockLoadDebounced).not.toHaveBeenCalled();
+        });
+
+        it('should leave the main items as they are', () => {
+            const { items } = $publishOrRequestDialog.get();
+
+            applyPublishOrRequestPermissionChanges(toIds('a'));
+
+            expect($publishOrRequestDialog.get().items).toBe(items);
         });
     });
 

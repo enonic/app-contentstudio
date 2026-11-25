@@ -4,7 +4,7 @@
 import type { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { fetchContentSummaries } from '../../../../entities/content';
-import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
+import { hasContentById, hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { findContentIdsWithCreatedDescendants } from '../../../../shared/lib/cms/content/paths';
 import { patchContentItemsByContentId } from '../../../../shared/lib/cms/content/trackedItems';
 import { $publishOrRequestDialog } from '../publishOrRequestDialog.store';
@@ -30,6 +30,17 @@ export function applyPublishOrRequestContentChanges(changed: readonly ContentSum
 export function applyPublishOrRequestUnpublishedContents(unpublished: readonly ContentSummary[]): void {
     patchItems(unpublished);
     loadPublishOrRequestDialogDataDebounced();
+}
+
+/**
+ * Resolves again when the permissions of a listed content changed, as that may change whether
+ * the user can publish it. There is no new version to take: the items show nothing about it.
+ */
+export function applyPublishOrRequestPermissionChanges(changedIds: readonly ContentId[]): void {
+    const { items, dependantIds } = $publishOrRequestDialog.get();
+    const isListed = (id: ContentId): boolean => hasContentById(id, items) || hasContentIdInIds(id, dependantIds);
+
+    if (changedIds.some(isListed)) loadPublishOrRequestDialogDataDebounced();
 }
 
 /**

@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { MovedContentItem } from '../../../../app/browse/MovedContentItem';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentPath } from '../../../../app/content/ContentPath';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
@@ -8,6 +9,8 @@ import {
     emitContentCreated,
     emitContentDeleted,
     emitContentDuplicated,
+    emitContentMoved,
+    emitContentPermissionsUpdated,
     emitContentPublished,
     emitContentRenamed,
     emitContentUnpublished,
@@ -16,18 +19,21 @@ import {
 import { start, stop } from './publishOrRequestDialog.service';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from './publishOrRequestDialog.store';
 
-const { mockApplyChanges, mockApplyUnpublished, mockRemove, mockRefreshItems } = vi.hoisted(() => ({
+const mocks = vi.hoisted(() => ({
     mockApplyChanges: vi.fn(),
+    mockApplyPermissions: vi.fn(),
     mockApplyUnpublished: vi.fn(),
     mockRemove: vi.fn(),
     mockRefreshItems: vi.fn(),
 }));
+const { mockApplyChanges, mockApplyPermissions, mockApplyUnpublished, mockRemove, mockRefreshItems } = mocks;
 
 vi.mock('./commands/events', () => ({
-    applyPublishOrRequestContentChanges: mockApplyChanges,
-    applyPublishOrRequestUnpublishedContents: mockApplyUnpublished,
-    removePublishOrRequestContents: mockRemove,
-    refreshPublishOrRequestItemsWithNewDescendants: mockRefreshItems,
+    applyPublishOrRequestContentChanges: mocks.mockApplyChanges,
+    applyPublishOrRequestPermissionChanges: mocks.mockApplyPermissions,
+    applyPublishOrRequestUnpublishedContents: mocks.mockApplyUnpublished,
+    removePublishOrRequestContents: mocks.mockRemove,
+    refreshPublishOrRequestItemsWithNewDescendants: mocks.mockRefreshItems,
 }));
 
 const createItem = (id: string): ContentSummary =>
@@ -35,6 +41,9 @@ const createItem = (id: string): ContentSummary =>
 
 const createChangeItem = (id: string): ContentServerChangeItem =>
     ({ getContentId: () => new ContentId(id) }) as unknown as ContentServerChangeItem;
+
+const createMovedItem = (summary: ContentSummary): MovedContentItem =>
+    ({ item: { getContentSummary: () => summary } }) as unknown as MovedContentItem;
 
 const setOpen = (open: boolean): void => {
     $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE, open });
@@ -46,6 +55,7 @@ describe('publishOrRequestDialog.service', () => {
         setOpen(false);
         start();
         mockApplyChanges.mockReset();
+        mockApplyPermissions.mockReset();
         mockApplyUnpublished.mockReset();
         mockRemove.mockReset();
         mockRefreshItems.mockReset();
@@ -90,6 +100,22 @@ describe('publishOrRequestDialog.service', () => {
         expect(mockApplyUnpublished).toHaveBeenCalledExactlyOnceWith(unpublished);
     });
 
+    it('should hand over the contents that were moved, as any other change', () => {
+        const [a, b] = [createItem('a'), createItem('b')];
+
+        emitContentMoved([createMovedItem(a), createMovedItem(b)]);
+
+        expect(mockApplyChanges).toHaveBeenCalledExactlyOnceWith([a, b]);
+    });
+
+    it('should hand over the ids of the contents whose permissions changed', () => {
+        const ids = [new ContentId('a')];
+
+        emitContentPermissionsUpdated(ids);
+
+        expect(mockApplyPermissions).toHaveBeenCalledExactlyOnceWith(ids);
+    });
+
     it('should hand over the ids of the contents that were deleted', () => {
         emitContentDeleted([createChangeItem('a'), createChangeItem('b')]);
 
@@ -127,8 +153,11 @@ describe('publishOrRequestDialog.service', () => {
         emitContentDeleted([createChangeItem('a')]);
         emitContentCreated([createItem('a')]);
         emitContentUnpublished([createItem('a')]);
+        emitContentMoved([createMovedItem(createItem('a'))]);
+        emitContentPermissionsUpdated([new ContentId('a')]);
 
         expect(mockApplyChanges).not.toHaveBeenCalled();
+        expect(mockApplyPermissions).not.toHaveBeenCalled();
         expect(mockApplyUnpublished).not.toHaveBeenCalled();
         expect(mockRemove).not.toHaveBeenCalled();
         expect(mockRefreshItems).not.toHaveBeenCalled();
