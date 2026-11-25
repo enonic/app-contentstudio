@@ -99,7 +99,7 @@ export const FloatingContextPanel = ({
             ref={panelRef}
             id={panelId}
             data-component="FloatingContextPanel"
-            className="absolute inset-y-0 right-0 flex bg-surface-neutral shadow-xl"
+            className="absolute inset-y-0 right-0 z-20 flex bg-surface-neutral shadow-xl"
             style={{ width }}
         >
             <div
