@@ -13,7 +13,7 @@ import {
     filterShownDependants,
     hasHideableExcludedDependants,
 } from '../../../shared/lib/cms/content/dependantsSelection';
-import { isIdsEqual } from '../../../shared/lib/cms/content/ids';
+import { hasContentIdInIds, isIdsEqual } from '../../../shared/lib/cms/content/ids';
 
 export const PUBLISH_OR_REQUEST_DIALOG_STEPS = ['items', 'publishing'] as const;
 
@@ -130,3 +130,23 @@ export const $isPublishOrRequestSelectionSynced = computed(
     ({ excludedDependantIds, appliedExcludedDependantIds }): boolean =>
         isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
 );
+
+/** True when "Exclude" can clear the in progress check, i.e. when all those items can be unticked. */
+export const $isPublishOrRequestInProgressExcludable = computed($publishOrRequestDialog, (state): boolean =>
+    isEveryIdExcludable(state.inProgressIds, state),
+);
+
+// *
+// * Internal
+// *
+
+// True when every given id is a dependency that is not required. A main item is never one.
+function isEveryIdExcludable(
+    ids: ContentId[],
+    { dependantIds, requiredDependantIds }: PublishOrRequestDialogStore,
+): boolean {
+    const isExcludable = (id: ContentId): boolean =>
+        hasContentIdInIds(id, dependantIds) && !hasContentIdInIds(id, requiredDependantIds);
+
+    return ids.length > 0 && ids.every(isExcludable);
+}

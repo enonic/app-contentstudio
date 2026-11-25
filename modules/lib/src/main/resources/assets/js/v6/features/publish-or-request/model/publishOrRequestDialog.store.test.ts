@@ -3,6 +3,7 @@ import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     $hasPublishOrRequestExcludedDependants,
+    $isPublishOrRequestInProgressExcludable,
     $publishOrRequestDependantsSelection,
     $publishOrRequestDialog,
     $publishOrRequestShownDependants,
@@ -66,6 +67,27 @@ describe('publish or request dialog store', () => {
             $publishOrRequestDialog.setKey('showExcluded', false);
 
             expect($publishOrRequestDependantsSelection.get()).toMatchObject({ count: 2, selectionType: 'all' });
+        });
+    });
+
+    describe('$isPublishOrRequestInProgressExcludable', () => {
+        it('should be true when every in progress item is a dependency that can be unticked', () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('a', 'c'));
+
+            expect($isPublishOrRequestInProgressExcludable.get()).toBe(true);
+        });
+
+        it('should be false when one of them is a main item or a required dependency', () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('a', 'main'));
+            expect($isPublishOrRequestInProgressExcludable.get()).toBe(false);
+
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('a'));
+            $publishOrRequestDialog.setKey('requiredDependantIds', toIds('a'));
+            expect($isPublishOrRequestInProgressExcludable.get()).toBe(false);
+        });
+
+        it('should be false when nothing is in progress', () => {
+            expect($isPublishOrRequestInProgressExcludable.get()).toBe(false);
         });
     });
 });
