@@ -1,11 +1,29 @@
+import { errAsync, okAsync } from 'neverthrow';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { excludePublishOrRequestInProgress } from './checks';
+import { excludePublishOrRequestInProgress, markPublishOrRequestInProgressAsReady } from './checks';
 
-const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
+const { mockLoad, mockMarkAsReady, mockNotifyInfo, mockNotifyError } = vi.hoisted(() => ({
+    mockLoad: vi.fn(),
+    mockMarkAsReady: vi.fn(),
+    mockNotifyInfo: vi.fn(),
+    mockNotifyError: vi.fn(),
+}));
 
 vi.mock('./load', () => ({ loadPublishOrRequestDialogData: mockLoad }));
+
+vi.mock('../../../../entities/content/api/publish.api', () => ({ markAsReady: mockMarkAsReady }));
+
+vi.mock('../../../../shared/notifications', () => ({ notifyInfo: mockNotifyInfo, notifyError: mockNotifyError }));
+
+vi.mock('../../../../shared/i18n', () => ({
+    i18n: (key: string, ...args: unknown[]) => [key, ...args].join(' '),
+}));
+
+const createItem = (id: string, name: string): ContentSummary =>
+    ({ getContentId: () => new ContentId(id), getDisplayName: () => name }) as unknown as ContentSummary;
 
 const toIds = (...ids: string[]): ContentId[] => ids.map((id) => new ContentId(id));
 
@@ -16,9 +34,14 @@ const appliedExcludedIds = (): string[] => $publishOrRequestDialog.get().applied
 describe('publish or request dialog checks commands', () => {
     beforeEach(() => {
         mockLoad.mockReset();
+        mockMarkAsReady.mockReset();
+        mockNotifyInfo.mockReset();
+        mockNotifyError.mockReset();
+        mockMarkAsReady.mockReturnValue(okAsync(undefined));
         $publishOrRequestDialog.set({
             ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
             open: true,
+            items: [createItem('main', 'Main')],
             dependantIds: toIds('d0', 'd1', 'd2'),
         });
     });
@@ -72,6 +95,67 @@ describe('publish or request dialog checks commands', () => {
             excludePublishOrRequestInProgress();
 
             expect(mockLoad).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('markPublishOrRequestInProgressAsReady', () => {
+        it('should mark the in progress items as ready and load again', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('main', 'd0'));
+
+            await markPublishOrRequestInProgressAsReady();
+
+            expect(mockMarkAsReady.mock.calls[0][0].map(String)).toEqual(['main', 'd0']);
+            expect(mockNotifyInfo).toHaveBeenCalledWith('notify.item.markedAsReady.multiple 2');
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should name the item when it is a single one', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('main'));
+
+            await markPublishOrRequestInProgressAsReady();
+
+            expect(mockNotifyInfo).toHaveBeenCalledWith('notify.item.markedAsReady Main');
+        });
+
+        it('should show the dialog as loading while the items are marked', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
+
+            const marking = markPublishOrRequestInProgressAsReady();
+
+            expect($publishOrRequestDialog.get().loading).toBe(true);
+            await marking;
+        });
+
+        it('should tell the failure and stop loading when the items cannot be marked', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
+            mockMarkAsReady.mockReturnValue(errAsync(new Error('boom')));
+
+            await markPublishOrRequestInProgressAsReady();
+
+            expect(mockNotifyError).toHaveBeenCalledWith('notify.item.markedAsReady.error 1');
+            expect($publishOrRequestDialog.get().loading).toBe(false);
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+
+        it('should leave the dialog alone when it was closed meanwhile', async () => {
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
+
+            const marking = markPublishOrRequestInProgressAsReady();
+            $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE });
+            await marking;
+
+            expect(mockNotifyInfo).not.toHaveBeenCalled();
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+
+        it('should do nothing while loading or when nothing is in progress', async () => {
+            await markPublishOrRequestInProgressAsReady();
+
+            $publishOrRequestDialog.setKey('inProgressIds', toIds('d0'));
+            $publishOrRequestDialog.setKey('loading', true);
+            await markPublishOrRequestInProgressAsReady();
+
+            expect(mockMarkAsReady).not.toHaveBeenCalled();
         });
     });
 });
