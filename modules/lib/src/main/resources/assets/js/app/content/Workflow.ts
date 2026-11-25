@@ -1,11 +1,9 @@
-import {type WorkflowJson} from '@enonic/lib-admin-ui/content/json/WorkflowJson';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {WorkflowState} from './WorkflowState';
+import { type WorkflowJson } from '@enonic/lib-admin-ui/content/json/WorkflowJson';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
 
-export class Workflow
-    implements Equitable {
-
+export class Workflow implements Equitable {
     private readonly state: WorkflowState;
 
     constructor(builder: WorkflowBuilder) {
@@ -29,7 +27,6 @@ export class Workflow
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, Workflow)) {
             return false;
         }
@@ -42,7 +39,7 @@ export class Workflow
     toJson(): WorkflowJson {
         return {
             state: this.state.toUpperCase(),
-            checks: {}
+            checks: {},
         };
     }
 
@@ -60,7 +57,6 @@ export class Workflow
 }
 
 export class WorkflowBuilder {
-
     state: WorkflowState;
 
     constructor(source?: Workflow) {
@@ -83,5 +79,4 @@ export class WorkflowBuilder {
     build(): Workflow {
         return new Workflow(this);
     }
-
 }

@@ -1,5 +1,5 @@
 import type { PublishStatus } from '../../../../app/publish/PublishStatus';
-import type { ContentState } from '../../../../app/content/ContentState';
+import type { ContentState } from '../../../shared/lib/cms/content/ContentState';
 
 export type WizardToolbarCollaborator = {
     key: string;

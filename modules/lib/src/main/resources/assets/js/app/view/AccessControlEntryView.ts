@@ -1,17 +1,15 @@
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {AccessSelector} from '../security/AccessSelector';
-import {PermissionSelector} from '../security/PermissionSelector';
-import {Access, ACCESS_OPTIONS} from '../security/Access';
-import {AccessControlEntry} from '../access/AccessControlEntry';
-import {Permission} from '../access/Permission';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {PrincipalContainerSelectedEntryView} from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
-import {type AccessChangedEvent} from '../security/AccessChangedEvent';
-import {AccessHelper} from '../security/AccessHelper';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { AccessSelector } from '../security/AccessSelector';
+import { PermissionSelector } from '../security/PermissionSelector';
+import { Access, ACCESS_OPTIONS } from '../security/Access';
+import { AccessControlEntry } from '../access/AccessControlEntry';
+import { Permission } from '../../v6/shared/lib/cms/permissions/Permission';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { PrincipalContainerSelectedEntryView } from '@enonic/lib-admin-ui/ui/security/PrincipalContainerSelectedEntryView';
+import { type AccessChangedEvent } from '../security/AccessChangedEvent';
+import { AccessHelper } from '../security/AccessHelper';
 
-export class AccessControlEntryView
-    extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
-
+export class AccessControlEntryView extends PrincipalContainerSelectedEntryView<AccessControlEntry> {
     private accessSelector: AccessSelector;
     private permissionSelector: PermissionSelector;
 
@@ -42,7 +40,7 @@ export class AccessControlEntryView
             this.initPermissionSelector();
         }
 
-        this.permissionSelector.setValue({allow: this.item.getAllowedPermissions()}, true);
+        this.permissionSelector.setValue({ allow: this.item.getAllowedPermissions() }, true);
     }
 
     private initAccessSelector(): void {
@@ -71,10 +69,14 @@ export class AccessControlEntryView
         }
 
         this.permissionSelector.onValueChanged((event: ValueChangedEvent) => {
-            this.toggleClass('dirty', event.getNewValue() !== JSON.stringify({
-                allow: this.item.getAllowedPermissions().sort(),
-                deny: this.item.getDeniedPermissions().sort()
-            }));
+            this.toggleClass(
+                'dirty',
+                event.getNewValue() !==
+                    JSON.stringify({
+                        allow: this.item.getAllowedPermissions().sort(),
+                        deny: this.item.getDeniedPermissions().sort(),
+                    }),
+            );
             this.notifyValueChanged(this.getItem());
         });
 
@@ -108,8 +110,10 @@ export class AccessControlEntryView
     public setItem(ace: AccessControlEntry) {
         super.setItem(ace);
 
-        const principal: Principal = Principal.create().setKey(ace.getPrincipalKey()).setDisplayName(
-            ace.getPrincipalDisplayName()).build();
+        const principal: Principal = Principal.create()
+            .setKey(ace.getPrincipalKey())
+            .setDisplayName(ace.getPrincipalDisplayName())
+            .build();
         this.setObject(principal);
 
         this.doLayout(principal);
@@ -130,7 +134,7 @@ export class AccessControlEntryView
     private getPermissionsValueFromAccess(access: Access): { allow: Permission[]; deny: Permission[] } {
         return {
             allow: this.getPermissionsByAccess(access).sort(),
-            deny: []
+            deny: [],
         };
     }
 

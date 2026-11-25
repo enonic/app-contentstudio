@@ -1,14 +1,12 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type Content} from '../content/Content';
-import {type ContentId} from '../content/ContentId';
-import {type ContentJson} from '../content/ContentJson';
-import {type WorkflowState} from '../content/WorkflowState';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type Content } from '../content/Content';
+import { type ContentId } from '../content/ContentId';
+import { type ContentJson } from '../content/ContentJson';
+import { type WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
 
-export class UpdateWorkflowRequest
-    extends CmsContentResourceRequest<Content> {
-
+export class UpdateWorkflowRequest extends CmsContentResourceRequest<Content> {
     private readonly contentId: ContentId;
 
     private readonly workflowState: WorkflowState;
@@ -25,8 +23,8 @@ export class UpdateWorkflowRequest
         return {
             contentId: this.contentId.toString(),
             workflow: {
-                state: this.workflowState.toUpperCase()
-            }
+                state: this.workflowState.toUpperCase(),
+            },
         };
     }
 
@@ -34,4 +32,3 @@ export class UpdateWorkflowRequest
         return this.fromJsonToContent(response.getResult());
     }
 }
-

@@ -1,9 +1,8 @@
-import {type IssueStatus, IssueStatusFormatter} from './IssueStatus';
-import {type IssueSummaryJson} from './json/IssueSummaryJson';
-import {IssueType, IssueTypeFormatter} from './IssueType';
+import { type IssueStatus, IssueStatusFormatter } from './IssueStatus';
+import { type IssueSummaryJson } from './json/IssueSummaryJson';
+import { IssueType, IssueTypeFormatter } from '../../v6/shared/lib/cms/issue/IssueType';
 
 export class IssueSummary {
-
     private id: string;
 
     private index: number;
@@ -88,11 +87,9 @@ export class IssueSummary {
     getType(): IssueType {
         return this.type;
     }
-
 }
 
 export class IssueSummaryBuilder {
-
     id: string;
 
     index: number;

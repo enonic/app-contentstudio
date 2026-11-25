@@ -2,7 +2,7 @@ import { cn, Link, type LinkProps } from '@enonic/ui';
 import { forwardRef, useMemo } from 'react';
 import { Link as LinkIcon } from 'lucide-react';
 import { useStore } from '@nanostores/preact';
-import { type Branch } from '../../../app/versioning/Branch';
+import { type Branch } from '../../shared/lib/cms/content/Branch';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { getInboundReferencesUrl } from '../../shared/lib/url/navigation';
 import { $activeProject } from '../../entities/project';

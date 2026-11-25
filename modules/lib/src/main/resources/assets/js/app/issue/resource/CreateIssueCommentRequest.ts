@@ -1,13 +1,11 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type IssueCommentJson} from '../json/IssueCommentJson';
-import {IssueComment} from '../IssueComment';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type IssueCommentJson } from '../../../v6/entities/issue/api/IssueCommentJson';
+import { IssueComment } from '../IssueComment';
+import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { CmsIssueResourceRequest } from './CmsIssueResourceRequest';
 
-export class CreateIssueCommentRequest
-    extends CmsIssueResourceRequest<IssueComment> {
-
+export class CreateIssueCommentRequest extends CmsIssueResourceRequest<IssueComment> {
     private creator: PrincipalKey;
     private text: string;
     private issueId: string;
@@ -40,7 +38,7 @@ export class CreateIssueCommentRequest
             issue: this.issueId,
             text: this.text,
             creator: this.creator.toString(),
-            silent: this.silent
+            silent: this.silent,
         };
     }
 

@@ -5,11 +5,7 @@ import { MacroDescriptor } from '@enonic/lib-admin-ui/macro/MacroDescriptor';
 import type { MacrosJson } from '@enonic/lib-admin-ui/macro/MacrosJson';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
-import type {
-    MacroPreviewJson,
-    MacroPreviewStringJson,
-    PageContributionsJson,
-} from '../../../../app/macro/resource/MacroPreviewJson';
+import type { MacroPreviewJson, MacroPreviewStringJson, PageContributionsJson } from './MacroPreviewJson';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 /**

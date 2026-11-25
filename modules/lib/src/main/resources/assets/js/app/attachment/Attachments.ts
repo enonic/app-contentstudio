@@ -1,11 +1,9 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {type Attachment, AttachmentBuilder} from './Attachment';
-import {type AttachmentJson} from './AttachmentJson';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { type Attachment, AttachmentBuilder } from './Attachment';
+import { type AttachmentJson } from '../../v6/entities/content/api/AttachmentJson';
 
-export class Attachments
-    implements Equitable {
-
+export class Attachments implements Equitable {
     private attachmentByName: Record<string, Attachment> = {};
 
     private attachmentByLabel: Record<string, Attachment> = {};
@@ -15,7 +13,6 @@ export class Attachments
     private size: number;
 
     constructor(builder: AttachmentsBuilder) {
-
         let count: number = 0;
         builder.attachments.forEach((attachment: Attachment) => {
             this.attachmentByName[attachment.getName().toString()] = attachment;
@@ -70,7 +67,6 @@ export class Attachments
 }
 
 export class AttachmentsBuilder {
-
     attachments: Attachment[] = [];
 
     public fromJson(jsons: AttachmentJson[]): AttachmentsBuilder {

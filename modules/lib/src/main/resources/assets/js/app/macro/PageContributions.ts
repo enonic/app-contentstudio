@@ -1,9 +1,8 @@
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type PageContributionsJson} from './resource/MacroPreviewJson';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type PageContributionsJson } from '../../v6/features/rich-text-inserts/api/MacroPreviewJson';
 
-export class PageContributions
-    implements Equitable {
+export class PageContributions implements Equitable {
     private readonly bodyBegin: string[];
     private readonly bodyEnd: string[];
     private readonly headBegin: string[];
@@ -20,24 +19,26 @@ export class PageContributions
         return new PageContributionsBuilder();
     }
 
-    getBodyBegin(): string [] {
+    getBodyBegin(): string[] {
         return this.bodyBegin;
     }
 
-    getBodyEnd(): string [] {
+    getBodyEnd(): string[] {
         return this.bodyEnd;
     }
 
-    getHeadBegin(): string [] {
+    getHeadBegin(): string[] {
         return this.headBegin;
     }
 
-    getHeadEnd(): string [] {
+    getHeadEnd(): string[] {
         return this.headEnd;
     }
 
     hasAtLeastOneScript(): boolean {
-        return this.bodyBegin.length > 0 || this.bodyEnd.length > 0 || this.headBegin.length > 0 || this.headEnd.length > 0;
+        return (
+            this.bodyBegin.length > 0 || this.bodyEnd.length > 0 || this.headBegin.length > 0 || this.headEnd.length > 0
+        );
     }
 
     equals(o: Equitable): boolean {
@@ -68,7 +69,6 @@ export class PageContributions
 }
 
 export class PageContributionsBuilder {
-
     bodyBegin: string[];
     bodyEnd: string[];
     headBegin: string[];

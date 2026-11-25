@@ -5,13 +5,13 @@ import type { AppError } from '@enonic/ui-utils';
 import { Issue } from '../../../../app/issue/Issue';
 import { IssueComment } from '../../../../app/issue/IssueComment';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
 import { type PublishRequest } from '../../../../app/issue/PublishRequest';
-import { type IssueCommentJson } from '../../../../app/issue/json/IssueCommentJson';
+import { type IssueCommentJson } from './IssueCommentJson';
 import { type IssueJson } from '../../../../app/issue/json/IssueJson';
 import { type IssueWithAssigneesJson } from '../../../../app/issue/json/IssueWithAssigneesJson';
-import { type ResultMetadataJson } from '../../../../app/resource/json/ResultMetadataJson';
+import { type ResultMetadataJson } from '../../../shared/api/ResultMetadataJson';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 export type ListIssuesParams = {

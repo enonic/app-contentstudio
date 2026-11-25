@@ -11,7 +11,7 @@ import {
     PageNavigationEventData,
     PageNavigationEventSource,
 } from '../../../../../../app/wizard/PageNavigationEventData';
-import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../../../shared/lib/page/PageNavigationEventType';
 import type { PageNavigationHandler } from '../../../../../../app/wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
 import type { FlatNode } from '../../../../../shared/lib/tree-store';

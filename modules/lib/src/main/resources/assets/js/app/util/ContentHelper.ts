@@ -15,7 +15,7 @@ import { type ContentSummaryJson } from '../content/ContentSummaryJson';
 import { CreateContentRequest } from '../resource/CreateContentRequest';
 import { ContentUnnamed } from '../content/ContentUnnamed';
 import { Workflow } from '../content/Workflow';
-import { WorkflowState } from '../content/WorkflowState';
+import { WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
 import { PropertyTree, ValueTypes } from '@enonic/input-types/data';
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { PageHelper } from './PageHelper';
@@ -29,7 +29,7 @@ import {
 } from '@enonic/input-types/schema';
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
-import { type Permission } from '../access/Permission';
+import { type Permission } from '../../v6/shared/lib/cms/permissions/Permission';
 import { RoleKeys } from '@enonic/lib-admin-ui/security/RoleKeys';
 import { type AccessControlList } from '../access/AccessControlList';
 

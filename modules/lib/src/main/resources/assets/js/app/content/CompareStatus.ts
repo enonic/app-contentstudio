@@ -1,5 +1,5 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import type {ContentState} from './ContentState';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import type { ContentState } from '../../v6/shared/lib/cms/content/ContentState';
 
 export enum CompareStatus {
     NEW = 'new',
@@ -12,9 +12,7 @@ export enum CompareStatus {
 }
 
 export class CompareStatusFormatter {
-
     public static formatStatusClass(compareStatus: CompareStatus): string {
-
         switch (compareStatus) {
             case CompareStatus.NEW:
                 return 'new';
@@ -52,7 +50,6 @@ export class CompareStatusFormatter {
 }
 
 export class CompareStatusChecker {
-
     public static isPublished(compareStatus: CompareStatus): boolean {
         return compareStatus !== CompareStatus.NEW && compareStatus !== CompareStatus.UNKNOWN;
     }

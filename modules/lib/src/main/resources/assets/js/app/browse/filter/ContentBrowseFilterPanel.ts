@@ -34,7 +34,7 @@ import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndC
 import type { ContentServerChangeItem } from '../../event/ContentServerChangeItem';
 import { ContentServerEventsHandler } from '../../event/ContentServerEventsHandler';
 import { Router } from '../../Router';
-import { Branch } from '../../versioning/Branch';
+import { Branch } from '../../../v6/shared/lib/cms/content/Branch';
 import { AggregationsDisplayNamesResolver } from './AggregationsDisplayNamesResolver';
 import type { AggregationsQueryResult } from './AggregationsQueryResult';
 import { ContentAggregation } from './ContentAggregation';

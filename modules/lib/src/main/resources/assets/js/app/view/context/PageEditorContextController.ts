@@ -9,7 +9,7 @@ import {
 } from '../../../v6/widgets/context-panel/model/contextWidgets.store';
 import { PageEventsManager } from '../../wizard/PageEventsManager';
 import { type PageNavigationEvent } from '../../wizard/PageNavigationEvent';
-import { PageNavigationEventType } from '../../wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../v6/shared/lib/page/PageNavigationEventType';
 import { type PageNavigationHandler } from '../../wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../wizard/PageNavigationMediator';
 

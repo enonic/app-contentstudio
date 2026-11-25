@@ -1,12 +1,10 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type ContentsExistByPathJson} from './json/ContentsExistByPathJson';
-import {ContentsExistByPathResult} from './ContentsExistByPathResult';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type ContentsExistByPathJson } from '../../v6/entities/content/api/ContentsExistByPathJson';
+import { ContentsExistByPathResult } from './ContentsExistByPathResult';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
 
-export class ContentsExistByPathRequest
-    extends CmsContentResourceRequest<ContentsExistByPathResult> {
-
+export class ContentsExistByPathRequest extends CmsContentResourceRequest<ContentsExistByPathResult> {
     private contentPaths: string[] = [];
 
     constructor(contentPaths: string[]) {
@@ -18,7 +16,7 @@ export class ContentsExistByPathRequest
 
     getParams(): object {
         return {
-            contentPaths: this.contentPaths
+            contentPaths: this.contentPaths,
         };
     }
 

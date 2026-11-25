@@ -1,13 +1,11 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {type CompareStatus} from '../content/CompareStatus';
-import {type Branch} from '../versioning/Branch';
-import {type ContentId} from '../content/ContentId';
-import {type ContentPath} from '../content/ContentPath';
+import { Event } from '@enonic/lib-admin-ui/event/Event';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import { type CompareStatus } from '../content/CompareStatus';
+import { type Branch } from '../../v6/shared/lib/cms/content/Branch';
+import { type ContentId } from '../content/ContentId';
+import { type ContentPath } from '../content/ContentPath';
 
-export class ContentDeletedEvent
-    extends Event {
-
+export class ContentDeletedEvent extends Event {
     private contentDeletedItems: ContentDeletedItem[] = [];
 
     constructor() {
@@ -39,7 +37,6 @@ export class ContentDeletedEvent
 }
 
 export class ContentDeletedItem {
-
     private readonly contentPath: ContentPath;
 
     private readonly contentId: ContentId;

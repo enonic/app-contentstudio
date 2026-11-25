@@ -1,5 +1,5 @@
 import { RenderingMode } from './RenderingMode';
-import { Branch } from '../versioning/Branch';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 import { type ComponentPath } from '../page/region/ComponentPath';
 import { UriHelper as LibUriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import { Path } from '@enonic/lib-admin-ui/rest/Path';

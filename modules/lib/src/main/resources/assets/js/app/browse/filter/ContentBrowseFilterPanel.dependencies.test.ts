@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ContentQuery } from '../../content/ContentQuery';
-import { Branch } from '../../versioning/Branch';
+import { Branch } from '../../../v6/shared/lib/cms/content/Branch';
 import {
     $isContentFilterDirty,
     getFilterValue,

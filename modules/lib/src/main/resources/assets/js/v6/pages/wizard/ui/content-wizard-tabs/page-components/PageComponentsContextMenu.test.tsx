@@ -7,7 +7,7 @@ import {
     PageNavigationEventData,
     PageNavigationEventSource,
 } from '../../../../../../app/wizard/PageNavigationEventData';
-import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../../../shared/lib/page/PageNavigationEventType';
 import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
 import { createEmptyState, type FlatNode } from '../../../../../shared/lib/tree-store';
 import { $inspectedPath } from '../../../../../widgets/inspectors/model/page-editor/store';

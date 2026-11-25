@@ -12,7 +12,7 @@ import { Mixin } from '../../../../app/content/Mixin';
 import type { MixinDescriptor } from '../../../../app/content/MixinDescriptor';
 import { MixinName } from '../../../../app/content/MixinName';
 import { Workflow } from '../../../../app/content/Workflow';
-import { WorkflowState } from '../../../../app/content/WorkflowState';
+import { WorkflowState } from '../../../shared/lib/cms/content/WorkflowState';
 import { PageBuilder, type Page } from '../../../../app/page/Page';
 import {
     $displayNamePlaceholder,

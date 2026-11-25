@@ -2,7 +2,7 @@ import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type AccessControlList } from '../../access/AccessControlList';
 import { type Content } from '../../content/Content';
 import { type ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
-import { Permission } from '../../access/Permission';
+import { Permission } from '../../../v6/shared/lib/cms/permissions/Permission';
 import { isOnline, isPublished } from '../../../v6/shared/lib/cms/content/status';
 import {
     $wizardContentPathExists,

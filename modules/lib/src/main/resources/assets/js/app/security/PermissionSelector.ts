@@ -1,17 +1,15 @@
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Permission, PermissionState} from '../access/Permission';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
-import {AEl} from '@enonic/lib-admin-ui/dom/AEl';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Permission, PermissionState } from '../../v6/shared/lib/cms/permissions/Permission';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { AEl } from '@enonic/lib-admin-ui/dom/AEl';
 
 export interface PermissionSelectorOption {
     value: Permission;
     name: string;
 }
 
-export class PermissionSelector
-    extends DivEl {
-
+export class PermissionSelector extends DivEl {
     private toggles: PermissionToggle[] = [];
     private oldValue: { allow: Permission[] };
     private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
@@ -35,12 +33,12 @@ export class PermissionSelector
 
     private getOptions(): PermissionSelectorOption[] {
         return [
-            {name: i18n('security.permission.read'), value: Permission.READ},
-            {name: i18n('security.permission.create'), value: Permission.CREATE},
-            {name: i18n('security.permission.modify'), value: Permission.MODIFY},
-            {name: i18n('security.permission.delete'), value: Permission.DELETE},
-            {name: i18n('security.permission.publish'), value: Permission.PUBLISH},
-            {name: i18n('security.permission.writepermissions'), value: Permission.WRITE_PERMISSIONS}
+            { name: i18n('security.permission.read'), value: Permission.READ },
+            { name: i18n('security.permission.create'), value: Permission.CREATE },
+            { name: i18n('security.permission.modify'), value: Permission.MODIFY },
+            { name: i18n('security.permission.delete'), value: Permission.DELETE },
+            { name: i18n('security.permission.publish'), value: Permission.PUBLISH },
+            { name: i18n('security.permission.writepermissions'), value: Permission.WRITE_PERMISSIONS },
         ];
     }
 
@@ -61,13 +59,13 @@ export class PermissionSelector
 
     getValue(): { allow: Permission[] } {
         const values = {
-            allow: []
+            allow: [],
         };
         this.toggles.forEach((toggle: PermissionToggle) => {
             switch (toggle.getState()) {
-            case PermissionState.ALLOW:
-                values.allow.push(toggle.getValue());
-                break;
+                case PermissionState.ALLOW:
+                    values.allow.push(toggle.getValue());
+                    break;
             }
         });
 
@@ -110,9 +108,7 @@ export class PermissionSelector
     }
 }
 
-export class PermissionToggle
-    extends AEl {
-
+export class PermissionToggle extends AEl {
     private static STATES: PermissionState[] = [PermissionState.ALLOW, PermissionState.INHERIT];
     private valueChangedListeners: ((event: ValueChangedEvent) => void)[] = [];
 
@@ -196,5 +192,4 @@ export class PermissionToggle
             listener(event);
         });
     }
-
 }

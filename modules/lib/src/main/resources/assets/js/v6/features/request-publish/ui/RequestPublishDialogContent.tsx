@@ -2,7 +2,7 @@ import { Button, Checkbox, Dialog, GridList, Input, TextArea } from '@enonic/ui'
 import { useStore } from '@nanostores/preact';
 import { CornerDownRight } from 'lucide-react';
 import { useRef, type ReactElement } from 'react';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import { useContentSelectionView } from '../../../shared/lib/hooks/useContentSelectionView';

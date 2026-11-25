@@ -1,5 +1,4 @@
 export interface AttachmentJson {
-
     name: string;
 
     label: string;

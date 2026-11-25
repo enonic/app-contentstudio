@@ -1,12 +1,10 @@
-import {type IssueCommentJson} from '../json/IssueCommentJson';
-import {IssueComment} from '../IssueComment';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
+import { type IssueCommentJson } from '../../../v6/entities/issue/api/IssueCommentJson';
+import { IssueComment } from '../IssueComment';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { CmsIssueResourceRequest } from './CmsIssueResourceRequest';
 
-export class UpdateIssueCommentRequest
-    extends CmsIssueResourceRequest<IssueComment> {
-
+export class UpdateIssueCommentRequest extends CmsIssueResourceRequest<IssueComment> {
     private text: string;
     private commentId: string;
 
@@ -25,7 +23,7 @@ export class UpdateIssueCommentRequest
     getParams(): object {
         return {
             comment: this.commentId,
-            text: this.text
+            text: this.text,
         };
     }
 

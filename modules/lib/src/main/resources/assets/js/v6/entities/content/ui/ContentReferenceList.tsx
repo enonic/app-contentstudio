@@ -11,7 +11,7 @@ import {
     useState,
 } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { type Branch } from '../../../../app/versioning/Branch';
+import { type Branch } from '../../../shared/lib/cms/content/Branch';
 import { useInfiniteScroll } from '../../../shared/lib/hooks/useInfiniteScroll';
 import type { ContentLabelVariant } from './content/ContentLabel';
 import { ContentListItemWithReference } from './items';

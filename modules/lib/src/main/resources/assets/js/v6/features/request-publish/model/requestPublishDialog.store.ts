@@ -4,7 +4,7 @@ import { atom, computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { createIssue } from '../../../entities/issue/api/issues.api';
 import { fetchContentSummaries } from '../../../entities/content';

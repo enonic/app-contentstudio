@@ -50,7 +50,7 @@ import { GetContentTypeByNameRequest } from '@enonic/lib-contentstudio/app/resou
 import { Router } from '@enonic/lib-contentstudio/app/Router';
 import { SettingsServerEventsListener } from '@enonic/lib-contentstudio/app/settings/event/SettingsServerEventsListener';
 import { $isDown, $isSessionEnded, subscribe as subscribeToWorker } from '@enonic/lib-contentstudio/app/stores/worker';
-import { UrlAction } from '@enonic/lib-contentstudio/app/UrlAction';
+import { UrlAction } from '@enonic/lib-contentstudio/v6/shared/lib/url/UrlAction';
 import { UrlHelper } from '@enonic/lib-contentstudio/app/util/UrlHelper';
 import { VersionHelper } from '@enonic/lib-contentstudio/app/util/VersionHelper';
 import { ContentAppHelper } from '@enonic/lib-contentstudio/app/wizard/ContentAppHelper';

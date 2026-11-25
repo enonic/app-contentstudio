@@ -1,5 +1,5 @@
 import { ReactElement } from 'react';
-import { PageMode } from '../../../../app/page/PageMode';
+import { PageMode } from '../../lib/page/PageMode';
 import { Cog, FileCog, LucideIcon, LucideProps, Wand } from 'lucide-react';
 
 const TEMPLATE_ICON_MAP = new Map<PageMode, LucideIcon>([

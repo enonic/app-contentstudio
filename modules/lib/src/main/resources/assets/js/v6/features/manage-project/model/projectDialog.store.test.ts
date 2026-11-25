@@ -10,7 +10,7 @@ import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vite
 import { Project } from '../../../../app/settings/data/project/Project';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
 import { ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
-import { ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
+import { ProjectReadAccessType } from '../../../shared/lib/cms/projects/ProjectReadAccessType';
 
 const { mockUpdateProject, mockUpdateProjectPermissions, mockUpdateProjectReadAccess, mockCreateProject } = vi.hoisted(
     () => ({

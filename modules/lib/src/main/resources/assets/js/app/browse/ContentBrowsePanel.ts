@@ -39,7 +39,7 @@ import { RenderingMode } from '../rendering/RenderingMode';
 import { UriHelper } from '../rendering/UriHelper';
 import { GetContentSummaryByIdRequest } from '../resource/GetContentSummaryByIdRequest';
 import { Router } from '../Router';
-import { UrlAction } from '../UrlAction';
+import { UrlAction } from '../../v6/shared/lib/url/UrlAction';
 import { type ContentItemPreviewPanel } from '../view/ContentItemPreviewPanel';
 import { ContentBrowseItemPanel } from './ContentBrowseItemPanel';
 import { ContentBrowsePanelKeyNavigator } from './ContentBrowsePanelKeyNavigator';

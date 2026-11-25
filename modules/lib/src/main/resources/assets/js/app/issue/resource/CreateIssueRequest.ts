@@ -1,15 +1,13 @@
-import {type PublishRequest} from '../PublishRequest';
-import {type IssueJson} from '../json/IssueJson';
-import {Issue} from '../Issue';
-import {IssueType} from '../IssueType';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {CmsIssueResourceRequest} from './CmsIssueResourceRequest';
+import { type PublishRequest } from '../PublishRequest';
+import { type IssueJson } from '../json/IssueJson';
+import { Issue } from '../Issue';
+import { IssueType } from '../../../v6/shared/lib/cms/issue/IssueType';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { CmsIssueResourceRequest } from './CmsIssueResourceRequest';
 
-export class CreateIssueRequest
-    extends CmsIssueResourceRequest<Issue> {
-
+export class CreateIssueRequest extends CmsIssueResourceRequest<Issue> {
     private title: string;
 
     private description: string;
@@ -69,15 +67,19 @@ export class CreateIssueRequest
         return {
             title: this.title ? this.title.toString() : '',
             description: this.description ? this.description.toString() : '',
-            approvers: this.approvers ? this.approvers.map((el) => {
-                return el.toString();
-            }) : undefined,
+            approvers: this.approvers
+                ? this.approvers.map((el) => {
+                      return el.toString();
+                  })
+                : undefined,
             publishRequest: this.publishRequest.toJson(),
             type: this.type ? IssueType[this.type] : undefined,
-            schedule: this.publishFrom ? {
-                from: this.publishFrom.toISOString(),
-                to: this.publishTo ? this.publishTo.toISOString() : null
-            } : null,
+            schedule: this.publishFrom
+                ? {
+                      from: this.publishFrom.toISOString(),
+                      to: this.publishTo ? this.publishTo.toISOString() : null,
+                  }
+                : null,
         };
     }
 

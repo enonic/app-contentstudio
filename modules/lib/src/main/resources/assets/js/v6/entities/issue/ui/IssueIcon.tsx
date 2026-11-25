@@ -1,7 +1,7 @@
 import { cn } from '@enonic/ui';
 import { Globe, Hash } from 'lucide-react';
 import { type ReactElement } from 'react';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 
 import type { Issue } from '../../../../app/issue/Issue';
 

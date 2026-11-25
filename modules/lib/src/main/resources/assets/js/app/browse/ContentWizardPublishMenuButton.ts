@@ -1,13 +1,11 @@
 /*global Q*/
 
-import {type Issue} from '../issue/Issue';
-import {IssueType} from '../issue/IssueType';
-import {type ContentId} from '../content/ContentId';
-import {ContentActionMenuButton} from '../ContentActionMenuButton';
+import { type Issue } from '../issue/Issue';
+import { IssueType } from '../../v6/shared/lib/cms/issue/IssueType';
+import { type ContentId } from '../content/ContentId';
+import { ContentActionMenuButton } from '../ContentActionMenuButton';
 
-export class ContentWizardPublishMenuButton
-    extends ContentActionMenuButton {
-
+export class ContentWizardPublishMenuButton extends ContentActionMenuButton {
     private publishRequest: Issue;
 
     private publishRequestActionChangeListeners: ((added: boolean) => void)[] = [];
@@ -25,7 +23,7 @@ export class ContentWizardPublishMenuButton
 
     private createPublishRequestAction(issues: Issue[]) {
         // Reverse to find the oldest
-        this.publishRequest = issues.reverse().find(issue => issue.getType() === IssueType.PUBLISH_REQUEST);
+        this.publishRequest = issues.reverse().find((issue) => issue.getType() === IssueType.PUBLISH_REQUEST);
         this.notifyPublishRequestActionChanged(!!this.publishRequest);
     }
 
@@ -34,11 +32,12 @@ export class ContentWizardPublishMenuButton
     }
 
     public unPublishRequestActionChanged(listener: (added: boolean) => void) {
-        this.publishRequestActionChangeListeners = this.publishRequestActionChangeListeners.filter(curr => curr !== listener);
+        this.publishRequestActionChangeListeners = this.publishRequestActionChangeListeners.filter(
+            (curr) => curr !== listener,
+        );
     }
 
     private notifyPublishRequestActionChanged(added: boolean) {
-        this.publishRequestActionChangeListeners.forEach(listener => listener(added));
+        this.publishRequestActionChangeListeners.forEach((listener) => listener(added));
     }
-
 }

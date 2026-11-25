@@ -5,7 +5,7 @@ import { type ContentSummary } from '../../../../../../app/content/ContentSummar
 import { PenIcon, XIcon } from 'lucide-react';
 import { EditContentEvent } from '../../../../../../app/event/EditContentEvent';
 import { type Project } from '../../../../../../app/settings/data/project/Project';
-import type { ContentState } from '../../../../../../app/content/ContentState';
+import type { ContentState } from '../../../../../shared/lib/cms/content/ContentState';
 import { i18n } from '../../../../../shared/i18n';
 import { getStatusTooltipKey } from '../../../../../shared/ui/icons/StatusIcon';
 import type { SelectorSelectionItemContext } from './SelectorSelection';

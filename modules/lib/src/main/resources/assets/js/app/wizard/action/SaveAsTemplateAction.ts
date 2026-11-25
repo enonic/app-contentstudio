@@ -6,7 +6,7 @@ import { CreatePageTemplateRequest } from '../CreatePageTemplateRequest';
 import { EditContentEvent } from '../../event/EditContentEvent';
 import { type Site } from '../../content/Site';
 import { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
-import { Permission } from '../../access/Permission';
+import { Permission } from '../../../v6/shared/lib/cms/permissions/Permission';
 import { type ContentSummary } from '../../content/ContentSummary';
 import { PageState } from '../page/PageState';
 import { PageEventsManager } from '../PageEventsManager';

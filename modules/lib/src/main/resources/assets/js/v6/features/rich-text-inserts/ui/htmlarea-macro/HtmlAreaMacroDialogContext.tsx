@@ -18,7 +18,7 @@ import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { HTMLAreaHelper } from '../../../../../app/inputtype/ui/text/HTMLAreaHelper';
 import type { Macro } from '../../../../../app/inputtype/ui/text/HtmlEditorTypes';
 import type { Project } from '../../../../../app/settings/data/project/Project';
-import type { PageContributionsJson } from '../../../../../app/macro/resource/MacroPreviewJson';
+import type { PageContributionsJson } from '../../api/MacroPreviewJson';
 import { fetchMacros, fetchMacroPreview, fetchMacroPreviewString } from '../../api/macro.api';
 import { useOptionalHtmlAreaContext } from '../../../shared/form/input-types/html-area/HtmlAreaContext';
 

@@ -2,7 +2,7 @@ import { getUserPrincipalKeys } from '../../../../shared/lib/cms/security/auth';
 import { toLegacyPrincipalKey } from '../../../../shared/lib/cms/security/legacy';
 import { Button, ButtonProps } from '@enonic/ui';
 import { ReactElement } from 'react';
-import { Permission } from '../../../../../app/access/Permission';
+import { Permission } from '../../../../shared/lib/cms/permissions/Permission';
 import { Content } from '../../../../../app/content/Content';
 import { OpenEditPermissionsDialogEvent } from '../../../../../app/event/OpenEditPermissionsDialogEvent';
 import { ContentHelper } from '../../../../../app/util/ContentHelper';

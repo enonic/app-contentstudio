@@ -13,7 +13,7 @@ import { ContentIconUrlResolver } from './ContentIconUrlResolver';
 import { ContentId } from './ContentId';
 import { ContentInheritType } from './ContentInheritType';
 import { type ContentPath } from './ContentPath';
-import { type ContentState } from './ContentState';
+import { type ContentState } from '../../v6/shared/lib/cms/content/ContentState';
 import { ContentSummary, ContentSummaryBuilder } from './ContentSummary';
 import { ContentSummaryAndCompareStatusHelper } from './ContentSummaryAndCompareStatusHelper';
 

@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { Content } from '../../../../app/content/Content';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { WorkflowState } from '../../../../app/content/WorkflowState';
+import { WorkflowState } from '../../../shared/lib/cms/content/WorkflowState';
 import { emitContentUpdated } from '../../../shared/socket/socket.store';
 import {
     applyOwnContentUpdate,

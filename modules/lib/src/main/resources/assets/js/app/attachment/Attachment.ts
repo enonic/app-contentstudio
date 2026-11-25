@@ -1,7 +1,7 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
 import { AttachmentName } from './AttachmentName';
-import { type AttachmentJson } from './AttachmentJson';
+import { type AttachmentJson } from '../../v6/entities/content/api/AttachmentJson';
 import { BinaryReference } from '@enonic/ui-utils';
 import { UrlHelper } from '../util/UrlHelper';
 import { type Project } from '../settings/data/project/Project';

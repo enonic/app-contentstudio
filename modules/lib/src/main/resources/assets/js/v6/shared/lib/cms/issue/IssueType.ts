@@ -1,5 +1,6 @@
 export enum IssueType {
-    STANDARD, PUBLISH_REQUEST
+    STANDARD,
+    PUBLISH_REQUEST,
 }
 
 export class IssueTypeFormatter {
@@ -14,7 +15,7 @@ export class IssueTypeFormatter {
     }
 
     static getTypeName(value: IssueType): string {
-        switch(value) {
+        switch (value) {
             case IssueType.STANDARD:
                 return IssueType[IssueType.STANDARD];
             case IssueType.PUBLISH_REQUEST:

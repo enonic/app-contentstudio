@@ -7,8 +7,8 @@ import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelp
 import { ProjectPermissions } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
 import { type ProjectJson } from '../../../../app/settings/resource/json/ProjectJson';
-import { type ProjectPermissionsJson } from '../../../../app/settings/resource/json/ProjectPermissionsJson';
-import { type ProjectReadAccessJson } from '../../../../app/settings/resource/json/ProjectReadAccessJson';
+import { type ProjectPermissionsJson } from './ProjectPermissionsJson';
+import { type ProjectReadAccessJson } from './ProjectReadAccessJson';
 import { getCmsRestUri } from '../../../shared/lib/url/cms';
 import {
     type ApplicationConfig,

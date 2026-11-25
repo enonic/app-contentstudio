@@ -1,6 +1,6 @@
 import type { Extension } from '@enonic/lib-admin-ui/extension/Extension';
 import { Router } from '../../../../app/Router';
-import { UrlAction } from '../../../../app/UrlAction';
+import { UrlAction } from '../../../shared/lib/url/UrlAction';
 import { $noProjectMode } from '../../../entities/project/projects.store';
 import { i18n } from '../../../shared/i18n';
 import {

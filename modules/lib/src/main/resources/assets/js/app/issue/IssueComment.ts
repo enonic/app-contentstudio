@@ -1,8 +1,7 @@
-import {type IssueCommentJson} from './json/IssueCommentJson';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type IssueCommentJson } from '../../v6/entities/issue/api/IssueCommentJson';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
 
 export class IssueComment {
-
     private id: string;
 
     private creatorKey: PrincipalKey;
@@ -55,11 +54,9 @@ export class IssueComment {
     static create(): IssueCommentBuilder {
         return new IssueCommentBuilder();
     }
-
 }
 
 class IssueCommentBuilder {
-
     id: string;
 
     creatorKey: PrincipalKey;

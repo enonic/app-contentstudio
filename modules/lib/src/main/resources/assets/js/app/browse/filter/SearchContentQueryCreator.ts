@@ -20,7 +20,7 @@ import { DateRange } from '@enonic/lib-admin-ui/query/aggregation/DateRange';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import { type ContentId } from '../../content/ContentId';
 import { ContentAggregation, MODIFIED_BUCKET_KEY } from './ContentAggregation';
-import { WorkflowState } from '../../content/WorkflowState';
+import { WorkflowState } from '../../../v6/shared/lib/cms/content/WorkflowState';
 
 // Helper aggregations for the "Modified" count: contents having `publish.from`
 // minus contents having `publish.time`. They are not filter sections.

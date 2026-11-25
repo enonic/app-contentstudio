@@ -2,7 +2,7 @@ import { LegacyElement } from '@enonic/lib-admin-ui/ui2/LegacyElement';
 import { SelectionChange } from '@enonic/lib-admin-ui/util/SelectionChange';
 import { ContentQuery } from '../../../app/content/ContentQuery';
 import type { ContentSummary } from '../../../app/content/ContentSummary';
-import { Branch } from '../../../app/versioning/Branch';
+import { Branch } from '../../shared/lib/cms/content/Branch';
 import {
     activateFilter,
     deactivateFilter,

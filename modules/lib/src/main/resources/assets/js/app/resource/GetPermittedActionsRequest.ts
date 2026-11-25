@@ -1,12 +1,10 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {Permission} from '../access/Permission';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type ContentId} from '../content/ContentId';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { Permission } from '../../v6/shared/lib/cms/permissions/Permission';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type ContentId } from '../content/ContentId';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
 
-export class GetPermittedActionsRequest
-    extends CmsContentResourceRequest<Permission[]> {
-
+export class GetPermittedActionsRequest extends CmsContentResourceRequest<Permission[]> {
     private contentIds: ContentId[] = [];
 
     private permissions: Permission[] = [];
@@ -42,7 +40,7 @@ export class GetPermittedActionsRequest
 
         return {
             contentIds: this.contentIds.map(fn),
-            permissions: this.permissions.map(fn2)
+            permissions: this.permissions.map(fn2),
         };
     }
 

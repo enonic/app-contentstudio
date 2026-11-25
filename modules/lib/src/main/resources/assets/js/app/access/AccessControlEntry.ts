@@ -1,17 +1,14 @@
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type Cloneable} from '@enonic/lib-admin-ui/Cloneable';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ArrayHelper} from '@enonic/lib-admin-ui/util/ArrayHelper';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {type AccessControlEntryJson} from './AccessControlEntryJson';
-import {Permission} from './Permission';
-import {PrincipalContainer} from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
-import {PermissionsHelper} from './PermissionsHelper';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type Cloneable } from '@enonic/lib-admin-ui/Cloneable';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ArrayHelper } from '@enonic/lib-admin-ui/util/ArrayHelper';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type AccessControlEntryJson } from './AccessControlEntryJson';
+import { Permission } from '../../v6/shared/lib/cms/permissions/Permission';
+import { PrincipalContainer } from '@enonic/lib-admin-ui/ui/security/PrincipalContainer';
+import { PermissionsHelper } from './PermissionsHelper';
 
-export class AccessControlEntry
-    extends PrincipalContainer
-    implements Equitable, Cloneable {
-
+export class AccessControlEntry extends PrincipalContainer implements Equitable, Cloneable {
     private allowedPermissions: Permission[];
 
     private deniedPermissions: Permission[];
@@ -39,7 +36,7 @@ export class AccessControlEntry
     }
 
     isAllowed(permission: Permission): boolean {
-        return (this.allowedPermissions.indexOf(permission) > -1) && (this.deniedPermissions.indexOf(permission) === -1);
+        return this.allowedPermissions.indexOf(permission) > -1 && this.deniedPermissions.indexOf(permission) === -1;
     }
 
     isDenied(permission: Permission): boolean {
@@ -47,7 +44,7 @@ export class AccessControlEntry
     }
 
     isSet(permission: Permission): boolean {
-        return (this.allowedPermissions.indexOf(permission) > -1) || (this.deniedPermissions.indexOf(permission) > -1);
+        return this.allowedPermissions.indexOf(permission) > -1 || this.deniedPermissions.indexOf(permission) > -1;
     }
 
     allow(permission: Permission): AccessControlEntry {
@@ -69,7 +66,6 @@ export class AccessControlEntry
     }
 
     equals(o: Equitable): boolean {
-
         if (!ObjectHelper.iFrameSafeInstanceOf(o, AccessControlEntry)) {
             return false;
         }
@@ -115,7 +111,7 @@ export class AccessControlEntry
         return {
             principal: this.principal.toJson(),
             allow: this.allowedPermissions.map((perm) => Permission[perm]),
-            deny: this.deniedPermissions.map((perm) => Permission[perm])
+            deny: this.deniedPermissions.map((perm) => Permission[perm]),
         };
     }
 

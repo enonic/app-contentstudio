@@ -1,6 +1,6 @@
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { Branch } from '../../../../../../app/versioning/Branch';
-import { UrlAction } from '../../../../../../app/UrlAction';
+import { Branch } from '../../../../../shared/lib/cms/content/Branch';
+import { UrlAction } from '../../../../../shared/lib/url/UrlAction';
 import { RepositoryId } from '../../../../../../app/repository/RepositoryId';
 import { useFormScope } from '../../FormScopeContext';
 import { type CustomSelectorConfig } from './CustomSelectorConfig';

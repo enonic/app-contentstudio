@@ -1,30 +1,29 @@
 import type Q from 'q';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {ElementHelper} from '@enonic/lib-admin-ui/dom/ElementHelper';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {Viewer} from '@enonic/lib-admin-ui/ui/Viewer';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {H6El} from '@enonic/lib-admin-ui/dom/H6El';
-import {IEl} from '@enonic/lib-admin-ui/dom/IEl';
-import {Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {ContextMenu} from '@enonic/lib-admin-ui/ui/menu/ContextMenu';
-import {Action} from '@enonic/lib-admin-ui/ui/Action';
-import {ConfirmationDialog} from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
-import {type IssueComment} from '../IssueComment';
-import {DeleteIssueCommentRequest} from '../resource/DeleteIssueCommentRequest';
-import {type Issue} from '../Issue';
-import {ListIssueCommentsRequest} from '../resource/ListIssueCommentsRequest';
-import {UpdateIssueCommentRequest} from '../resource/UpdateIssueCommentRequest';
-import {InPlaceTextArea} from './InPlaceTextArea';
-import {IssueType} from '../IssueType';
-import {showFeedback} from '@enonic/lib-admin-ui/notify/MessageBus';
-import {DateHelper} from '@enonic/lib-admin-ui/util/DateHelper';
-import {PrincipalViewerCompact} from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {type ListIssueCommentsResponse} from '../resource/ListIssueCommentsResponse';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { ElementHelper } from '@enonic/lib-admin-ui/dom/ElementHelper';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { Viewer } from '@enonic/lib-admin-ui/ui/Viewer';
+import { ListBox } from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import { H6El } from '@enonic/lib-admin-ui/dom/H6El';
+import { IEl } from '@enonic/lib-admin-ui/dom/IEl';
+import { Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { ContextMenu } from '@enonic/lib-admin-ui/ui/menu/ContextMenu';
+import { Action } from '@enonic/lib-admin-ui/ui/Action';
+import { ConfirmationDialog } from '@enonic/lib-admin-ui/ui/dialog/ConfirmationDialog';
+import { type IssueComment } from '../IssueComment';
+import { DeleteIssueCommentRequest } from '../resource/DeleteIssueCommentRequest';
+import { type Issue } from '../Issue';
+import { ListIssueCommentsRequest } from '../resource/ListIssueCommentsRequest';
+import { UpdateIssueCommentRequest } from '../resource/UpdateIssueCommentRequest';
+import { InPlaceTextArea } from './InPlaceTextArea';
+import { IssueType } from '../../../v6/shared/lib/cms/issue/IssueType';
+import { showFeedback } from '@enonic/lib-admin-ui/notify/MessageBus';
+import { DateHelper } from '@enonic/lib-admin-ui/util/DateHelper';
+import { PrincipalViewerCompact } from '@enonic/lib-admin-ui/ui/security/PrincipalViewer';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { type ListIssueCommentsResponse } from '../resource/ListIssueCommentsResponse';
 
-export class IssueCommentsList
-    extends ListBox<IssueComment> {
+export class IssueCommentsList extends ListBox<IssueComment> {
     private parentIssue: Issue;
     private activeItem: IssueComment;
     private menu: ContextMenu;
@@ -50,9 +49,11 @@ export class IssueCommentsList
     setParentIssue(issue: Issue): Q.Promise<void> {
         this.parentIssue = issue;
 
-        return new ListIssueCommentsRequest(issue.getId()).sendAndParse().then((response: ListIssueCommentsResponse) => {
-            this.setItems(response.getIssueComments());
-        });
+        return new ListIssueCommentsRequest(issue.getId())
+            .sendAndParse()
+            .then((response: ListIssueCommentsResponse) => {
+                this.setItems(response.getIssueComments());
+            });
     }
 
     protected getItemId(item: IssueComment): string {
@@ -69,7 +70,7 @@ export class IssueCommentsList
             this.activeItem = comment;
             this.menu.showAt(x, y);
         });
-        listItem.onEditModeChanged(editMode => this.notifyEditModeChanged(editMode));
+        listItem.onEditModeChanged((editMode) => this.notifyEditModeChanged(editMode));
         return listItem;
     }
 
@@ -77,41 +78,43 @@ export class IssueCommentsList
         const editAction = new Action(i18n('action.edit')).onExecuted(() => {
             (this.getItemView(this.activeItem) as IssueCommentsListItem).beginEdit();
         });
-        const removeAction = new Action(i18n('action.delete')).onExecuted(action => {
+        const removeAction = new Action(i18n('action.delete')).onExecuted((action) => {
             if (this.activeItem) {
-                ((activeItem) => {  // closure to remember activeItem in case it changes during request
+                ((activeItem) => {
+                    // closure to remember activeItem in case it changes during request
 
-                    this.confirmDialog.setYesCallback(() => {
-                        new DeleteIssueCommentRequest(activeItem.getId()).sendAndParse().done(result => {
-                            if (result) {
-                                this.removeItems(activeItem);
-                                const messageKey = this.isPublishRequest() ?
-                                                   'notify.publishRequest.commentDeleted' :
-                                                   'notify.issue.commentDeleted';
-                                showFeedback(i18n(messageKey));
-                            }
-                        });
-                    }).open();
-
+                    this.confirmDialog
+                        .setYesCallback(() => {
+                            new DeleteIssueCommentRequest(activeItem.getId()).sendAndParse().done((result) => {
+                                if (result) {
+                                    this.removeItems(activeItem);
+                                    const messageKey = this.isPublishRequest()
+                                        ? 'notify.publishRequest.commentDeleted'
+                                        : 'notify.issue.commentDeleted';
+                                    showFeedback(i18n(messageKey));
+                                }
+                            });
+                        })
+                        .open();
                 })(this.activeItem);
             }
         });
 
-        this.confirmDialog.onShown(event => {
+        this.confirmDialog.onShown((event) => {
             removeAction.setEnabled(false);
         });
 
-        this.confirmDialog.onHidden(event => {
+        this.confirmDialog.onHidden((event) => {
             removeAction.setEnabled(true);
         });
 
         const menu = new ContextMenu([editAction, removeAction]);
-        menu.onHidden(() => this.activeItem = undefined);
+        menu.onHidden(() => (this.activeItem = undefined));
         return menu;
     }
 
     private notifyEditModeChanged(editMode: boolean) {
-        this.editListeners.forEach(listener => listener(editMode));
+        this.editListeners.forEach((listener) => listener(editMode));
     }
 
     public onEditModeChanged(listener: (editMode: boolean) => void) {
@@ -119,13 +122,11 @@ export class IssueCommentsList
     }
 
     public unEditModeChanged(listener: (editMode: boolean) => void) {
-        this.editListeners = this.editListeners.filter(curr => curr !== listener);
+        this.editListeners = this.editListeners.filter((curr) => curr !== listener);
     }
 }
 
-class IssueCommentsListItem
-    extends Viewer<IssueComment> {
-
+class IssueCommentsListItem extends Viewer<IssueComment> {
     private header: H6El;
 
     private text: InPlaceTextArea;
@@ -148,7 +149,8 @@ class IssueCommentsListItem
 
         const principal = Principal.create()
             .setKey(comment.getCreatorKey())
-            .setDisplayName(comment.getCreatorDisplayName()).build();
+            .setDisplayName(comment.getCreatorDisplayName())
+            .build();
 
         if (!this.principalViewer) {
             this.principalViewer = new PrincipalViewerCompact();
@@ -163,18 +165,21 @@ class IssueCommentsListItem
             this.header.appendChildren(...this.resolveDisplayName(comment));
             this.text.onEditModeChanged((editMode, newVal, oldVal) => {
                 if (!editMode && newVal !== oldVal) {
-                    new UpdateIssueCommentRequest(comment.getId()).setText(newVal).sendAndParse().done(() => {
-                        const messageKey = this.publishRequestComment ?
-                                           'notify.publishRequest.commentUpdated' :
-                                           'notify.issue.commentUpdated';
-                        showFeedback(i18n(messageKey));
-                    });
+                    new UpdateIssueCommentRequest(comment.getId())
+                        .setText(newVal)
+                        .sendAndParse()
+                        .done(() => {
+                            const messageKey = this.publishRequestComment
+                                ? 'notify.publishRequest.commentUpdated'
+                                : 'notify.issue.commentUpdated';
+                            showFeedback(i18n(messageKey));
+                        });
                 }
             });
             this.appendChildren(this.header, this.text);
 
             this.header.onClicked((event: MouseEvent) => {
-                const targetEl = (event.target as HTMLElement);
+                const targetEl = event.target as HTMLElement;
                 if (targetEl.tagName === 'I' && targetEl.classList.contains('icon-menu2')) {
                     event.stopImmediatePropagation();
                     const targetHelper = new ElementHelper(targetEl);
@@ -192,7 +197,7 @@ class IssueCommentsListItem
         return [
             new IEl('icon icon-small icon-menu2'),
             SpanEl.fromText(comment.getCreatorDisplayName()),
-            SpanEl.fromText(time).addClass('created-time')
+            SpanEl.fromText(time).addClass('created-time'),
         ];
     }
 
@@ -217,10 +222,10 @@ class IssueCommentsListItem
     }
 
     public unContextMenuClicked(listener: (x: number, y: number, comment: IssueComment) => void) {
-        this.contextMenuClickedListeners = this.contextMenuClickedListeners.filter(curr => curr !== listener);
+        this.contextMenuClickedListeners = this.contextMenuClickedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyContextMenuClicked(x: number, y: number, comment: IssueComment) {
-        this.contextMenuClickedListeners.forEach(listener => listener(x, y, comment));
+        this.contextMenuClickedListeners.forEach((listener) => listener(x, y, comment));
     }
 }

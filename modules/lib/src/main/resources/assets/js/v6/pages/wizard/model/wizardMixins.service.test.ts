@@ -8,7 +8,7 @@ import { Mixin } from '../../../../app/content/Mixin';
 import { MixinName } from '../../../../app/content/MixinName';
 import type { ContentType } from '../../../../app/inputtype/schema/ContentType';
 import { Workflow } from '../../../../app/content/Workflow';
-import { WorkflowState } from '../../../../app/content/WorkflowState';
+import { WorkflowState } from '../../../shared/lib/cms/content/WorkflowState';
 import {
     $wizardDraftMixins,
     $wizardPersistedMixins,

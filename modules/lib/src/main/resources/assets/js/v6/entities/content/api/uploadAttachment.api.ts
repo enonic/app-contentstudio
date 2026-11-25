@@ -2,7 +2,7 @@ import { Result, ResultAsync } from 'neverthrow';
 import { AppError } from '@enonic/ui-utils';
 import { requestOptionalJson } from '@enonic/ui-utils/request';
 import { type Attachment, AttachmentBuilder } from '../../../../app/attachment/Attachment';
-import { type AttachmentJson } from '../../../../app/attachment/AttachmentJson';
+import { type AttachmentJson } from './AttachmentJson';
 import { type ContentJson } from '../../../../app/content/ContentJson';
 import { UploadError } from '../../../shared/api/errors';
 import { requestUploadJson } from '../../../shared/api/upload';

@@ -1,8 +1,8 @@
 import { type ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
-import { IssueType } from '../../../../app/issue/IssueType';
-import { type IssueStatsJson } from '../../../../app/issue/json/IssueStatsJson';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
+import { type IssueStatsJson } from './IssueStatsJson';
 import { getCmsProjectUrl } from '../../../shared/lib/url/cms';
 
 /**

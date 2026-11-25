@@ -1,4 +1,4 @@
-import {type ContentIdBaseItemJson} from './ContentIdBaseItemJson';
+import { type ContentIdBaseItemJson } from '../../../v6/entities/content/api/ContentIdBaseItemJson';
 
 export interface HasUnpublishedChildrenListJson {
     contents: HasUnpublishedChildrenJson[];

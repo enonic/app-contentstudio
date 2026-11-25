@@ -6,7 +6,7 @@ import { type TabMenuItem, TabMenuItemBuilder } from '@enonic/lib-admin-ui/ui/ta
 import { type ActionButton } from '@enonic/lib-admin-ui/ui2/ActionButton';
 import { i18n } from '@enonic/lib-admin-ui/util/Messages';
 import type Q from 'q';
-import { Permission } from '../../../access/Permission';
+import { Permission } from '../../../../v6/shared/lib/cms/permissions/Permission';
 import { type Content } from '../../../content/Content';
 import { ContentInheritType } from '../../../content/ContentInheritType';
 import { type ContentSummaryAndCompareStatus } from '../../../content/ContentSummaryAndCompareStatus';

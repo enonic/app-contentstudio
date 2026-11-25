@@ -7,7 +7,7 @@ import { i18n } from '../../../shared/i18n';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import { PublishRequest } from '../../../../app/issue/PublishRequest';
 import { PublishRequestItem } from '../../../../app/issue/PublishRequestItem';
 import { fetchContentSummaries } from '../../../entities/content';

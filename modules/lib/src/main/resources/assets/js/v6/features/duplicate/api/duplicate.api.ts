@@ -4,7 +4,7 @@ import { AppError } from '@enonic/ui-utils';
 import { CompareStatus } from '../../../../app/content/CompareStatus';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
-import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
+import { type ContentIdBaseItemJson } from '../../../entities/content/api/ContentIdBaseItemJson';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 type DuplicateContentParamsJson = {

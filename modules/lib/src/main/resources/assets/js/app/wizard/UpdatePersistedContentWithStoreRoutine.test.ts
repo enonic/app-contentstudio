@@ -4,7 +4,7 @@ import { afterEach, assert, beforeEach, describe, expect, it, vi } from 'vitest'
 import { ContentBuilder, type Content } from '../content/Content';
 import { ContentName } from '../content/ContentName';
 import { Workflow } from '../content/Workflow';
-import { WorkflowState } from '../content/WorkflowState';
+import { WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import {
     $wizardDraftData,

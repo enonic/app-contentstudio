@@ -1,7 +1,7 @@
-import {type ProjectPermissionsJson} from './ProjectPermissionsJson';
-import {type ProjectReadAccessJson} from './ProjectReadAccessJson';
-import {type AttachmentJson} from '../../../attachment/AttachmentJson';
-import {type ProjectSiteConfigJson} from './ProjectSiteConfigJson';
+import { type ProjectPermissionsJson } from '../../../../v6/entities/project/api/ProjectPermissionsJson';
+import { type ProjectReadAccessJson } from '../../../../v6/entities/project/api/ProjectReadAccessJson';
+import { type AttachmentJson } from '../../../../v6/entities/content/api/AttachmentJson';
+import { type ProjectSiteConfigJson } from './ProjectSiteConfigJson';
 
 export interface ProjectJson {
     name: string;

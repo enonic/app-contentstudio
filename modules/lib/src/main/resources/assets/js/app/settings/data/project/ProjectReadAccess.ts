@@ -1,12 +1,10 @@
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type ProjectReadAccessJson} from '../../resource/json/ProjectReadAccessJson';
-import {ProjectReadAccessType} from './ProjectReadAccessType';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type ProjectReadAccessJson } from '../../../../v6/entities/project/api/ProjectReadAccessJson';
+import { ProjectReadAccessType } from '../../../../v6/shared/lib/cms/projects/ProjectReadAccessType';
 
-export class ProjectReadAccess
-    implements Equitable {
-
+export class ProjectReadAccess implements Equitable {
     private readonly type: ProjectReadAccessType;
 
     private readonly principalsKeys: PrincipalKey[];
@@ -43,7 +41,8 @@ export class ProjectReadAccess
     }
 
     static fromJson(json: ProjectReadAccessJson): ProjectReadAccess {
-        const projectType: ProjectReadAccessType = (!!json && !!json.type) ? ProjectReadAccessType[json.type.toUpperCase()] : null;
+        const projectType: ProjectReadAccessType =
+            !!json && !!json.type ? ProjectReadAccessType[json.type.toUpperCase()] : null;
 
         if (!projectType) {
             return new ProjectReadAccess(ProjectReadAccessType.PRIVATE);
@@ -63,7 +62,9 @@ export class ProjectReadAccess
 
         const other: ProjectReadAccess = o as ProjectReadAccess;
 
-        return ObjectHelper.objectEquals(this.type, other.type) &&
-               ObjectHelper.arrayEquals(this.principalsKeys, other.getPrincipalsKeys());
+        return (
+            ObjectHelper.objectEquals(this.type, other.type) &&
+            ObjectHelper.arrayEquals(this.principalsKeys, other.getPrincipalsKeys())
+        );
     }
 }

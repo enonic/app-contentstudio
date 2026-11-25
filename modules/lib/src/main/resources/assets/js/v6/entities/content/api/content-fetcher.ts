@@ -3,7 +3,7 @@ import type { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentQuery } from '../../../../app/content/ContentQuery';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { Branch } from '../../../../app/versioning/Branch';
+import { Branch } from '../../../shared/lib/cms/content/Branch';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';
 import { resolveContentSummaries } from './content.api';
 import {

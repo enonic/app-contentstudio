@@ -2,7 +2,7 @@ import { getIsMobile } from '@enonic/ui';
 import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import type { LiveEditPageViewReadyEvent } from '../../../../../page-editor/event/LiveEditPageViewReadyEvent';
 import type { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
-import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../../shared/lib/page/PageNavigationEventType';
 import type { PageNavigationHandler } from '../../../../../app/wizard/PageNavigationHandler';
 import { PageNavigationMediator } from '../../../../../app/wizard/PageNavigationMediator';
 import { PageState } from '../../../../../app/wizard/page/PageState';

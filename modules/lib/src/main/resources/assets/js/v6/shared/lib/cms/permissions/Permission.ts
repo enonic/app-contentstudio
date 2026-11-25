@@ -5,10 +5,10 @@ export enum Permission {
     DELETE,
     PUBLISH,
     READ_PERMISSIONS,
-    WRITE_PERMISSIONS
+    WRITE_PERMISSIONS,
 }
 
 export enum PermissionState {
     ALLOW,
-    INHERIT
+    INHERIT,
 }

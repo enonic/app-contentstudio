@@ -4,7 +4,7 @@ import { type MouseEvent as ReactMouseEvent, type ReactElement, useCallback } fr
 import { ComponentPath } from '../../../app/page/region/ComponentPath';
 import { PageNavigationEvent } from '../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../app/wizard/PageNavigationEventData';
-import { PageNavigationEventType } from '../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../lib/page/PageNavigationEventType';
 import { PageNavigationMediator } from '../../../app/wizard/PageNavigationMediator';
 import { useI18n } from '../lib/hooks/useI18n';
 import { LegacyElement } from './LegacyElement';

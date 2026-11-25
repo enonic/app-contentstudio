@@ -26,7 +26,7 @@ import {
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
 import { type ContentFilterOptions } from '../../../shared/lib/cms/content/contentFilterOptions';
-import type { ContentState } from '../../../../app/content/ContentState';
+import type { ContentState } from '../../../shared/lib/cms/content/ContentState';
 import { resolveDisplayName, resolveSubName } from '../../../shared/lib/cms/content/prettify';
 import { calcContentState } from '../../../shared/lib/cms/content/workflow';
 import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';

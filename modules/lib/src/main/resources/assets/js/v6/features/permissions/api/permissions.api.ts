@@ -6,7 +6,7 @@ import { type PermissionsJson } from '../../../../app/access/PermissionsJson';
 import { ContentId } from '../../../../app/content/ContentId';
 import { type ContentPath } from '../../../../app/content/ContentPath';
 import { type ApplyPermissionsScope } from '../../../../app/dialog/permissions/PermissionsData';
-import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
+import { type ContentIdBaseItemJson } from '../../../entities/content/api/ContentIdBaseItemJson';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 export type ApplyContentPermissionsParams = {

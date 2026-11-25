@@ -1,7 +1,7 @@
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import type { PublishStatus } from '../../../../../app/publish/PublishStatus';
 import type { TreeState, TreeNode, FlatNode } from '../../../../shared/lib/tree-store';
-import type { ContentState } from '../../../../../app/content/ContentState';
+import type { ContentState } from '../../../../shared/lib/cms/content/ContentState';
 import { type ContentTypeName } from '../../../../shared/lib/cms/schema/contentTypeName';
 
 //

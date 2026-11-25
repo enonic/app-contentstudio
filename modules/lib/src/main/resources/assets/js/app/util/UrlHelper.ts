@@ -2,7 +2,7 @@ import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
 import { UriHelper } from '@enonic/lib-admin-ui/util/UriHelper';
 import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
 import { type Project } from '../settings/data/project/Project';
-import { UrlAction } from '../UrlAction';
+import { UrlAction } from '../../v6/shared/lib/url/UrlAction';
 
 export class UrlHelper {
     static toolUriPropertyName = 'toolUri';

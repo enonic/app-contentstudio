@@ -1,17 +1,16 @@
-import {ContentsTreeGridList, ContentsTreeGridListContext} from './ContentsTreeGridList';
-import {ContentQuery} from '../content/ContentQuery';
-import {Branch} from '../versioning/Branch';
+import { ContentsTreeGridList, ContentsTreeGridListContext } from './ContentsTreeGridList';
+import { ContentQuery } from '../content/ContentQuery';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 import type Q from 'q';
-import {type ContentSummaryAndCompareStatus} from '../content/ContentSummaryAndCompareStatus';
-import {type ContentQueryResult} from '../resource/ContentQueryResult';
-import {type ContentSummary} from '../content/ContentSummary';
-import {type ContentSummaryJson} from '../content/ContentSummaryJson';
-import {ContentQueryRequest} from '../resource/ContentQueryRequest';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {ContentTreeGridLoadedEvent} from './ContentTreeGridLoadedEvent';
+import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
+import { type ContentQueryResult } from '../resource/ContentQueryResult';
+import { type ContentSummary } from '../content/ContentSummary';
+import { type ContentSummaryJson } from '../content/ContentSummaryJson';
+import { ContentQueryRequest } from '../resource/ContentQueryRequest';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { ContentTreeGridLoadedEvent } from './ContentTreeGridLoadedEvent';
 
 export class ContentsTreeGridRootList extends ContentsTreeGridList {
-
     private filterQuery: ContentQuery;
 
     private branch: Branch = Branch.DRAFT;
@@ -20,8 +19,8 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
         super.initListeners();
 
         const listener = () => {
-          new ContentTreeGridLoadedEvent().fire();
-          this.unItemsAdded(listener);
+            new ContentTreeGridLoadedEvent().fire();
+            this.unItemsAdded(listener);
         };
 
         this.onItemsAdded(listener);
@@ -60,8 +59,9 @@ export class ContentsTreeGridRootList extends ContentsTreeGridList {
 
         const from: number = this.getItemCount() - this.newItems.size;
 
-        return this.makeContentQueryRequest(from).sendAndParse().then(
-            (contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
+        return this.makeContentQueryRequest(from)
+            .sendAndParse()
+            .then((contentQueryResult: ContentQueryResult<ContentSummary, ContentSummaryJson>) => {
                 return this.fetcher.updateReadonlyAndCompareStatus(contentQueryResult.getContents());
             });
     }

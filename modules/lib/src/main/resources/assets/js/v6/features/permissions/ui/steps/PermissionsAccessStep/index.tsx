@@ -5,7 +5,7 @@ import { useStore } from '@nanostores/preact';
 import { LockKeyhole, LockKeyholeOpen } from 'lucide-react';
 import { Fragment, ReactElement, useCallback, useMemo, useRef, useState } from 'react';
 import { AccessControlEntry } from '../../../../../../app/access/AccessControlEntry';
-import { Permission } from '../../../../../../app/access/Permission';
+import { Permission } from '../../../../../shared/lib/cms/permissions/Permission';
 import { Access } from '../../../../../../app/security/Access';
 import { AccessHelper } from '../../../../../../app/security/AccessHelper';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
