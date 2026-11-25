@@ -21,6 +21,7 @@ apis:
   - "admin:extension"
   - "com.enonic.app.contentstudio.plus:license"
   - "com.enonic.app.contentstudio.plus:layers"
+  - "com.enonic.app.contentstudio.plus:archive"
   - "com.enonic.xp.app.main:events"
 interfaces:
   - "contentstudio.menuitem"
