@@ -187,9 +187,48 @@ export const $publishOrRequestCapability = computed(
     },
 );
 
+/**
+ * True when the user may go on to the next step. What the user cannot publish stands in the way
+ * only when they cannot request publishing either.
+ */
+export const $isPublishOrRequestNextAllowed = computed(
+    [
+        $publishOrRequestDialog,
+        $isPublishOrRequestSelectionSynced,
+        $publishOrRequestPublishableCount,
+        $publishOrRequestCapability,
+    ],
+    (state, isSelectionSynced, publishableCount, capability): boolean => {
+        if (hasBlocker(state, isSelectionSynced, publishableCount)) return false;
+
+        const canRequest = capability === 'request' || capability === 'publish-request';
+
+        return canRequest || state.notPublishableIds.length === 0;
+    },
+);
+
+/** True when the items can be published right away: nothing listed that the user cannot publish. */
+export const $isPublishOrRequestPublishNowAllowed = computed(
+    [$publishOrRequestDialog, $isPublishOrRequestSelectionSynced, $publishOrRequestPublishableCount],
+    (state, isSelectionSynced, publishableCount): boolean =>
+        !hasBlocker(state, isSelectionSynced, publishableCount) && state.notPublishableIds.length === 0,
+);
+
 // *
 // * Internal
 // *
+
+// True when something stands in the way of going on, whatever the user may do: the items are not
+// resolved, the selection is not applied, a check fails or there is nothing to publish.
+function hasBlocker(
+    { loading, failed, inProgressIds, invalidIds }: PublishOrRequestDialogStore,
+    isSelectionSynced: boolean,
+    publishableCount: number,
+): boolean {
+    if (loading || failed || !isSelectionSynced) return true;
+
+    return inProgressIds.length > 0 || invalidIds.length > 0 || publishableCount === 0;
+}
 
 // True when every given id is a dependency that is not required. A main item is never one.
 function isEveryIdExcludable(

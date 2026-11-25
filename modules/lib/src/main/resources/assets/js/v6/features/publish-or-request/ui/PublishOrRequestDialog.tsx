@@ -4,10 +4,10 @@
 import { Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
-import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { closePublishOrRequestDialog } from '../model/commands/open';
 import { setPublishOrRequestDialogStep } from '../model/commands/steps';
 import { $publishOrRequestDialog } from '../model/publishOrRequestDialog.store';
+import { PublishOrRequestDialogFooter } from './PublishOrRequestDialogFooter';
 import { PublishOrRequestDialogHeader } from './PublishOrRequestDialogHeader';
 import { PublishOrRequestItemsStep } from './steps/PublishOrRequestItemsStep';
 import { PublishOrRequestPublishingStep } from './steps/PublishOrRequestPublishingStep';
@@ -19,9 +19,6 @@ const CONTENT_CLASS_NAME =
 
 export const PublishOrRequestDialog = (): ReactElement => {
     const { open, step } = useStore($publishOrRequestDialog, { keys: ['open', 'step'] });
-
-    const previousLabel = useI18n('action.previous');
-    const nextLabel = useI18n('action.next');
 
     const handleOpenChange = (next: boolean) => {
         if (!next) closePublishOrRequestDialog();
@@ -47,7 +44,7 @@ export const PublishOrRequestDialog = (): ReactElement => {
                     </Dialog.Body>
 
                     <Dialog.Footer className="flex flex-col">
-                        <Dialog.StepIndicator dots previousLabel={previousLabel} nextLabel={nextLabel} />
+                        <PublishOrRequestDialogFooter />
                     </Dialog.Footer>
                 </Dialog.Content>
             </Dialog.Portal>
