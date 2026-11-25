@@ -10,6 +10,7 @@ import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { StatusBarEntry } from '../../../../shared/ui/dialogs/status-bar/StatusBarEntry';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
+import { removePublishOrRequestItem } from '../../model/commands/items';
 import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
 import {
     setPublishOrRequestDependantIncluded,
@@ -59,10 +60,21 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                 <SplitList.Primary
                     items={items}
                     getItemId={(item) => item.getId()}
+                    disabled={loading}
                     renderRow={(item) => (
-                        <ContentRow key={item.getId()} content={item} id={item.getId()} layout="mobile-status-below">
+                        <ContentRow
+                            key={item.getId()}
+                            content={item}
+                            id={item.getId()}
+                            disabled={loading}
+                            layout="mobile-status-below"
+                        >
                             <ContentRow.Label action="edit" variant="detailed" />
                             <ContentRow.Status />
+                            <ContentRow.RemoveButton
+                                onRemove={() => removePublishOrRequestItem(item.getContentId())}
+                                disabled={loading || items.length === 1}
+                            />
                         </ContentRow>
                     )}
                 />
