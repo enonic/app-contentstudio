@@ -52,6 +52,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         requiredDependantIds,
         invalidIds,
         inProgressIds: minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds)),
+        notPublishableIds: minResult.getNotPublishable(),
         ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }

@@ -52,6 +52,7 @@ export type PublishOrRequestDialogStore = {
     // An item that is both invalid and in progress is listed as invalid only.
     invalidIds: ContentId[];
     inProgressIds: ContentId[];
+    notPublishableIds: ContentId[];
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: boolean;
@@ -90,6 +91,7 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
     // An item that is both invalid and in progress is listed as invalid only.
     invalidIds: [],
     inProgressIds: [],
+    notPublishableIds: [],
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: true,
@@ -143,6 +145,11 @@ export const $isPublishOrRequestInProgressExcludable = computed($publishOrReques
 /** True when "Exclude" can clear the invalid check, i.e. when all those items can be unticked. */
 export const $isPublishOrRequestInvalidExcludable = computed($publishOrRequestDialog, (state): boolean =>
     isEveryIdExcludable(state.invalidIds, state),
+);
+
+/** True when "Exclude" can clear the permissions check, i.e. when all those items can be unticked. */
+export const $isPublishOrRequestNotPublishableExcludable = computed($publishOrRequestDialog, (state): boolean =>
+    isEveryIdExcludable(state.notPublishableIds, state),
 );
 
 // *

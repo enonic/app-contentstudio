@@ -6,6 +6,7 @@ import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from
 import {
     excludePublishOrRequestInProgress,
     excludePublishOrRequestInvalid,
+    excludePublishOrRequestNotPublishable,
     markPublishOrRequestInProgressAsReady,
 } from './checks';
 
@@ -117,6 +118,27 @@ describe('publish or request dialog checks commands', () => {
             $publishOrRequestDialog.setKey('invalidIds', toIds('d1', 'main'));
 
             excludePublishOrRequestInvalid();
+
+            expect(excludedIds()).toEqual([]);
+            expect(mockLoad).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('excludePublishOrRequestNotPublishable', () => {
+        it('should untick the dependencies the user cannot publish, apply it and load again', () => {
+            $publishOrRequestDialog.setKey('notPublishableIds', toIds('d2'));
+
+            excludePublishOrRequestNotPublishable();
+
+            expect(excludedIds()).toEqual(['d2']);
+            expect(appliedExcludedIds()).toEqual(['d2']);
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should do nothing when one of those items cannot be unticked', () => {
+            $publishOrRequestDialog.setKey('notPublishableIds', toIds('d2', 'main'));
+
+            excludePublishOrRequestNotPublishable();
 
             expect(excludedIds()).toEqual([]);
             expect(mockLoad).not.toHaveBeenCalled();

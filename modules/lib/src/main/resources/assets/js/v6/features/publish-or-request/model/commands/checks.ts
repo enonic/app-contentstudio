@@ -8,6 +8,7 @@ import { notifyError, notifyInfo } from '../../../../shared/notifications';
 import {
     $isPublishOrRequestInProgressExcludable,
     $isPublishOrRequestInvalidExcludable,
+    $isPublishOrRequestNotPublishableExcludable,
     $publishOrRequestDialog,
 } from '../publishOrRequestDialog.store';
 import { loadPublishOrRequestDialogData } from './load';
@@ -24,6 +25,16 @@ export function excludePublishOrRequestInvalid(): void {
     if (!$isPublishOrRequestInvalidExcludable.get()) return;
 
     excludeDependants($publishOrRequestDialog.get().invalidIds);
+}
+
+/**
+ * Unticks the dependencies the user has no permission to publish.
+ * Does nothing when some of them cannot be unticked.
+ */
+export function excludePublishOrRequestNotPublishable(): void {
+    if (!$isPublishOrRequestNotPublishableExcludable.get()) return;
+
+    excludeDependants($publishOrRequestDialog.get().notPublishableIds);
 }
 
 /**
