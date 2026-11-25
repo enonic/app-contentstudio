@@ -6,7 +6,7 @@ import { ContentCombobox } from '../../../selectors/content';
 import { ContentRow } from '../../../selectors/shared/combobox/ContentRow';
 import { SelectorSelection, SelectorSelectionItem } from '../../../selectors/shared/selection';
 import type { ContentSelectorConfig } from './ContentSelectorConfig';
-import { MediaSelectorItemView } from '../../../selectors/media';
+import { getMediaSelectorStatus, MediaSelectorItemView } from '../../../selectors/media';
 import { ContentSelectorInputAddButton } from './ContentSelectorInputAddButton';
 import { type ApplicationKey } from '../../../../../shared/lib/cms/application/applicationKey';
 import { CONTENT_SELECTOR_SCOPE_REQUIREMENT } from './ContentSelectorDescriptor';
@@ -82,6 +82,7 @@ export const ContentSelectorInput = (props: SelfManagedComponentProps<ContentSel
                     <SelectorSelectionItem
                         project={project}
                         context={context}
+                        status={getMediaSelectorStatus(context.item)}
                         disabled={disabled}
                         selection={selection}
                         onSelectionChange={handleSelectionChange}
