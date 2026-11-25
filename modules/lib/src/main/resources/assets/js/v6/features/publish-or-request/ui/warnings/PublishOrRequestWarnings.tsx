@@ -1,5 +1,5 @@
-// The warnings of the publish or request dialog's first step.
-// Decides which ones show; each warning lives in its own file in this folder.
+// The warnings of the publish or request dialog's first step, or the ready entry when there
+// is none. Decides which ones show; each one lives in its own file in this folder.
 
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
@@ -14,10 +14,11 @@ import { PublishOrRequestInProgressWarning } from './PublishOrRequestInProgressW
 import { PublishOrRequestInvalidWarning } from './PublishOrRequestInvalidWarning';
 import { PublishOrRequestNothingToPublishWarning } from './PublishOrRequestNothingToPublishWarning';
 import { PublishOrRequestPermissionsWarning } from './PublishOrRequestPermissionsWarning';
+import { PublishOrRequestReadyEntry } from './PublishOrRequestReadyEntry';
 
 const PUBLISH_OR_REQUEST_WARNINGS_NAME = 'PublishOrRequestWarnings';
 
-export const PublishOrRequestWarnings = (): ReactElement | null => {
+export const PublishOrRequestWarnings = (): ReactElement => {
     const { failed, inProgressIds, invalidIds, notPublishableIds } = useStore($publishOrRequestDialog, {
         keys: ['failed', 'inProgressIds', 'invalidIds', 'notPublishableIds'],
     });
@@ -32,7 +33,7 @@ export const PublishOrRequestWarnings = (): ReactElement | null => {
     if (failed) return <PublishOrRequestFailedWarning />;
     if (!isSelectionSynced) return <PublishOrRequestApplyWarning />;
     if (!hasChecks && publishableCount === 0) return <PublishOrRequestNothingToPublishWarning />;
-    if (!hasChecks) return null;
+    if (!hasChecks) return <PublishOrRequestReadyEntry />;
 
     // The checks are about different items, so they show together.
     return (
