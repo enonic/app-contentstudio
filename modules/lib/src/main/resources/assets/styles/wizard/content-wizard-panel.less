@@ -8,51 +8,6 @@
     display: none;
   }
 
-  .thumbnail-uploader-el {
-    &.disabled {
-      pointer-events: none;
-    }
-
-    &.status-hidden .result-container .workflow-status {
-      display: none;
-    }
-
-    &:not(.icon-variant).has-origin-project .result-container {
-      .icon-inherited(12px, 13px);
-
-      &::before {
-        position: absolute;
-        top: 50px;
-        left: -6px;
-        padding-left: 3px;
-      }
-    }
-
-    &.icon-variant {
-      .icon-variant(14px);
-
-      &::before {
-        position: absolute;
-        bottom: -8px;
-        left: -8px;
-      }
-
-      &.has-origin-project {
-        .icon-variant(14px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
-      }
-
-      &::before,
-      &.has-origin-project::before {
-        padding-left: 3px;
-        width: 15px;
-      }
-
-      &.has-origin-project::before {
-        border: none;
-      }
-    }
-  }
-
   .wizard-header {
     .path-error {
       color: @admin-level-3;
@@ -109,59 +64,6 @@
             cursor: pointer;
           }
         }
-      }
-    }
-  }
-
-  .form-panel {
-    &._0-240,
-    &._240-360,
-    &._360-540 {
-      .thumbnail-uploader-el {
-        .dropzone-container .dropzone {
-          min-height: auto;
-        }
-
-        &:not(.icon-variant).has-origin-project .result-container {
-          .icon-inherited(8px, 9px);
-
-          &::before {
-            top: 20px;
-            left: -4px;
-            padding-left: 3px;
-          }
-        }
-
-        &.icon-variant {
-          .icon-variant(8px);
-
-          &.has-origin-project {
-            .icon-variant(8px, @color: @admin-white, @bg-color: @admin-button-blue1, @border-color: transparent);
-          }
-
-          &::before,
-          &.has-origin-project::before {
-            padding-left: 3px;
-            width: 9px;
-          }
-
-          &.has-origin-project::before {
-            border: none;
-          }
-        }
-
-        .result-container {
-          .workflow-status {
-            font-size: 14px;
-            top: 2px;
-          }
-        }
-      }
-    }
-
-    .wizard-steps-panel {
-      .wizard-step-form:last-of-type {
-        height: auto !important;
       }
     }
   }
@@ -243,7 +145,6 @@
       }
 
       &.minimized {
-        .thumbnail-uploader-el,
         .wizard-header,
         .wizard-steps-panel {
           display: none;
@@ -367,7 +268,7 @@
   }
 
   &.no-modify-permissions {
-    .thumbnail-uploader-el, .wizard-header, .wizard-steps-panel {
+    .wizard-header, .wizard-steps-panel {
       * {
         pointer-events: none;
       }
