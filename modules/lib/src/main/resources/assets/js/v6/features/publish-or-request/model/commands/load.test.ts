@@ -39,6 +39,7 @@ type Resolved = {
     getInProgress: () => ContentId[];
     getInvalid: () => ContentId[];
     getNotPublishable: () => ContentId[];
+    getPublishable: () => ContentId[];
 };
 
 const createResolved = (
@@ -53,6 +54,7 @@ const createResolved = (
     getInProgress: () => inProgressIds,
     getInvalid: () => invalidIds,
     getNotPublishable: () => notPublishableIds,
+    getPublishable: () => [],
 });
 
 const mockResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): void => {
@@ -227,6 +229,18 @@ describe('publish or request dialog load commands', () => {
             await loadPublishOrRequestDialogData();
 
             expect($publishOrRequestDialog.get().notPublishableIds).toEqual([ids[1]]);
+        });
+
+        it('should store which items have something to publish, from the answer without exclusions', async () => {
+            const ids = createIds(3);
+            exclude([ids[2]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync({ ...createResolved(ids), getPublishable: () => [ids[0], ids[2]] }))
+                .mockReturnValueOnce(okAsync({ ...createResolved(ids), getPublishable: () => [ids[0]] }));
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().publishableIds).toEqual([ids[0], ids[2]]);
         });
 
         it('should report loading while the load runs', async () => {

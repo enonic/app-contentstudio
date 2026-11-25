@@ -3,11 +3,16 @@
 
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
-import { $isPublishOrRequestSelectionSynced, $publishOrRequestDialog } from '../../model/publishOrRequestDialog.store';
+import {
+    $isPublishOrRequestSelectionSynced,
+    $publishOrRequestDialog,
+    $publishOrRequestPublishableCount,
+} from '../../model/publishOrRequestDialog.store';
 import { PublishOrRequestApplyWarning } from './PublishOrRequestApplyWarning';
 import { PublishOrRequestFailedWarning } from './PublishOrRequestFailedWarning';
 import { PublishOrRequestInProgressWarning } from './PublishOrRequestInProgressWarning';
 import { PublishOrRequestInvalidWarning } from './PublishOrRequestInvalidWarning';
+import { PublishOrRequestNothingToPublishWarning } from './PublishOrRequestNothingToPublishWarning';
 import { PublishOrRequestPermissionsWarning } from './PublishOrRequestPermissionsWarning';
 
 const PUBLISH_OR_REQUEST_WARNINGS_NAME = 'PublishOrRequestWarnings';
@@ -17,14 +22,17 @@ export const PublishOrRequestWarnings = (): ReactElement | null => {
         keys: ['failed', 'inProgressIds', 'invalidIds', 'notPublishableIds'],
     });
     const isSelectionSynced = useStore($isPublishOrRequestSelectionSynced);
+    const publishableCount = useStore($publishOrRequestPublishableCount);
 
     const hasInProgress = inProgressIds.length > 0;
     const hasInvalid = invalidIds.length > 0;
     const hasNotPublishable = notPublishableIds.length > 0;
+    const hasChecks = hasInProgress || hasInvalid || hasNotPublishable;
 
     if (failed) return <PublishOrRequestFailedWarning />;
     if (!isSelectionSynced) return <PublishOrRequestApplyWarning />;
-    if (!hasInProgress && !hasInvalid && !hasNotPublishable) return null;
+    if (!hasChecks && publishableCount === 0) return <PublishOrRequestNothingToPublishWarning />;
+    if (!hasChecks) return null;
 
     // The checks are about different items, so they show together.
     return (

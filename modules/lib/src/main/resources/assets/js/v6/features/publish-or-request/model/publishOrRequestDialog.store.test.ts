@@ -6,6 +6,7 @@ import {
     $isPublishOrRequestInProgressExcludable,
     $publishOrRequestDependantsSelection,
     $publishOrRequestDialog,
+    $publishOrRequestPublishableCount,
     $publishOrRequestShownDependants,
     INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
 } from './publishOrRequestDialog.store';
@@ -88,6 +89,21 @@ describe('publish or request dialog store', () => {
 
         it('should be false when nothing is in progress', () => {
             expect($isPublishOrRequestInProgressExcludable.get()).toBe(false);
+        });
+    });
+
+    describe('$publishOrRequestPublishableCount', () => {
+        it('should count the items that have something to publish', () => {
+            $publishOrRequestDialog.setKey('publishableIds', toIds('main', 'a', 'b'));
+
+            expect($publishOrRequestPublishableCount.get()).toBe(3);
+        });
+
+        it('should leave out the unticked ones, staged or applied', () => {
+            $publishOrRequestDialog.setKey('publishableIds', toIds('main', 'a', 'b'));
+            $publishOrRequestDialog.setKey('excludedDependantIds', toIds('a', 'b'));
+
+            expect($publishOrRequestPublishableCount.get()).toBe(1);
         });
     });
 });

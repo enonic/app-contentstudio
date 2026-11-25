@@ -54,6 +54,9 @@ export type PublishOrRequestDialogStore = {
     inProgressIds: ContentId[];
     notPublishableIds: ContentId[];
 
+    // Items that have something to publish, whatever is unticked
+    publishableIds: ContentId[];
+
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: boolean;
 };
@@ -92,6 +95,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
     invalidIds: [],
     inProgressIds: [],
     notPublishableIds: [],
+
+    // Items that have something to publish, whatever is unticked
+    publishableIds: [],
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: true,
@@ -135,6 +141,13 @@ export const $isPublishOrRequestSelectionSynced = computed(
     $publishOrRequestDialog,
     ({ excludedDependantIds, appliedExcludedDependantIds }): boolean =>
         isIdsEqual(excludedDependantIds, appliedExcludedDependantIds),
+);
+
+/** How many items would be published with the selection on screen. Zero means nothing to publish. */
+export const $publishOrRequestPublishableCount = computed(
+    $publishOrRequestDialog,
+    ({ publishableIds, excludedDependantIds }): number =>
+        publishableIds.filter((id) => !hasContentIdInIds(id, excludedDependantIds)).length,
 );
 
 /** True when "Exclude" can clear the in progress check, i.e. when all those items can be unticked. */
