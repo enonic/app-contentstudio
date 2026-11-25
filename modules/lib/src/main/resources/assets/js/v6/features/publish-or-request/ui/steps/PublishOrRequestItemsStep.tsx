@@ -61,6 +61,7 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
     const dependantsSelection = useStore($publishOrRequestDependantsSelection);
     const isSelectionSynced = useStore($isPublishOrRequestSelectionSynced);
 
+    const itemsLabel = useI18n('field.items');
     const dependenciesLabel = useI18n('dialog.dependencies');
     const allExcludedMessage = useI18n('dialog.dependencies.allExcluded');
 
@@ -73,6 +74,10 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
             </div>
 
             <SplitList>
+                <SplitList.Separator className="mt-0">
+                    <SplitList.SeparatorLabel>{itemsLabel}</SplitList.SeparatorLabel>
+                </SplitList.Separator>
+
                 <SplitList.Primary
                     items={items}
                     getItemId={(item) => item.getId()}

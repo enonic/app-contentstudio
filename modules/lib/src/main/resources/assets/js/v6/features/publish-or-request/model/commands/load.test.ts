@@ -137,6 +137,39 @@ describe('publish or request dialog load commands', () => {
             expect(excludedDependantIds).toEqual([ids[2]]);
         });
 
+        it('should hide a dependency the server no longer reaches, and keep the unticked one listed', async () => {
+            const ids = createIds(3);
+            exclude([ids[0]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync({ ...createResolved(ids), getPublishable: () => ids }))
+                .mockReturnValueOnce(okAsync(createResolved([ids[2]])));
+
+            await loadPublishOrRequestDialogData();
+
+            const { dependantIds, dependants, publishableIds, appliedExcludedDependantIds } =
+                $publishOrRequestDialog.get();
+            expect(dependantIds).toEqual([ids[0], ids[2]]);
+            expect(dependants.map((item) => item.getId())).toEqual(['d0', 'd2']);
+            expect(publishableIds).toEqual([ids[0], ids[2]]);
+            expect(appliedExcludedDependantIds).toEqual([ids[0]]);
+        });
+
+        it('should list a hidden dependency again once the server reaches it', async () => {
+            const ids = createIds(2);
+            exclude([ids[0]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync(createResolved(ids)))
+                .mockReturnValueOnce(okAsync(createResolved([])));
+            await loadPublishOrRequestDialogData();
+            expect($publishOrRequestDialog.get().dependantIds).toEqual([ids[0]]);
+
+            exclude([]);
+            mockResolved(ids);
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().dependantIds).toEqual(ids);
+        });
+
         it('should drop the exclusions of dependencies that are gone or have become required', async () => {
             const ids = createIds(3);
             const gone = new ContentId('gone');

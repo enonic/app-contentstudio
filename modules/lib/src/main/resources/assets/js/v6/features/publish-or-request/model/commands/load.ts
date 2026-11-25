@@ -34,9 +34,14 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
     if (currentRun !== runId) return;
     if (resolved.isErr()) return markLoadFailed();
 
-    // `maxResult` has every dependency; `minResult` tells which are required once the excluded are out.
+    // `maxResult` has every dependency; `minResult` is the answer for the applied selection.
     const { maxResult, minResult } = resolved.value;
-    const dependantIds = maxResult.getDependants();
+    const hiddenIds = findUnreachedIds(
+        maxResult.getDependants(),
+        minResult.getDependants(),
+        appliedExcludedDependantIds,
+    );
+    const dependantIds = maxResult.getDependants().filter((id) => !hasContentIdInIds(id, hiddenIds));
     const requiredDependantIds = minResult.getRequired();
     const invalidIds = minResult.getInvalid();
 
@@ -53,7 +58,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         invalidIds,
         inProgressIds: minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds)),
         notPublishableIds: minResult.getNotPublishable(),
-        publishableIds: maxResult.getPublishable(),
+        publishableIds: maxResult.getPublishable().filter((id) => !hasContentIdInIds(id, hiddenIds)),
         ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }
@@ -81,6 +86,12 @@ function patchDialog(patch: Partial<PublishOrRequestDialogStore>): void {
 
 function markLoadFailed(): void {
     patchDialog({ loading: false, failed: true });
+}
+
+// Dependencies the server no longer reaches and the user did not untick: they were only needed
+// by something that is unticked now, so they are neither listed nor published.
+function findUnreachedIds(allIds: ContentId[], reachedIds: ContentId[], excludedIds: ContentId[]): ContentId[] {
+    return allIds.filter((id) => !hasContentIdInIds(id, reachedIds) && !hasContentIdInIds(id, excludedIds));
 }
 
 // Drops the exclusions of dependencies that are gone from the list or have become required.

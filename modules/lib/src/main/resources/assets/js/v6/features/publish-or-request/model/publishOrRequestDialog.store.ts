@@ -34,7 +34,8 @@ export type PublishOrRequestDialogStore = {
     loading: boolean;
     failed: boolean;
 
-    // Dependencies of the items, loaded a window at a time
+    // Dependencies of the items, loaded a window at a time. Listed while the server reaches
+    // them with the applied selection, or while the user keeps them unticked.
     dependants: ContentSummary[];
     dependantIds: ContentId[];
     dependantWindow: number;
@@ -76,7 +77,8 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
     loading: false,
     failed: false,
 
-    // Dependencies of the items, loaded a window at a time
+    // Dependencies of the items, loaded a window at a time. Listed while the server reaches
+    // them with the applied selection, or while the user keeps them unticked.
     dependants: [],
     dependantIds: [],
     dependantWindow: 0,
