@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { removePublishOrRequestItem } from './items';
+import { removePublishOrRequestItem, setPublishOrRequestItemChildrenIncluded } from './items';
 
 const { mockLoad } = vi.hoisted(() => ({ mockLoad: vi.fn() }));
 
@@ -20,6 +20,8 @@ const openWith = (...ids: string[]): void => {
 };
 
 const itemIds = (): string[] => $publishOrRequestDialog.get().items.map((item) => item.getId());
+
+const excludeChildrenIds = (): string[] => $publishOrRequestDialog.get().excludeChildrenIds.map(String);
 
 describe('publish or request dialog items commands', () => {
     beforeEach(() => {
@@ -44,7 +46,7 @@ describe('publish or request dialog items commands', () => {
 
             removePublishOrRequestItem(new ContentId('b'));
 
-            expect($publishOrRequestDialog.get().excludeChildrenIds.map(String)).toEqual(['a']);
+            expect(excludeChildrenIds()).toEqual(['a']);
         });
 
         it('should keep the last item', () => {
@@ -73,6 +75,34 @@ describe('publish or request dialog items commands', () => {
             const { excludedDependantIds, appliedExcludedDependantIds } = $publishOrRequestDialog.get();
             expect(excludedDependantIds).toEqual([applied, staged]);
             expect(appliedExcludedDependantIds).toEqual([applied]);
+        });
+    });
+
+    describe('setPublishOrRequestItemChildrenIncluded', () => {
+        beforeEach(() => {
+            $publishOrRequestDialog.setKey('excludeChildrenIds', [new ContentId('a'), new ContentId('b')]);
+        });
+
+        it('should include the children of the item and load the dependencies again', () => {
+            setPublishOrRequestItemChildrenIncluded(new ContentId('a'), true);
+
+            expect(excludeChildrenIds()).toEqual(['b']);
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should leave out the children of the item and load the dependencies again', () => {
+            setPublishOrRequestItemChildrenIncluded(new ContentId('c'), false);
+
+            expect(excludeChildrenIds()).toEqual(['a', 'b', 'c']);
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it('should do nothing when the children are already in the asked state', () => {
+            setPublishOrRequestItemChildrenIncluded(new ContentId('a'), false);
+            setPublishOrRequestItemChildrenIncluded(new ContentId('c'), true);
+
+            expect(excludeChildrenIds()).toEqual(['a', 'b']);
+            expect(mockLoad).not.toHaveBeenCalled();
         });
     });
 });

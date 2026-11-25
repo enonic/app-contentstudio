@@ -1,16 +1,18 @@
 // First step of the publish or request dialog: the items to publish, their dependencies
 // and their checks.
 
-import { Dialog } from '@enonic/ui';
+import { Checkbox, Dialog, GridList } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
-import { LoaderCircle } from 'lucide-react';
-import { type ReactElement } from 'react';
+import { CornerDownRight, LoaderCircle } from 'lucide-react';
+import { Fragment, type ReactElement } from 'react';
+import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { useItemsWithUnpublishedChildren } from '../../../../entities/content';
 import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { DependantsSelectAll } from '../../../../shared/ui/dialogs/dependants/DependantsSelectAll';
 import { StatusBarEntry } from '../../../../shared/ui/dialogs/status-bar/StatusBarEntry';
 import { ContentRow, DependantsSeparator, SplitList } from '../../../shared/lists';
-import { removePublishOrRequestItem } from '../../model/commands/items';
+import { removePublishOrRequestItem, setPublishOrRequestItemChildrenIncluded } from '../../model/commands/items';
 import { loadMorePublishOrRequestDependants } from '../../model/commands/load';
 import {
     setPublishOrRequestDependantIncluded,
@@ -33,12 +35,26 @@ const PUBLISH_OR_REQUEST_ITEMS_STEP_NAME = 'PublishOrRequestItemsStep';
 const STEP: PublishOrRequestDialogStep = 'items';
 
 export const PublishOrRequestItemsStep = (): ReactElement => {
-    const { items, dependantIds, loading, excludedDependantIds, requiredDependantIds, showExcluded } = useStore(
-        $publishOrRequestDialog,
-        {
-            keys: ['items', 'dependantIds', 'loading', 'excludedDependantIds', 'requiredDependantIds', 'showExcluded'],
-        },
-    );
+    const {
+        items,
+        excludeChildrenIds,
+        dependantIds,
+        loading,
+        excludedDependantIds,
+        requiredDependantIds,
+        showExcluded,
+    } = useStore($publishOrRequestDialog, {
+        keys: [
+            'items',
+            'excludeChildrenIds',
+            'dependantIds',
+            'loading',
+            'excludedDependantIds',
+            'requiredDependantIds',
+            'showExcluded',
+        ],
+    });
+    const itemsWithUnpublishedChildren = useItemsWithUnpublishedChildren(items);
     const shownDependants = useStore($publishOrRequestShownDependants);
     const hasMoreDependants = useStore($hasMorePublishOrRequestDependants);
     const hasExcludedDependants = useStore($hasPublishOrRequestExcludedDependants);
@@ -62,20 +78,30 @@ export const PublishOrRequestItemsStep = (): ReactElement => {
                     getItemId={(item) => item.getId()}
                     disabled={loading}
                     renderRow={(item) => (
-                        <ContentRow
-                            key={item.getId()}
-                            content={item}
-                            id={item.getId()}
-                            disabled={loading}
-                            layout="mobile-status-below"
-                        >
-                            <ContentRow.Label action="edit" variant="detailed" />
-                            <ContentRow.Status />
-                            <ContentRow.RemoveButton
-                                onRemove={() => removePublishOrRequestItem(item.getContentId())}
-                                disabled={loading || items.length === 1}
-                            />
-                        </ContentRow>
+                        <Fragment key={item.getId()}>
+                            <ContentRow
+                                content={item}
+                                id={item.getId()}
+                                disabled={loading}
+                                layout="mobile-status-below"
+                            >
+                                <ContentRow.Label action="edit" variant="detailed" />
+                                <ContentRow.Status />
+                                <ContentRow.RemoveButton
+                                    onRemove={() => removePublishOrRequestItem(item.getContentId())}
+                                    disabled={loading || items.length === 1}
+                                />
+                            </ContentRow>
+
+                            {/* Offered until the lookup says every child is published already. */}
+                            {item.hasChildren() && (itemsWithUnpublishedChildren?.has(item.getId()) ?? true) && (
+                                <IncludeChildrenRow
+                                    item={item}
+                                    included={!hasContentIdInIds(item.getContentId(), excludeChildrenIds)}
+                                    disabled={loading}
+                                />
+                            )}
+                        </Fragment>
                     )}
                 />
 
@@ -141,6 +167,36 @@ PublishOrRequestItemsStep.displayName = PUBLISH_OR_REQUEST_ITEMS_STEP_NAME;
 // *
 // * Internal
 // *
+
+type IncludeChildrenRowProps = {
+    item: ContentSummary;
+    included: boolean;
+    disabled: boolean;
+};
+
+// Row under a main item: whether its children come along as dependencies.
+function IncludeChildrenRow({ item, included, disabled }: IncludeChildrenRowProps): ReactElement {
+    const label = useI18n('dialog.includeChildren');
+
+    return (
+        <GridList.Row id={`${item.getId()}-children`} disabled={disabled} className="gap-3 px-2.5 -mt-1">
+            <GridList.Cell className="flex items-center gap-2.5 ps-2.5">
+                <CornerDownRight className="size-4 shrink-0" />
+                <GridList.Action>
+                    <Checkbox
+                        className="font-semibold"
+                        checked={included}
+                        onCheckedChange={(checked) =>
+                            setPublishOrRequestItemChildrenIncluded(item.getContentId(), checked === true)
+                        }
+                        disabled={disabled}
+                        label={label}
+                    />
+                </GridList.Action>
+            </GridList.Cell>
+        </GridList.Row>
+    );
+}
 
 // Shown in place of the warnings while the dependencies are resolved.
 function LoadingEntry(): ReactElement {

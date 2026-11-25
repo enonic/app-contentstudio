@@ -1,7 +1,8 @@
-// Commands that change the items the publish or request dialog was opened with.
-// Each change resolves the dependencies again, for the items that are left.
+// Commands that change the items the publish or request dialog was opened with,
+// and whether their children come along. Each change resolves the dependencies again.
 
 import type { ContentId } from '../../../../../app/content/ContentId';
+import { withIdExcluded } from '../../../../shared/lib/cms/content/draftSelection';
 import { $publishOrRequestDialog } from '../publishOrRequestDialog.store';
 import { loadPublishOrRequestDialogData } from './load';
 
@@ -20,5 +21,19 @@ export function removePublishOrRequestItem(id: ContentId): void {
         items: rest,
         excludeChildrenIds: state.excludeChildrenIds.filter((excludedId) => !excludedId.equals(id)),
     });
+    void loadPublishOrRequestDialogData();
+}
+
+/**
+ * Includes or leaves out the children of one item and resolves the dependencies again.
+ * Unlike the dependency selection, this is applied at once.
+ */
+export function setPublishOrRequestItemChildrenIncluded(id: ContentId, included: boolean): void {
+    const { excludeChildrenIds } = $publishOrRequestDialog.get();
+    const next = withIdExcluded(excludeChildrenIds, id, !included);
+
+    if (next === excludeChildrenIds) return;
+
+    $publishOrRequestDialog.setKey('excludeChildrenIds', next);
     void loadPublishOrRequestDialogData();
 }
