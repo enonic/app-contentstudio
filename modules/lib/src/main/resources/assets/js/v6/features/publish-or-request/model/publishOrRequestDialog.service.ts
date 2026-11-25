@@ -1,9 +1,16 @@
 // Keeps the publish or request dialog in line with what changes on the server while it is open.
 // Started from the app root; never a side effect of importing.
 
+import type { ContentId } from '../../../../app/content/ContentId';
+import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
-import { $contentRenamed, $contentUpdated } from '../../../shared/socket/socket.store';
-import { applyPublishOrRequestContentChanges } from './commands/events';
+import {
+    $contentArchived,
+    $contentDeleted,
+    $contentRenamed,
+    $contentUpdated,
+} from '../../../shared/socket/socket.store';
+import { applyPublishOrRequestContentChanges, removePublishOrRequestContents } from './commands/events';
 import { $publishOrRequestDialog } from './publishOrRequestDialog.store';
 
 export const start = (): void => {
@@ -12,6 +19,8 @@ export const start = (): void => {
     unsubscribers = [
         $contentUpdated.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
         $contentRenamed.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data.items))),
+        $contentDeleted.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
+        $contentArchived.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
     ];
 };
 
@@ -28,3 +37,5 @@ let unsubscribers: (() => void)[] = [];
 
 // Events are of no interest while the dialog is closed.
 const onEvent = createGuardedSocketHandler(() => $publishOrRequestDialog.get().open);
+
+const toContentIds = (items: ContentServerChangeItem[]): ContentId[] => items.map((item) => item.getContentId());
