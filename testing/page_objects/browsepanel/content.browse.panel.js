@@ -20,7 +20,6 @@ const XPATH = {
     selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
     contentsTreeListDiv: "//div[contains(@data-component,'ContentTreeList')]",
     appBar: "//div[contains(@id,'AppBar')]",
-    projectViewerButton: "//div[contains(@id,'ProjectViewer')]",
     highlightedRow: `//div[contains(@class,'checkbox-left selected') and not(contains(@class,'checked')) ]`,
     checkedRowLi: `//div[contains(@class,'checkbox-left selected checked')]`,
     // v6: treeitem highlighted (bg-surface-selected) with checkbox not checked (aria-checked='false')
@@ -197,8 +196,12 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return XPATH.container + XPATH.toolbarDiv;
     }
 
+    get projectViewer() {
+        return COMMON.CONTENT_APP_BAR_DIV + '//*[@data-project-display-name]';
+    }
+
     get projectViewerButton() {
-        return COMMON.CONTENT_APP_BAR_DIV + "//button[@data-component='Button' and contains(@class,'mr-auto')]";
+        return this.projectViewer + '[self::button]';
     }
 
     async clickOnProjectViewerButton() {
@@ -210,13 +213,23 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async isProjectViewerClickable() {
-        await this.waitForElementDisplayed(this.projectViewerButton, appConst.shortTimeout);
+        if (!(await this.isElementDisplayed(this.projectViewerButton))) {
+            return false;
+        }
         return await this.isClickable(this.projectViewerButton);
     }
 
     // Opens menu and select the project
     async selectContext(projectDisplayName) {
         try {
+            await this.waitForElementDisplayed(this.projectViewer);
+            if (!(await this.isElementDisplayed(this.projectViewerButton))) {
+                const currentProjectName = await this.getAttribute(this.projectViewer, 'data-project-display-name');
+                if (currentProjectName === projectDisplayName) {
+                    return this;
+                }
+                throw new Error(`Project '${projectDisplayName}' is not available in the single-project view`);
+            }
             let projectSelectionDialog = await this.clickOnProjectViewerButton();
             await projectSelectionDialog.selectContext(projectDisplayName);
             await projectSelectionDialog.waitForDialogClosed();
@@ -1046,8 +1059,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async getCurrentProjectDisplayName() {
         try {
-            await this.waitForElementDisplayed(this.projectViewerButton);
-            return await this.getText(this.projectViewerButton);
+            await this.waitForElementDisplayed(this.projectViewer);
+            return await this.getText(this.projectViewer);
         } catch (err) {
             await this.handleError(
                 'Tried to get current project display name',
@@ -1058,8 +1071,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     async getContextLanguage() {
-        await this.waitForElementDisplayed(this.projectViewerButton);
-        let result = await this.getText(this.projectViewerButton);
+        let result = await this.getCurrentProjectDisplayName();
         let lang = result.split('(')[1].split(')')[0];
         return lang;
     }

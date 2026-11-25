@@ -1,15 +1,16 @@
-import { Button, cn, I18nProvider, Toggle } from '@enonic/ui';
+import { Button, type ButtonProps, cn, I18nProvider, Toggle, Tooltip } from '@enonic/ui';
 import { ThemeSwitcher } from '@enonic/ui-kit';
 import { useStore } from '@nanostores/preact';
 import { ArrowLeftRight, BellDotIcon, BellIcon, Menu, X } from 'lucide-react';
 import { computed } from 'nanostores';
-import type { ReactElement } from 'react';
+import { forwardRef, type ReactElement } from 'react';
 import { ShowIssuesDialogEvent } from '../../../app/browse/ShowIssuesDialogEvent';
 import { useBreakpoints } from '../../shared/lib/hooks/useBreakpoints';
 import { useI18n } from '../../shared/lib/hooks/useI18n';
 import { translate } from '../../shared/i18n';
-import { $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
+import { $activeProject, $activeProjectName, $hasMultipleProjects, $noProjectMode } from '../../entities/project';
 import { setProjectSelectionDialogOpen } from '../../shared/dialogs/dialogs.store';
+import { ProjectIcon } from '../../shared/ui/icons/ProjectIcon';
 import { $issuesStats } from '../../entities/issue';
 import {
     $activeWidget,
@@ -41,10 +42,19 @@ function createIssuesLabelKeys(stats: Readonly<IssueStatsJson> | undefined): [`f
 
 const BROWSE_APP_BAR_NAME = 'BrowseAppBar';
 
+// The tooltip repeats this button's accessible name rather than providing a separate description.
+const IssuesButton = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => (
+    <Button {...props} ref={ref} aria-describedby={undefined} />
+));
+
+IssuesButton.displayName = 'IssuesButton';
+
 export const BrowseAppBar = (): ReactElement => {
     const isSidebarOpen = useStore($isBrowseSidebarOpen);
     const { sm } = useBreakpoints();
+    const activeProject = useStore($activeProject);
     const activeProjectName = useStore($activeProjectName);
+    const activeProjectIcon = activeProject?.getIcon();
     const noProjectMode = useStore($noProjectMode);
     const hasMultipleProjects = useStore($hasMultipleProjects);
     const { appName, isContentBrowseActive, isSettingsActive, hasProjectContext } = useStore($widgetState);
@@ -95,24 +105,61 @@ export const BrowseAppBar = (): ReactElement => {
             </Toggle>
 
             <div className="contents" inert={isMobileSidebarOpen} aria-hidden={isMobileSidebarOpen || undefined}>
-                <h1 title={mobileTitle} className="mr-auto min-w-0 truncate font-semibold sm:hidden">
-                    {mobileTitle}
-                </h1>
+                <Tooltip
+                    delay={300}
+                    value={mobileTitle}
+                    disabled={sm}
+                    className="max-w-28 whitespace-normal break-words"
+                >
+                    <h1
+                        tabIndex={0}
+                        className="mr-auto min-w-0 truncate rounded-sm font-semibold sm:hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                    >
+                        {showProjectTitle && (
+                            <span className="hidden max-[400px]:block" aria-hidden="true">
+                                <ProjectIcon
+                                    projectName={activeProject?.getName()}
+                                    language={activeProject?.getLanguage()}
+                                    hasIcon={!!activeProjectIcon}
+                                    iconHash={activeProjectIcon?.getSha512()}
+                                    isLayer={activeProject?.hasParents()}
+                                    className="size-7.5"
+                                />
+                            </span>
+                        )}
+                        <span className={cn(showProjectTitle && 'max-[400px]:sr-only')}>{mobileTitle}</span>
+                    </h1>
+                </Tooltip>
 
                 {!noProjectMode && hasProjectContext ? (
-                    <Button
-                        className="mr-auto min-w-0 disabled:opacity-100 max-sm:hidden"
-                        size="sm"
-                        endIcon={hasMultipleProjects ? ArrowLeftRight : undefined}
-                        endIconClassName="shrink-0 size-3.5"
-                        onClick={() => setProjectSelectionDialogOpen(true)}
-                        aria-label={hasMultipleProjects ? `${activeProjectName}, ${projectAriaLabel}` : undefined}
-                        disabled={!hasMultipleProjects}
+                    <Tooltip
+                        delay={300}
+                        value={activeProjectName}
+                        disabled={!sm}
+                        className="max-w-xs whitespace-normal break-words"
                     >
-                        <span title={activeProjectName} className="block min-w-0 truncate">
-                            {activeProjectName}
-                        </span>
-                    </Button>
+                        {hasMultipleProjects ? (
+                            <Button
+                                data-project-display-name={activeProject?.getDisplayName()}
+                                className="mr-auto min-w-0 max-sm:hidden"
+                                size="sm"
+                                endIcon={ArrowLeftRight}
+                                endIconClassName="shrink-0 size-3.5"
+                                onClick={() => setProjectSelectionDialogOpen(true)}
+                                aria-label={`${activeProjectName}, ${projectAriaLabel}`}
+                            >
+                                <span className="block min-w-0 truncate">{activeProjectName}</span>
+                            </Button>
+                        ) : (
+                            <span
+                                data-project-display-name={activeProject?.getDisplayName()}
+                                tabIndex={0}
+                                className="mr-auto min-w-0 truncate rounded-sm px-3.5 text-sm font-semibold max-sm:hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
+                            >
+                                {activeProjectName}
+                            </span>
+                        )}
+                    </Tooltip>
                 ) : (
                     <h1
                         title={appName || applicationName}
@@ -123,16 +170,20 @@ export const BrowseAppBar = (): ReactElement => {
                 )}
 
                 {showProjectTitle && (
-                    <Button
-                        className="max-sm:hidden"
-                        size="sm"
-                        startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
-                        onClick={() => {
-                            new ShowIssuesDialogEvent().fire();
-                        }}
-                        aria-label={`${issuesStatsLabel}, ${issuesAriaLabel}`}
-                        label={issuesStatsLabel}
-                    />
+                    <Tooltip delay={300} value={issuesStatsLabel} className="max-w-48 whitespace-normal break-words">
+                        <IssuesButton
+                            className="shrink-0 max-sm:size-9 max-sm:p-0"
+                            size="sm"
+                            startIcon={stats?.open > 0 ? BellDotIcon : BellIcon}
+                            startIconClassName="shrink-0 max-sm:size-5"
+                            onClick={() => {
+                                new ShowIssuesDialogEvent().fire();
+                            }}
+                            aria-label={`${issuesStatsLabel}, ${issuesAriaLabel}`}
+                        >
+                            <span className="max-sm:hidden">{issuesStatsLabel}</span>
+                        </IssuesButton>
+                    </Tooltip>
                 )}
 
                 {isSettingsActive && (
