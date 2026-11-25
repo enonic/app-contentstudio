@@ -48,6 +48,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         dependantIds,
         dependantWindow: Math.min(DEPENDANT_LOAD_SIZE, dependantIds.length),
         requiredDependantIds,
+        inProgressIds: minResult.getInProgress(),
         ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }

@@ -48,6 +48,9 @@ export type PublishOrRequestDialogStore = {
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: ContentId[];
 
+    // Checks of the applied selection: what stands in the way of publishing
+    inProgressIds: ContentId[];
+
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: boolean;
 };
@@ -80,6 +83,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
 
     // Selection last applied: the one the server resolved the dependencies with
     appliedExcludedDependantIds: [],
+
+    // Checks of the applied selection: what stands in the way of publishing
+    inProgressIds: [],
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: true,

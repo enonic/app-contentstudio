@@ -33,11 +33,20 @@ const createIds = (count: number): ContentId[] => Array.from({ length: count }, 
 
 const toItems = (ids: ContentId[]): ContentSummary[] => ids.map((id) => createItem(id.toString()));
 
-type Resolved = { getDependants: () => ContentId[]; getRequired: () => ContentId[] };
+type Resolved = {
+    getDependants: () => ContentId[];
+    getRequired: () => ContentId[];
+    getInProgress: () => ContentId[];
+};
 
-const createResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): Resolved => ({
+const createResolved = (
+    dependantIds: ContentId[],
+    requiredIds: ContentId[] = [],
+    inProgressIds: ContentId[] = [],
+): Resolved => ({
     getDependants: () => dependantIds,
     getRequired: () => requiredIds,
+    getInProgress: () => inProgressIds,
 });
 
 const mockResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): void => {
@@ -178,6 +187,18 @@ describe('publish or request dialog load commands', () => {
             await loadPublishOrRequestDialogData();
 
             expect($publishOrRequestDialog.get().requiredDependantIds).toEqual([ids[1]]);
+        });
+
+        it('should store which items are in progress, from the answer for the applied selection', async () => {
+            const ids = createIds(3);
+            exclude([ids[2]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync(createResolved(ids, [], [ids[0], ids[2]])))
+                .mockReturnValueOnce(okAsync(createResolved([ids[0], ids[1]], [], [ids[0]])));
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().inProgressIds).toEqual([ids[0]]);
         });
 
         it('should report loading while the load runs', async () => {
