@@ -6,6 +6,7 @@
 import { computed, map } from 'nanostores';
 import type { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { ProjectHelper } from '../../../../app/settings/data/project/ProjectHelper';
 import {
     calcDependantsSelection,
     type DependantsSelection,
@@ -18,6 +19,9 @@ import { hasContentIdInIds, isIdsEqual } from '../../../shared/lib/cms/content/i
 export const PUBLISH_OR_REQUEST_DIALOG_STEPS = ['items', 'publishing'] as const;
 
 export type PublishOrRequestDialogStep = (typeof PUBLISH_OR_REQUEST_DIALOG_STEPS)[number];
+
+/** What the user may do with the items the dialog was opened with. */
+export type PublishOrRequestCapability = 'publish' | 'request' | 'publish-request' | 'none';
 
 export type PublishOrRequestDialogStore = {
     // Dialog
@@ -165,6 +169,22 @@ export const $isPublishOrRequestInvalidExcludable = computed($publishOrRequestDi
 /** True when "Exclude" can clear the permissions check, i.e. when all those items can be unticked. */
 export const $isPublishOrRequestNotPublishableExcludable = computed($publishOrRequestDialog, (state): boolean =>
     isEveryIdExcludable(state.notPublishableIds, state),
+);
+
+/**
+ * What the user may do: publishing takes the permission on every item the dialog was opened with,
+ * requesting a role in the project. Right only once the dependencies are resolved.
+ */
+export const $publishOrRequestCapability = computed(
+    $publishOrRequestDialog,
+    ({ items, notPublishableIds }): PublishOrRequestCapability => {
+        const canPublish = !items.some((item) => hasContentIdInIds(item.getContentId(), notPublishableIds));
+        const canRequest = ProjectHelper.canRequestPublish();
+
+        if (canPublish) return canRequest ? 'publish-request' : 'publish';
+
+        return canRequest ? 'request' : 'none';
+    },
 );
 
 // *

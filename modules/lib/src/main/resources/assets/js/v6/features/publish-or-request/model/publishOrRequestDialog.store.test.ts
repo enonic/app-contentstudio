@@ -1,15 +1,22 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
     $hasPublishOrRequestExcludedDependants,
     $isPublishOrRequestInProgressExcludable,
     $publishOrRequestDependantsSelection,
+    $publishOrRequestCapability,
     $publishOrRequestDialog,
     $publishOrRequestPublishableCount,
     $publishOrRequestShownDependants,
     INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
 } from './publishOrRequestDialog.store';
+
+const { mockCanRequestPublish } = vi.hoisted(() => ({ mockCanRequestPublish: vi.fn() }));
+
+vi.mock('../../../../app/settings/data/project/ProjectHelper', () => ({
+    ProjectHelper: { canRequestPublish: mockCanRequestPublish },
+}));
 
 const toIds = (...ids: string[]): ContentId[] => ids.map((id) => new ContentId(id));
 
@@ -104,6 +111,49 @@ describe('publish or request dialog store', () => {
             $publishOrRequestDialog.setKey('excludedDependantIds', toIds('a', 'b'));
 
             expect($publishOrRequestPublishableCount.get()).toBe(1);
+        });
+    });
+
+    describe('$publishOrRequestCapability', () => {
+        // The role is read when the state changes, so it is set before the state.
+        const setCapabilityFacts = (canRequest: boolean, notPublishableIds: ContentId[]): void => {
+            mockCanRequestPublish.mockReturnValue(canRequest);
+            $publishOrRequestDialog.set({
+                ...$publishOrRequestDialog.get(),
+                items: toItems('main', 'other'),
+                notPublishableIds,
+            });
+        };
+
+        it.each([
+            { canRequest: true, blocked: [], expected: 'publish-request' },
+            { canRequest: false, blocked: [], expected: 'publish' },
+            { canRequest: true, blocked: ['main'], expected: 'request' },
+            { canRequest: false, blocked: ['main'], expected: 'none' },
+        ])('should be $expected with canRequest $canRequest and main items blocked $blocked', (row) => {
+            setCapabilityFacts(row.canRequest, toIds(...row.blocked));
+
+            expect($publishOrRequestCapability.get()).toBe(row.expected);
+        });
+
+        it('should take the permission on every main item', () => {
+            setCapabilityFacts(true, toIds('other'));
+
+            expect($publishOrRequestCapability.get()).toBe('request');
+        });
+
+        it('should not count a dependency the user cannot publish', () => {
+            setCapabilityFacts(true, toIds('a'));
+
+            expect($publishOrRequestCapability.get()).toBe('publish-request');
+        });
+
+        it('should follow the main items when one is removed', () => {
+            setCapabilityFacts(true, toIds('other'));
+
+            $publishOrRequestDialog.setKey('items', toItems('main'));
+
+            expect($publishOrRequestCapability.get()).toBe('publish-request');
         });
     });
 });
