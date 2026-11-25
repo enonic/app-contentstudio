@@ -24,9 +24,9 @@ const XPATH = {
     mainItemDivByName: (name) => DIALOG_ITEMS.PRIMARY_DATA_COMPONENT + DIALOG_ITEMS.mainItemRowByName(name),
     selectionStatusBar: "//div[@data-component='SelectionStatusBar']",
     inProgressStateEntryDiv:
-        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='in-progress']]",
+        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @data-status='in-progress']]",
     invalidStateEntryDiv:
-        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @aria-label='invalid']]",
+        "//div[@data-component='SelectionStatusBar']//div[@data-component='StatusBarErrorEntry' and descendant::*[@data-component='StatusIcon' and @data-status='invalid']]",
     inProgressSpan: "//span[contains(@class,'font-semibold') and contains(text(),'In progress')]",
     invalidItemsSpan: "//span[contains(@class,'font-semibold') and contains(text(),'Invalid items')]",
     dependentItemToPublish: (displayName) =>
@@ -862,7 +862,7 @@ class ContentPublishDialog extends Page {
         }
     }
 
-    // Returns 'ready', 'in-progress', or '' — read from aria-label of the SVG icon inside ContentLabel
+    // Returns 'ready', 'in-progress', or '' — read from data-status of the SVG icon inside ContentLabel
     async getWorkflowIconState(contentName) {
         const rowXpath = XPATH.container + XPATH.mainItemDivByName(contentName);
         const diffStatusBadge = new DiffStatusBadge(rowXpath);

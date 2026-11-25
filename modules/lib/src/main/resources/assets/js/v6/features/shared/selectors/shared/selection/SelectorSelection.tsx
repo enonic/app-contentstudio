@@ -1,9 +1,10 @@
 import { SortableGridList, type SortableGridListItemContext } from '@enonic/input-types';
-import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactElement } from 'react';
 import type { MovedContentItem } from '../../../../../../app/browse/MovedContentItem';
 import { ContentSummary, ContentSummaryBuilder } from '../../../../../../app/content/ContentSummary';
 import type { ContentServerChangeItem } from '../../../../../../app/event/ContentServerChangeItem';
 import { fetchContentByIds } from '../../../../../entities/content';
+import { handleError } from '../../../../../shared/notifications';
 import {
     $contentArchived,
     $contentDeleted,
@@ -16,7 +17,12 @@ import {
     type ContentRenamedData,
 } from '../../../../../shared/socket/socket.store';
 
-export type SelectorSelectionRenderItem = (context: SortableGridListItemContext<ContentSummary>) => ReactElement;
+export type SelectorSelectionItemContext = SortableGridListItemContext<ContentSummary> & {
+    /** Number of items currently rendered by the list. */
+    itemCount: number;
+};
+
+export type SelectorSelectionRenderItem = (context: SelectorSelectionItemContext) => ReactElement;
 
 export type SelectorSelectionProps = {
     /** Selected content IDs */
@@ -49,6 +55,14 @@ export const SelectorSelection = ({
     const [contents, setContents] = useState<ContentSummary[]>([]);
     const contentsRef = useRef<ContentSummary[]>([]);
 
+    // Invalidate requests during unmount, before passive cleanup can be deferred until after paint.
+    useLayoutEffect(
+        () => () => {
+            requestIdRef.current++;
+        },
+        [],
+    );
+
     // Fetch contents when selection changes
     useEffect(() => {
         const requestId = ++requestIdRef.current;
@@ -60,14 +74,24 @@ export const SelectorSelection = ({
             return;
         }
 
-        fetchContentByIds(contentIds, projectName).then((items) => {
-            if (requestId !== requestIdRef.current) return;
-            const itemMap = new Map(items.map((item) => [item.getId(), item]));
-            // Preserve selection order; use stub for IDs not found (deleted)
-            const ordered = contentIds.map((id) => itemMap.get(id) ?? new ContentSummaryBuilder().setId(id).build());
-            setContents(ordered);
-            contentsRef.current = ordered;
-        });
+        fetchContentByIds(contentIds, projectName)
+            .then((items) => {
+                if (requestId !== requestIdRef.current) return;
+                const itemMap = new Map(items.map((item) => [item.getId(), item]));
+                // Preserve selection order; use stub for IDs not found (deleted)
+                const ordered = contentIds.map(
+                    (id) => itemMap.get(id) ?? new ContentSummaryBuilder().setId(id).build(),
+                );
+                setContents(ordered);
+                contentsRef.current = ordered;
+            })
+            .catch((error) => {
+                if (requestId === requestIdRef.current) handleError(error);
+            });
+
+        return () => {
+            requestIdRef.current++;
+        };
     }, [selection, projectName]);
 
     // Handlers
@@ -157,7 +181,7 @@ export const SelectorSelection = ({
             onMove={handleReorder}
             enabled={!disabled}
             className={className}
-            renderItem={renderItem}
+            renderItem={(context) => renderItem({ ...context, itemCount: contents.length })}
         />
     );
 };

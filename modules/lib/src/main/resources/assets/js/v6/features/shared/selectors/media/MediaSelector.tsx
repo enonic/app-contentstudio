@@ -7,6 +7,7 @@ import { SelectorSelection, SelectorSelectionItem } from '../shared/selection';
 import { useFormScope } from '../../form/FormScopeContext';
 import { ContentRow } from '../shared/combobox/ContentRow';
 import { MediaSelectorItemView } from './MediaSelectorItemView';
+import { getMediaSelectorStatus } from './media-selector.utils';
 import { useAcceptMimeTypes } from '../../../../entities/schema';
 import { CONTENT_TYPE } from '../../../../shared/lib/cms/schema/contentTypeName';
 
@@ -155,6 +156,7 @@ export const MediaSelector = ({
                     <SelectorSelectionItem
                         project={project}
                         context={context}
+                        status={getMediaSelectorStatus(context.item)}
                         disabled={disabled}
                         selection={selection}
                         onSelectionChange={onSelectionChange}

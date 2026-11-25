@@ -19,9 +19,9 @@ const XPATH = {
     // Target the <span> directly: the dd also contains a flag icon with an aria-hidden 'en'
     // fallback label that would otherwise leak into getText() output.
     defaultLanguageXpath: SUMMARY_DD_BY_LABEL('Language') + '/span',
-    // Multi-value rows: each value is a direct <span> child of the inner <div class="contents">.
+    // Applications use static rows; permissions expose each role in the grid's first cell.
     applications: SUMMARY_DD_BY_LABEL('Applications') + "/div[contains(@class,'contents')]/span",
-    permissions: SUMMARY_DD_BY_LABEL('Permissions') + "/div[contains(@class,'contents')]/span",
+    permissions: SUMMARY_DD_BY_LABEL('Permissions') + "//div[@role='row']/div[@role='gridcell'][1]",
     // Single-value row: the text is rendered directly inside the <dd> element.
     description: SUMMARY_DD_BY_LABEL('Description'),
 };
