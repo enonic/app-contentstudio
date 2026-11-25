@@ -5,6 +5,7 @@ import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import {
     $isPublishOrRequestSelectionSynced,
+    $publishOrRequestCapability,
     $publishOrRequestDialog,
     $publishOrRequestPublishableCount,
 } from '../../model/publishOrRequestDialog.store';
@@ -22,12 +23,14 @@ export const PublishOrRequestWarnings = (): ReactElement => {
     const { failed, inProgressIds, invalidIds, notPublishableIds } = useStore($publishOrRequestDialog, {
         keys: ['failed', 'inProgressIds', 'invalidIds', 'notPublishableIds'],
     });
+    const capability = useStore($publishOrRequestCapability);
     const isSelectionSynced = useStore($isPublishOrRequestSelectionSynced);
     const publishableCount = useStore($publishOrRequestPublishableCount);
 
     const hasInProgress = inProgressIds.length > 0;
     const hasInvalid = invalidIds.length > 0;
-    const hasNotPublishable = notPublishableIds.length > 0;
+    // A user who can only request publishing is not held back by what they cannot publish.
+    const hasNotPublishable = notPublishableIds.length > 0 && capability !== 'request';
     const hasChecks = hasInProgress || hasInvalid || hasNotPublishable;
 
     if (failed) return <PublishOrRequestFailedWarning />;
