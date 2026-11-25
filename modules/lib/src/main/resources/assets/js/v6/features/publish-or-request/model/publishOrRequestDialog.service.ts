@@ -6,11 +6,17 @@ import type { ContentServerChangeItem } from '../../../../app/event/ContentServe
 import { createGuardedSocketHandler } from '../../../shared/lib/store/createGuardedSocketHandler';
 import {
     $contentArchived,
+    $contentCreated,
     $contentDeleted,
+    $contentDuplicated,
     $contentRenamed,
     $contentUpdated,
 } from '../../../shared/socket/socket.store';
-import { applyPublishOrRequestContentChanges, removePublishOrRequestContents } from './commands/events';
+import {
+    applyPublishOrRequestContentChanges,
+    refreshPublishOrRequestItemsWithNewDescendants,
+    removePublishOrRequestContents,
+} from './commands/events';
 import { $publishOrRequestDialog } from './publishOrRequestDialog.store';
 
 export const start = (): void => {
@@ -21,6 +27,10 @@ export const start = (): void => {
         $contentRenamed.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data.items))),
         $contentDeleted.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentArchived.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
+        $contentCreated.subscribe(onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data))),
+        $contentDuplicated.subscribe(
+            onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data)),
+        ),
     ];
 };
 

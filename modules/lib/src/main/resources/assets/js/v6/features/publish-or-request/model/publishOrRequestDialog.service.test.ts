@@ -5,18 +5,25 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { ContentServerChangeItem } from '../../../../app/event/ContentServerChangeItem';
 import {
     emitContentArchived,
+    emitContentCreated,
     emitContentDeleted,
+    emitContentDuplicated,
     emitContentRenamed,
     emitContentUpdated,
 } from '../../../shared/socket/socket.store';
 import { start, stop } from './publishOrRequestDialog.service';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from './publishOrRequestDialog.store';
 
-const { mockApplyChanges, mockRemove } = vi.hoisted(() => ({ mockApplyChanges: vi.fn(), mockRemove: vi.fn() }));
+const { mockApplyChanges, mockRemove, mockRefreshItems } = vi.hoisted(() => ({
+    mockApplyChanges: vi.fn(),
+    mockRemove: vi.fn(),
+    mockRefreshItems: vi.fn(),
+}));
 
 vi.mock('./commands/events', () => ({
     applyPublishOrRequestContentChanges: mockApplyChanges,
     removePublishOrRequestContents: mockRemove,
+    refreshPublishOrRequestItemsWithNewDescendants: mockRefreshItems,
 }));
 
 const createItem = (id: string): ContentSummary =>
@@ -36,6 +43,7 @@ describe('publishOrRequestDialog.service', () => {
         start();
         mockApplyChanges.mockReset();
         mockRemove.mockReset();
+        mockRefreshItems.mockReset();
         setOpen(true);
     });
 
@@ -75,14 +83,32 @@ describe('publishOrRequestDialog.service', () => {
         expect(mockRemove.mock.calls[0][0].map(String)).toEqual(['a']);
     });
 
+    it('should hand over the contents that were created', () => {
+        const created = [createItem('a')];
+
+        emitContentCreated(created);
+
+        expect(mockRefreshItems).toHaveBeenCalledExactlyOnceWith(created);
+    });
+
+    it('should hand over the contents that were duplicated', () => {
+        const duplicated = [createItem('a')];
+
+        emitContentDuplicated(duplicated);
+
+        expect(mockRefreshItems).toHaveBeenCalledExactlyOnceWith(duplicated);
+    });
+
     it('should ignore the events while the dialog is closed', () => {
         setOpen(false);
 
         emitContentUpdated([createItem('a')]);
         emitContentDeleted([createChangeItem('a')]);
+        emitContentCreated([createItem('a')]);
 
         expect(mockApplyChanges).not.toHaveBeenCalled();
         expect(mockRemove).not.toHaveBeenCalled();
+        expect(mockRefreshItems).not.toHaveBeenCalled();
     });
 
     it('should listen once across repeated starts and not at all after stop', () => {

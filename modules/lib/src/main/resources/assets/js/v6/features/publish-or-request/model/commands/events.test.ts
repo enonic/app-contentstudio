@@ -2,16 +2,35 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
-import { applyPublishOrRequestContentChanges, removePublishOrRequestContents } from './events';
+import {
+    applyPublishOrRequestContentChanges,
+    refreshPublishOrRequestItemsWithNewDescendants,
+    removePublishOrRequestContents,
+} from './events';
 
-const { mockLoadDebounced, mockClose } = vi.hoisted(() => ({ mockLoadDebounced: vi.fn(), mockClose: vi.fn() }));
+const { mockLoadDebounced, mockClose, mockSessionId, mockFetchContentSummaries } = vi.hoisted(() => ({
+    mockLoadDebounced: vi.fn(),
+    mockClose: vi.fn(),
+    mockSessionId: vi.fn(),
+    mockFetchContentSummaries: vi.fn(),
+}));
 
 vi.mock('./load', () => ({ loadPublishOrRequestDialogDataDebounced: mockLoadDebounced }));
 
-vi.mock('./open', () => ({ closePublishOrRequestDialog: mockClose }));
+vi.mock('./open', () => ({
+    closePublishOrRequestDialog: mockClose,
+    getPublishOrRequestDialogSessionId: mockSessionId,
+}));
 
-const createItem = (id: string, name = id): ContentSummary =>
-    ({ getContentId: () => new ContentId(id), getDisplayName: () => name }) as unknown as ContentSummary;
+vi.mock('../../../../entities/content', () => ({ fetchContentSummaries: mockFetchContentSummaries }));
+
+// The path defaults to a top level one named after the id.
+const createItem = (id: string, name = id, path = `/${id}`): ContentSummary =>
+    ({
+        getContentId: () => new ContentId(id),
+        getDisplayName: () => name,
+        getPath: () => ({ toString: () => path }),
+    }) as unknown as ContentSummary;
 
 const toIds = (...ids: string[]): ContentId[] => ids.map((id) => new ContentId(id));
 
@@ -23,6 +42,10 @@ describe('publish or request dialog events commands', () => {
     beforeEach(() => {
         mockLoadDebounced.mockReset();
         mockClose.mockReset();
+        mockSessionId.mockReset();
+        mockSessionId.mockReturnValue(1);
+        mockFetchContentSummaries.mockReset();
+        mockFetchContentSummaries.mockResolvedValue([]);
         $publishOrRequestDialog.set({
             ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
             open: true,
@@ -128,6 +151,55 @@ describe('publish or request dialog events commands', () => {
             removePublishOrRequestContents(toIds('a'));
 
             expect(mockClose).not.toHaveBeenCalled();
+            expect(mockLoadDebounced).not.toHaveBeenCalled();
+        });
+    });
+
+    describe('refreshPublishOrRequestItemsWithNewDescendants', () => {
+        it('should load again the main item that got a new content under it, then resolve again', async () => {
+            mockFetchContentSummaries.mockResolvedValue([createItem('b', 'b2')]);
+
+            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/b/x')]);
+
+            expect(mockFetchContentSummaries.mock.calls[0][0].map(String)).toEqual(['b']);
+            expect(itemNames()).toEqual(['a', 'b2']);
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+
+        it('should count a content created deeper under a main item', async () => {
+            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/child/x')]);
+
+            expect(mockFetchContentSummaries.mock.calls[0][0].map(String)).toEqual(['a']);
+        });
+
+        it('should ignore a content created elsewhere, even next to a main item with a similar path', async () => {
+            await refreshPublishOrRequestItemsWithNewDescendants([
+                createItem('x', 'x', '/x'),
+                createItem('y', 'y', '/ab'),
+            ]);
+
+            expect(mockFetchContentSummaries).not.toHaveBeenCalled();
+            expect(mockLoadDebounced).not.toHaveBeenCalled();
+        });
+
+        it('should still resolve again when the main item could not be loaded', async () => {
+            const { items } = $publishOrRequestDialog.get();
+
+            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/x')]);
+
+            expect($publishOrRequestDialog.get().items).toBe(items);
+            expect(mockLoadDebounced).toHaveBeenCalledOnce();
+        });
+
+        it('should leave the dialog alone when it was closed or opened again meanwhile', async () => {
+            const { items } = $publishOrRequestDialog.get();
+            mockFetchContentSummaries.mockResolvedValue([createItem('a', 'a2')]);
+
+            const refreshing = refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/x')]);
+            mockSessionId.mockReturnValue(2);
+            await refreshing;
+
+            expect($publishOrRequestDialog.get().items).toBe(items);
             expect(mockLoadDebounced).not.toHaveBeenCalled();
         });
     });

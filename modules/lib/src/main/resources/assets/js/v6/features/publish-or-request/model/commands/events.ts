@@ -3,11 +3,13 @@
 
 import type { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
+import { fetchContentSummaries } from '../../../../entities/content';
 import { hasContentIdInIds } from '../../../../shared/lib/cms/content/ids';
+import { findContentIdsWithCreatedDescendants } from '../../../../shared/lib/cms/content/paths';
 import { patchContentItemsByContentId } from '../../../../shared/lib/cms/content/trackedItems';
 import { $publishOrRequestDialog } from '../publishOrRequestDialog.store';
 import { loadPublishOrRequestDialogDataDebounced } from './load';
-import { closePublishOrRequestDialog } from './open';
+import { closePublishOrRequestDialog, getPublishOrRequestDialogSessionId } from './open';
 
 /**
  * Takes the new version of the contents that changed. Resolves again when any of them is listed,
@@ -39,4 +41,26 @@ export function removePublishOrRequestContents(removedIds: readonly ContentId[])
         $publishOrRequestDialog.set({ ...state, items, excludeChildrenIds });
     }
     if (isMainItemRemoved || state.dependantIds.some(isRemoved)) loadPublishOrRequestDialogDataDebounced();
+}
+
+/**
+ * Loads again the main items that got a new content somewhere under them, as they may have
+ * children only now, then resolves again: the new content may come along as a dependency.
+ */
+export async function refreshPublishOrRequestItemsWithNewDescendants(
+    created: readonly ContentSummary[],
+): Promise<void> {
+    const ids = findContentIdsWithCreatedDescendants($publishOrRequestDialog.get().items, created);
+    if (ids.length === 0) return;
+
+    const sessionId = getPublishOrRequestDialogSessionId();
+    const refreshed = await fetchContentSummaries(ids);
+
+    // The dialog was closed or opened again meanwhile: its state is no longer ours to touch.
+    if (sessionId !== getPublishOrRequestDialogSessionId()) return;
+
+    const patched = patchContentItemsByContentId($publishOrRequestDialog.get().items, refreshed);
+
+    if (patched.changed) $publishOrRequestDialog.setKey('items', patched.items);
+    loadPublishOrRequestDialogDataDebounced();
 }
