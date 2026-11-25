@@ -22,7 +22,7 @@ import {
     applyPublishOrRequestContentChanges,
     applyPublishOrRequestPermissionChanges,
     applyPublishOrRequestUnpublishedContents,
-    refreshPublishOrRequestItemsWithNewDescendants,
+    refreshPublishOrRequestItemsWithChangedDescendants,
     removePublishOrRequestContents,
 } from './commands/events';
 import { $publishOrRequestDialog } from './publishOrRequestDialog.store';
@@ -34,14 +34,21 @@ export const start = (): void => {
         $contentUpdated.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
         $contentRenamed.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data.items))),
         $contentMoved.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(toSummaries(event.data)))),
-        $contentPublished.subscribe(onEvent((event) => applyPublishOrRequestContentChanges(event.data))),
+        $contentPublished.subscribe(
+            onEvent((event) => {
+                applyPublishOrRequestContentChanges(event.data);
+                void refreshPublishOrRequestItemsWithChangedDescendants(event.data);
+            }),
+        ),
         $contentUnpublished.subscribe(onEvent((event) => applyPublishOrRequestUnpublishedContents(event.data))),
         $contentPermissionsUpdated.subscribe(onEvent((event) => applyPublishOrRequestPermissionChanges(event.data))),
         $contentDeleted.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
         $contentArchived.subscribe(onEvent((event) => removePublishOrRequestContents(toContentIds(event.data)))),
-        $contentCreated.subscribe(onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data))),
+        $contentCreated.subscribe(
+            onEvent((event) => void refreshPublishOrRequestItemsWithChangedDescendants(event.data)),
+        ),
         $contentDuplicated.subscribe(
-            onEvent((event) => void refreshPublishOrRequestItemsWithNewDescendants(event.data)),
+            onEvent((event) => void refreshPublishOrRequestItemsWithChangedDescendants(event.data)),
         ),
     ];
 };

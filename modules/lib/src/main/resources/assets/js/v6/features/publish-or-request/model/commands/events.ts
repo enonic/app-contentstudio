@@ -63,13 +63,13 @@ export function removePublishOrRequestContents(removedIds: readonly ContentId[])
 }
 
 /**
- * Loads again the main items that got a new content somewhere under them, as they may have
- * children only now, then resolves again: the new content may come along as a dependency.
+ * Loads again the main items that had a content created or published somewhere under them, as
+ * the children they have to include may differ, then resolves again for a new one to come along.
  */
-export async function refreshPublishOrRequestItemsWithNewDescendants(
-    created: readonly ContentSummary[],
+export async function refreshPublishOrRequestItemsWithChangedDescendants(
+    changed: readonly ContentSummary[],
 ): Promise<void> {
-    const ids = findContentIdsWithCreatedDescendants($publishOrRequestDialog.get().items, created);
+    const ids = findContentIdsWithCreatedDescendants($publishOrRequestDialog.get().items, changed);
     if (ids.length === 0) return;
 
     const sessionId = getPublishOrRequestDialogSessionId();

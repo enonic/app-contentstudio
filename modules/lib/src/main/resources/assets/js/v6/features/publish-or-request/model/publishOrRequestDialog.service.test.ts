@@ -33,7 +33,7 @@ vi.mock('./commands/events', () => ({
     applyPublishOrRequestPermissionChanges: mocks.mockApplyPermissions,
     applyPublishOrRequestUnpublishedContents: mocks.mockApplyUnpublished,
     removePublishOrRequestContents: mocks.mockRemove,
-    refreshPublishOrRequestItemsWithNewDescendants: mocks.mockRefreshItems,
+    refreshPublishOrRequestItemsWithChangedDescendants: mocks.mockRefreshItems,
 }));
 
 const createItem = (id: string): ContentSummary =>
@@ -84,12 +84,13 @@ describe('publishOrRequestDialog.service', () => {
         expect(mockApplyChanges).toHaveBeenCalledExactlyOnceWith(renamed);
     });
 
-    it('should hand over the contents that were published, as any other change', () => {
+    it('should hand over the contents that were published, as a change and for the items above them', () => {
         const published = [createItem('a')];
 
         emitContentPublished(published);
 
         expect(mockApplyChanges).toHaveBeenCalledExactlyOnceWith(published);
+        expect(mockRefreshItems).toHaveBeenCalledExactlyOnceWith(published);
     });
 
     it('should hand over the contents that were unpublished', () => {

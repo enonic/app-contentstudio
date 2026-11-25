@@ -6,7 +6,7 @@ import {
     applyPublishOrRequestContentChanges,
     applyPublishOrRequestPermissionChanges,
     applyPublishOrRequestUnpublishedContents,
-    refreshPublishOrRequestItemsWithNewDescendants,
+    refreshPublishOrRequestItemsWithChangedDescendants,
     removePublishOrRequestContents,
 } from './events';
 
@@ -203,11 +203,11 @@ describe('publish or request dialog events commands', () => {
         });
     });
 
-    describe('refreshPublishOrRequestItemsWithNewDescendants', () => {
-        it('should load again the main item that got a new content under it, then resolve again', async () => {
+    describe('refreshPublishOrRequestItemsWithChangedDescendants', () => {
+        it('should load again the main item with a content created or published under it, then resolve again', async () => {
             mockFetchContentSummaries.mockResolvedValue([createItem('b', 'b2')]);
 
-            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/b/x')]);
+            await refreshPublishOrRequestItemsWithChangedDescendants([createItem('x', 'x', '/b/x')]);
 
             expect(mockFetchContentSummaries.mock.calls[0][0].map(String)).toEqual(['b']);
             expect(itemNames()).toEqual(['a', 'b2']);
@@ -215,13 +215,13 @@ describe('publish or request dialog events commands', () => {
         });
 
         it('should count a content created deeper under a main item', async () => {
-            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/child/x')]);
+            await refreshPublishOrRequestItemsWithChangedDescendants([createItem('x', 'x', '/a/child/x')]);
 
             expect(mockFetchContentSummaries.mock.calls[0][0].map(String)).toEqual(['a']);
         });
 
         it('should ignore a content created elsewhere, even next to a main item with a similar path', async () => {
-            await refreshPublishOrRequestItemsWithNewDescendants([
+            await refreshPublishOrRequestItemsWithChangedDescendants([
                 createItem('x', 'x', '/x'),
                 createItem('y', 'y', '/ab'),
             ]);
@@ -233,7 +233,7 @@ describe('publish or request dialog events commands', () => {
         it('should still resolve again when the main item could not be loaded', async () => {
             const { items } = $publishOrRequestDialog.get();
 
-            await refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/x')]);
+            await refreshPublishOrRequestItemsWithChangedDescendants([createItem('x', 'x', '/a/x')]);
 
             expect($publishOrRequestDialog.get().items).toBe(items);
             expect(mockLoadDebounced).toHaveBeenCalledOnce();
@@ -243,7 +243,7 @@ describe('publish or request dialog events commands', () => {
             const { items } = $publishOrRequestDialog.get();
             mockFetchContentSummaries.mockResolvedValue([createItem('a', 'a2')]);
 
-            const refreshing = refreshPublishOrRequestItemsWithNewDescendants([createItem('x', 'x', '/a/x')]);
+            const refreshing = refreshPublishOrRequestItemsWithChangedDescendants([createItem('x', 'x', '/a/x')]);
             mockSessionId.mockReturnValue(2);
             await refreshing;
 
