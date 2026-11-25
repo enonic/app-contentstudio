@@ -1,15 +1,11 @@
-import type { Action } from '@enonic/lib-admin-ui/ui/Action';
 import { atom, computed } from 'nanostores';
+import { $wizardActions, executeWizardAction } from '../../../features/wizard-actions/model/wizardActions.store';
 
 //
 // * State
 //
 
-export const $inspectSaveAction = atom<Action | null>(null);
-
 export const $inspectFormPresent = atom<boolean>(false);
-
-const $inspectSaveActionEnabled = atom<boolean>(false);
 
 //
 // * Computed
@@ -18,35 +14,13 @@ const $inspectSaveActionEnabled = atom<boolean>(false);
 export const $isApplyVisible = computed($inspectFormPresent, (present): boolean => present);
 
 export const $isApplyEnabled = computed(
-    [$inspectFormPresent, $inspectSaveActionEnabled],
-    (present, enabled): boolean => present && enabled,
+    [$inspectFormPresent, $wizardActions],
+    (present, actions): boolean => present && actions.save.enabled,
 );
 
 //
 // * Commands
 //
-
-let unsubscribeSaveAction: (() => void) | null = null;
-
-export function setInspectSaveAction(action: Action | null): void {
-    unsubscribeSaveAction?.();
-    unsubscribeSaveAction = null;
-
-    $inspectSaveAction.set(action);
-
-    if (action == null) {
-        $inspectSaveActionEnabled.set(false);
-        return;
-    }
-
-    const sync = (): void => {
-        $inspectSaveActionEnabled.set(action.isEnabled());
-    };
-
-    sync();
-    action.onPropertyChanged(sync);
-    unsubscribeSaveAction = () => action.unPropertyChanged(sync);
-}
 
 export function setInspectFormPresent(present: boolean): void {
     $inspectFormPresent.set(present);
@@ -57,8 +31,7 @@ export function resetInspectFormTracking(): void {
 }
 
 export function executeInspectSave(): void {
-    const action = $inspectSaveAction.get();
-    if (action != null && action.isEnabled()) {
-        action.execute();
+    if ($wizardActions.get().save.enabled) {
+        executeWizardAction('save');
     }
 }

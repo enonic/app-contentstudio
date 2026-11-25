@@ -76,8 +76,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
     private collaborationRequestId: number = 0;
 
     constructor(config: ContentWizardToolbarConfig) {
-        const actions: ContentWizardActions = config.actions;
-
         super({
             onProjectBack: () => {
                 this.handleProjectBackClicked();
@@ -88,20 +86,6 @@ class ContentWizardToolbarElement extends V6ContentWizardToolbarElement {
             onContentPathClick: () => {
                 this.handleContentPathClicked();
             },
-            saveAction: actions.getSaveAction(),
-            resetAction: actions.getResetAction(),
-            localizeAction: actions.getLocalizeAction(),
-            archiveAction: actions.getArchiveAction(),
-            duplicateAction: actions.getDuplicateAction(),
-            moveAction: actions.getMoveAction(),
-            previewAction: actions.getPreviewAction(),
-            markAsReadyAction: actions.getMarkAsReadyAction(),
-            publishAction: actions.getPublishAction(),
-            publishTreeAction: actions.getPublishTreeAction(),
-            unpublishAction: actions.getUnpublishAction(),
-            requestPublishAction: actions.getRequestPublishAction(),
-            openRequestAction: actions.getOpenRequestAction(),
-            createIssueAction: actions.getCreateIssueAction(),
         });
 
         this.config = config;

@@ -46,6 +46,7 @@ import {
     setPersistedContent as setWizardPersistedContent,
     setWizardReadOnly,
 } from '../../v6/pages/wizard/model/wizardContent.store';
+import { unbindWizardActions } from '../../v6/features/wizard-actions/model/wizardActions.store';
 import {
     $generalServerErrorMessages,
     escalateVisibility,
@@ -429,6 +430,8 @@ export class ContentWizardPanel extends WizardPanel<Content> {
     }
 
     protected createMainToolbar(): Toolbar<ToolbarConfig> {
+        this.wizardActions.bindStore();
+
         return new ContentWizardToolbar({
             actions: this.wizardActions,
             onContentRenameConfirmed: () => {
@@ -591,6 +594,7 @@ export class ContentWizardPanel extends WizardPanel<Content> {
                 this.contentFormExpandedUnsubscribe?.();
                 this.contentFormExpandedUnsubscribe = undefined;
                 resetWizardContent();
+                unbindWizardActions();
             });
 
             this.onValidityChanged(() => {

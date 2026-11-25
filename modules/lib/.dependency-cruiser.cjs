@@ -59,7 +59,6 @@ const KNOWN_DEBT = [
             'Widgets coordinate through the context-widgets registry and inspect panel state; needs an interaction contract below the widgets layer',
         from: [
             `^${V6}/widgets/browse-grid/ContentTreeListItem.tsx`,
-            `^${V6}/widgets/browse-toolbar/ContentWizardToolbar.tsx`,
             `^${V6}/widgets/browse-toolbar/ContextToggle.tsx`,
             `^${V6}/widgets/context-panel/widget/details/DetailsWidgetTemplateSection.tsx`,
             `^${V6}/widgets/preview-panel/ui/PreviewToolbarRefreshItem.tsx`,
