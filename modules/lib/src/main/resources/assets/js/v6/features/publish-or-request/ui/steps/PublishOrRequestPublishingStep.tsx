@@ -8,6 +8,7 @@ import {
     type PublishOrRequestDialogStep,
 } from '../../model/publishOrRequestDialog.store';
 import { $publishOrRequestFieldStates } from '../../model/publishOrRequestFields.store';
+import { PublishOrRequestAssignField } from '../fields/PublishOrRequestAssignField';
 import { PublishOrRequestCommentField } from '../fields/PublishOrRequestCommentField';
 import { PublishOrRequestTitleField } from '../fields/PublishOrRequestTitleField';
 
@@ -17,13 +18,14 @@ const STEP: PublishOrRequestDialogStep = 'publishing';
 
 export const PublishOrRequestPublishingStep = (): ReactElement => {
     const isNextAllowed = useStore($isPublishOrRequestNextAllowed);
-    const { title, comment } = useStore($publishOrRequestFieldStates);
+    const { assign, title, comment } = useStore($publishOrRequestFieldStates);
 
     return (
         // Locked, the step cannot be moved to: "Next" and its dot disable themselves.
         <Dialog.StepContent step={STEP} locked={!isNextAllowed}>
-            {/* TODO: [#11792] Add the assign and schedule fields above the title. */}
+            {/* TODO: [#11792] Add the schedule field above the title. */}
             <div className="flex flex-col gap-7.5">
+                {assign.visible && <PublishOrRequestAssignField />}
                 {title.visible && <PublishOrRequestTitleField />}
                 {comment.visible && <PublishOrRequestCommentField />}
             </div>
