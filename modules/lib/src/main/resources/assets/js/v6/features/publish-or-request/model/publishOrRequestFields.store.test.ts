@@ -7,6 +7,7 @@ import {
     $isPublishOrRequestScheduleOpen,
     $publishOrRequestFieldStates,
     $publishOrRequestFields,
+    $publishOrRequestScheduleProblem,
     INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE,
 } from './publishOrRequestFields.store';
 
@@ -19,6 +20,11 @@ vi.mock('../../../../app/settings/data/project/ProjectHelper', () => ({
 const HIDDEN = { visible: false, required: false };
 const OPTIONAL = { visible: true, required: false };
 const REQUIRED = { visible: true, required: true };
+
+const NOW = new Date('2030-01-10T12:00:00Z');
+const YESTERDAY = new Date('2030-01-09T12:00:00Z');
+const TOMORROW = new Date('2030-01-11T12:00:00Z');
+const NEXT_WEEK = new Date('2030-01-17T12:00:00Z');
 
 const MAIN_ITEM = { getId: () => 'main', getContentId: () => new ContentId('main') } as unknown as ContentSummary;
 
@@ -225,6 +231,105 @@ describe('publish or request fields store', () => {
 
             expect($publishOrRequestFields.get().scheduleChecked).toBe(true);
             expect($isPublishOrRequestScheduleOpen.get()).toBe(true);
+        });
+    });
+
+    describe('$publishOrRequestScheduleProblem', () => {
+        const setSchedule = (from: Date | undefined, to: Date | undefined): void => {
+            $publishOrRequestFields.set({
+                ...$publishOrRequestFields.get(),
+                scheduleChecked: true,
+                scheduleFrom: from,
+                scheduleTo: to,
+            });
+        };
+
+        beforeEach(() => {
+            vi.useFakeTimers();
+            vi.setSystemTime(NOW);
+        });
+
+        afterEach(() => {
+            vi.useRealTimers();
+        });
+
+        it('should find nothing wrong while no date is entered', () => {
+            setSchedule(undefined, undefined);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should find nothing wrong with "online from" alone, even in the past', () => {
+            setSchedule(YESTERDAY, undefined);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should find nothing wrong with "online to" after "online from"', () => {
+            setSchedule(TOMORROW, NEXT_WEEK);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should find nothing wrong with a coming "online to" alone', () => {
+            setSchedule(undefined, TOMORROW);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should tell when "online to" has passed', () => {
+            setSchedule(undefined, YESTERDAY);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-in-past');
+        });
+
+        it('should tell when "online to" is now', () => {
+            setSchedule(undefined, NOW);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-in-past');
+        });
+
+        it('should tell that "online to" has passed rather than that it is before "online from"', () => {
+            setSchedule(TOMORROW, YESTERDAY);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-in-past');
+        });
+
+        it('should tell when "online to" is before "online from"', () => {
+            setSchedule(NEXT_WEEK, TOMORROW);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-not-after-from');
+        });
+
+        it('should tell when "online to" is "online from"', () => {
+            setSchedule(TOMORROW, TOMORROW);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-not-after-from');
+        });
+
+        it('should find nothing wrong while the field is unticked', () => {
+            setSchedule(NEXT_WEEK, TOMORROW);
+
+            $publishOrRequestFields.setKey('scheduleChecked', false);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should find nothing wrong while the field is hidden', () => {
+            setSchedule(NEXT_WEEK, TOMORROW);
+
+            $publishOrRequestDialog.setKey('schedulable', false);
+
+            expect($publishOrRequestScheduleProblem.get()).toBeUndefined();
+        });
+
+        it('should tell again once the field is ticked again', () => {
+            setSchedule(NEXT_WEEK, TOMORROW);
+            $publishOrRequestFields.setKey('scheduleChecked', false);
+
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            expect($publishOrRequestScheduleProblem.get()).toBe('to-not-after-from');
         });
     });
 });

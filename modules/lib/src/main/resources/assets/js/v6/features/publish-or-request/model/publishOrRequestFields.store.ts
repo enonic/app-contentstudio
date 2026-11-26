@@ -41,6 +41,9 @@ export type PublishOrRequestFieldStates = Record<
     PublishOrRequestFieldState
 >;
 
+/** What is wrong with the dates of the schedule: "online to" has passed, or is not after "online from". */
+export type PublishOrRequestScheduleProblem = 'to-in-past' | 'to-not-after-from';
+
 export const INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE: PublishOrRequestFieldsStore = {
     // Assign to: the user's choice to assign, kept while the field is required
     assignChecked: false,
@@ -75,6 +78,16 @@ export const $isPublishOrRequestAssignOpen = computed(
 export const $isPublishOrRequestScheduleOpen = computed(
     [$isPublishOrRequestSchedulable, $publishOrRequestFields],
     (schedulable, { scheduleChecked }): boolean => isFieldOpen(getScheduleFieldState(schedulable), scheduleChecked),
+);
+
+/**
+ * What is wrong with the dates entered, while the schedule is asked for.
+ * Checked against the time the fields last changed.
+ */
+export const $publishOrRequestScheduleProblem = computed(
+    [$isPublishOrRequestScheduleOpen, $publishOrRequestFields],
+    (isOpen, { scheduleFrom, scheduleTo }): PublishOrRequestScheduleProblem | undefined =>
+        isOpen ? getScheduleProblem(scheduleFrom, scheduleTo, new Date()) : undefined,
 );
 
 // TODO: [#11792] Make the title and the comment follow their rules.
@@ -114,6 +127,19 @@ function getAssignFieldState(
 // Hidden while nothing to publish can be scheduled. Never required.
 function getScheduleFieldState(schedulable: boolean): PublishOrRequestFieldState {
     return schedulable ? OPTIONAL_FIELD_STATE : HIDDEN_FIELD_STATE;
+}
+
+// Without "online to" the items stay online, so nothing can be wrong. Without "online from"
+// they go online now.
+function getScheduleProblem(
+    from: Date | undefined,
+    to: Date | undefined,
+    now: Date,
+): PublishOrRequestScheduleProblem | undefined {
+    if (to == null) return undefined;
+    if (to.getTime() <= now.getTime()) return 'to-in-past';
+
+    return to.getTime() <= (from ?? now).getTime() ? 'to-not-after-from' : undefined;
 }
 
 // A hidden field is never open. A required one is open whatever the user ticked.

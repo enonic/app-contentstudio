@@ -14,7 +14,11 @@ import {
     setPublishOrRequestScheduleTo,
     setPublishOrRequestScheduleToError,
 } from '../../model/commands/fields';
-import { $isPublishOrRequestScheduleOpen, $publishOrRequestFields } from '../../model/publishOrRequestFields.store';
+import {
+    $isPublishOrRequestScheduleOpen,
+    $publishOrRequestFields,
+    $publishOrRequestScheduleProblem,
+} from '../../model/publishOrRequestFields.store';
 
 const PUBLISH_OR_REQUEST_SCHEDULE_FIELD_NAME = 'PublishOrRequestScheduleField';
 
@@ -59,6 +63,7 @@ function ScheduleInputs(): ReactElement {
     const { scheduleFrom, scheduleTo, scheduleFromError, scheduleToError } = useStore($publishOrRequestFields, {
         keys: ['scheduleFrom', 'scheduleTo', 'scheduleFromError', 'scheduleToError'],
     });
+    const problem = useStore($publishOrRequestScheduleProblem);
     const { defaultPublishFromTime, requiredPublishFrom } = useStore($config, {
         keys: ['defaultPublishFromTime', 'requiredPublishFrom'],
     });
@@ -66,6 +71,8 @@ function ScheduleInputs(): ReactElement {
     const onlineFromLabel = useI18n('field.onlineFrom');
     const onlineToLabel = useI18n('field.onlineTo');
     const nowLabel = useI18n('text.now');
+    const toInPastError = useI18n('field.schedule.invalid.past');
+    const toNotAfterFromError = useI18n('field.schedule.invalid');
 
     // The errors are about the text typed in the inputs, so they go when the inputs go.
     useEffect(() => {
@@ -75,6 +82,11 @@ function ScheduleInputs(): ReactElement {
         };
     }, []);
 
+    // What an input says about its own text comes first. The order of the two dates is told
+    // under "online from", as in the publish dialog.
+    const fromError = scheduleFromError ?? (problem === 'to-not-after-from' ? toNotAfterFromError : undefined);
+    const toError = scheduleToError ?? (problem === 'to-in-past' ? toInPastError : undefined);
+
     return (
         <div className="flex flex-wrap gap-x-6 gap-y-2 pl-6 md:gap-y-4">
             <DateTimeSelector
@@ -83,7 +95,7 @@ function ScheduleInputs(): ReactElement {
                 initialValue={scheduleFrom}
                 onChange={setPublishOrRequestScheduleFrom}
                 onError={setPublishOrRequestScheduleFromError}
-                error={scheduleFromError}
+                error={fromError}
                 defaultTimeValue={defaultPublishFromTime}
             />
             <DateTimeSelector
@@ -91,7 +103,7 @@ function ScheduleInputs(): ReactElement {
                 initialValue={scheduleTo}
                 onChange={setPublishOrRequestScheduleTo}
                 onError={setPublishOrRequestScheduleToError}
-                error={scheduleToError}
+                error={toError}
                 defaultTimeValue={defaultPublishFromTime}
             />
         </div>
