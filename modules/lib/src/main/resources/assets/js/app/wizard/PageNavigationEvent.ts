@@ -1,8 +1,7 @@
-import {type PageNavigationEventType} from './PageNavigationEventType';
-import {PageNavigationEventData} from './PageNavigationEventData';
+import { type PageNavigationEventType } from '../../v6/shared/lib/page/PageNavigationEventType';
+import { PageNavigationEventData } from './PageNavigationEventData';
 
 export class PageNavigationEvent {
-
     private readonly type: PageNavigationEventType;
 
     private readonly data: PageNavigationEventData;
@@ -19,5 +18,4 @@ export class PageNavigationEvent {
     getData(): PageNavigationEventData {
         return this.data;
     }
-
 }

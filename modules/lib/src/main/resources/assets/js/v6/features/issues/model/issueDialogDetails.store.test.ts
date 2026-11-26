@@ -5,7 +5,7 @@ import { ContentId } from '../../../../app/content/ContentId';
 import type { IssueServerEvent } from '../../../../app/event/IssueServerEvent';
 import type { Issue } from '../../../../app/issue/Issue';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
 import {
     emitContentArchived,

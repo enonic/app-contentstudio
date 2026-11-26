@@ -55,7 +55,7 @@ import { IssueServerEventsHandler } from '../event/IssueServerEventsHandler';
 import { type Issue } from '../Issue';
 import { type IssueComment } from '../IssueComment';
 import { IssueStatus, IssueStatusFormatter } from '../IssueStatus';
-import { IssueType } from '../IssueType';
+import { IssueType } from '../../../v6/shared/lib/cms/issue/IssueType';
 import { PublishRequest } from '../PublishRequest';
 import { PublishRequestItem } from '../PublishRequestItem';
 import { CreateIssueCommentRequest } from '../resource/CreateIssueCommentRequest';

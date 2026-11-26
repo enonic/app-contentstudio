@@ -1,11 +1,9 @@
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {type ComponentPath} from '../../../../app/page/region/ComponentPath';
-import type {ComponentTextUpdatedOrigin} from '../../../../app/page/region/ComponentTextUpdatedOrigin';
-import {IframeEvent} from '@enonic/lib-admin-ui/event/IframeEvent';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import { type ComponentPath } from '../../../../app/page/region/ComponentPath';
+import type { ComponentTextUpdatedOrigin } from '../../../../v6/shared/lib/page/ComponentTextUpdatedOrigin';
+import { IframeEvent } from '@enonic/lib-admin-ui/event/IframeEvent';
 
-export class UpdateTextComponentViewEvent
-    extends IframeEvent {
-
+export class UpdateTextComponentViewEvent extends IframeEvent {
     private readonly path: ComponentPath;
 
     private readonly text: string;

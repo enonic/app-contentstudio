@@ -1,4 +1,4 @@
-import type { ContentState } from '../../../../../app/content/ContentState';
+import type { ContentState } from '../../../../shared/lib/cms/content/ContentState';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { calcContentState } from '../../../../shared/lib/cms/content/workflow';
 

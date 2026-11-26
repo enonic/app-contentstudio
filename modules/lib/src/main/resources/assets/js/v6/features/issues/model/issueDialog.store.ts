@@ -3,7 +3,7 @@ import { type Result, err, ok } from 'neverthrow';
 import { computed, map } from 'nanostores';
 import type { AppError } from '@enonic/ui-utils';
 import { IssueStatus } from '../../../../app/issue/IssueStatus';
-import { IssueType } from '../../../../app/issue/IssueType';
+import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import type { IssueWithAssignees } from '../../../../app/issue/IssueWithAssignees';
 import { fetchIssueStats } from '../../../entities/issue/api/issuesStats.api';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';

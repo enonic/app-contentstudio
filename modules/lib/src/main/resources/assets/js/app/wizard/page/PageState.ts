@@ -42,7 +42,7 @@ import { ComponentRemovedOnMoveEvent } from '../../page/region/ComponentRemovedO
 import { type PageTemplate } from '../../content/PageTemplate';
 import { LayoutComponent } from '../../page/region/LayoutComponent';
 import Q from 'q';
-import { type ComponentTextUpdatedOrigin } from '../../page/region/ComponentTextUpdatedOrigin';
+import { type ComponentTextUpdatedOrigin } from '../../../v6/shared/lib/page/ComponentTextUpdatedOrigin';
 import { PageStateEvent } from '../../../page-editor/event/incoming/common/PageStateEvent';
 
 export class PageState {

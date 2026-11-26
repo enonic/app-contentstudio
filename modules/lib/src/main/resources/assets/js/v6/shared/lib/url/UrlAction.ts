@@ -5,5 +5,5 @@ export enum UrlAction {
     ISSUE = 'issue',
     OUTBOUND = 'outbound',
     INBOUND = 'inbound',
-    CUSTOM = 'custom'
+    CUSTOM = 'custom',
 }

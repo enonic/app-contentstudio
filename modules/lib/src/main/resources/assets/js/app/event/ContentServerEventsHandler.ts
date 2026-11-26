@@ -6,7 +6,7 @@ import { BatchContentServerEvent } from './BatchContentServerEvent';
 import { ContentUpdatedEvent } from './ContentUpdatedEvent';
 import { ContentSummaryAndCompareStatusFetcher } from '../resource/ContentSummaryAndCompareStatusFetcher';
 import { type ContentSummaryAndCompareStatus } from '../content/ContentSummaryAndCompareStatus';
-import { Branch } from '../versioning/Branch';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
 import { type ContentServerChangeItem } from './ContentServerChangeItem';
 import { RepositoryId } from '../repository/RepositoryId';

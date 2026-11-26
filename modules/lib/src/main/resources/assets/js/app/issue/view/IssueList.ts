@@ -1,43 +1,45 @@
 import Q from 'q';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {AppHelper} from '@enonic/lib-admin-ui/util/AppHelper';
-import {DefaultErrorHandler} from '@enonic/lib-admin-ui/DefaultErrorHandler';
-import {type NamesAndIconView, NamesAndIconViewBuilder} from '@enonic/lib-admin-ui/app/NamesAndIconView';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Issue} from '../Issue';
-import {type IssueResponse} from '../resource/IssueResponse';
-import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {IssueStatus, IssueStatusFormatter} from '../IssueStatus';
-import {ListIssuesRequest} from '../resource/ListIssuesRequest';
-import {type IssueWithAssignees} from '../IssueWithAssignees';
-import {IssuesStorage} from './IssuesStorage';
-import {IssueType} from '../IssueType';
-import {ListBox} from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {SpanEl} from '@enonic/lib-admin-ui/dom/SpanEl';
-import {Tooltip} from '@enonic/lib-admin-ui/ui/Tooltip';
-import {type LoadMask} from '@enonic/lib-admin-ui/ui/mask/LoadMask';
-import {NamesAndIconViewSize} from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
-import {LiEl} from '@enonic/lib-admin-ui/dom/LiEl';
-import {i18n} from '@enonic/lib-admin-ui/util/Messages';
-import {FilterType} from './FilterType';
-import {AuthContext} from '@enonic/lib-admin-ui/auth/AuthContext';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { AppHelper } from '@enonic/lib-admin-ui/util/AppHelper';
+import { DefaultErrorHandler } from '@enonic/lib-admin-ui/DefaultErrorHandler';
+import { type NamesAndIconView, NamesAndIconViewBuilder } from '@enonic/lib-admin-ui/app/NamesAndIconView';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Issue } from '../Issue';
+import { type IssueResponse } from '../resource/IssueResponse';
+import { IssueStatusInfoGenerator } from './IssueStatusInfoGenerator';
+import { IssueStatus, IssueStatusFormatter } from '../IssueStatus';
+import { ListIssuesRequest } from '../resource/ListIssuesRequest';
+import { type IssueWithAssignees } from '../IssueWithAssignees';
+import { IssuesStorage } from './IssuesStorage';
+import { IssueType } from '../../../v6/shared/lib/cms/issue/IssueType';
+import { ListBox } from '@enonic/lib-admin-ui/ui/selector/list/ListBox';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { SpanEl } from '@enonic/lib-admin-ui/dom/SpanEl';
+import { Tooltip } from '@enonic/lib-admin-ui/ui/Tooltip';
+import { type LoadMask } from '@enonic/lib-admin-ui/ui/mask/LoadMask';
+import { NamesAndIconViewSize } from '@enonic/lib-admin-ui/app/NamesAndIconViewSize';
+import { LiEl } from '@enonic/lib-admin-ui/dom/LiEl';
+import { i18n } from '@enonic/lib-admin-ui/util/Messages';
+import { FilterType } from './FilterType';
+import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 
 export class FilterState {
     filterStatus: IssueStatus;
     filterType: FilterType;
     currentTotal: number;
 
-    constructor(filterStatus: IssueStatus = IssueStatus.OPEN, filterType: FilterType = FilterType.ALL, currentTotal: number = 0) {
+    constructor(
+        filterStatus: IssueStatus = IssueStatus.OPEN,
+        filterType: FilterType = FilterType.ALL,
+        currentTotal: number = 0,
+    ) {
         this.filterStatus = filterStatus;
         this.filterType = filterType;
         this.currentTotal = currentTotal;
     }
 }
 
-export class IssueList
-    extends ListBox<IssueWithAssignees> {
-
+export class IssueList extends ListBox<IssueWithAssignees> {
     private static MAX_VISIBLE_OPTIONS: number = 15;
 
     private filterState: FilterState;
@@ -103,9 +105,11 @@ export class IssueList
     private filterIfChanged() {
         const issues = this.doFilter();
         const items = this.getItems();
-        const wasChanged = issues.length !== this.getItemCount() || issues.some((issue, index) => {
-            return issue.getIssue().getId() !== items[index].getIssue().getId();
-        });
+        const wasChanged =
+            issues.length !== this.getItemCount() ||
+            issues.some((issue, index) => {
+                return issue.getIssue().getId() !== items[index].getIssue().getId();
+            });
         if (wasChanged) {
             this.setItems(issues);
         }
@@ -134,7 +138,7 @@ export class IssueList
         }
 
         if (this.filterState.filterType === FilterType.ASSIGNED_TO_ME) {
-            return assignees.some(assignee => assignee.equals(AuthContext.get().getUser()));
+            return assignees.some((assignee) => assignee.equals(AuthContext.get().getUser()));
         }
 
         if (this.filterState.filterType === FilterType.PUBLISH_REQUESTS) {
@@ -207,7 +211,8 @@ export class IssueList
 
                 this.allIssuesStorage.setTotalIssues(totalHits);
 
-                const loadMore = hasLoadedIssues && this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
+                const loadMore =
+                    hasLoadedIssues && this.needToLoad() && this.getItemCount() <= IssueList.MAX_VISIBLE_OPTIONS;
 
                 if (loadMore) {
                     return this.doFetch(true);
@@ -216,7 +221,9 @@ export class IssueList
     }
 
     private needToLoad(): boolean {
-        const total = this.allIssuesStorage.copyIssues().filter((issue: IssueWithAssignees) => this.matchesFilter(issue)).length;
+        const total = this.allIssuesStorage
+            .copyIssues()
+            .filter((issue: IssueWithAssignees) => this.matchesFilter(issue)).length;
         return this.filterState.currentTotal > total;
     }
 
@@ -268,7 +275,7 @@ export class IssueList
     }
 
     private notifyIssueSelected(issue: IssueWithAssignees) {
-        this.issueSelectedListeners.forEach(listener => listener(issue));
+        this.issueSelectedListeners.forEach((listener) => listener(issue));
     }
 
     public onIssueSelected(listener: (issue: IssueWithAssignees) => void) {
@@ -276,11 +283,11 @@ export class IssueList
     }
 
     public unIssueSelected(listener: (issue: IssueWithAssignees) => void) {
-        this.issueSelectedListeners = this.issueSelectedListeners.filter(curr => curr !== listener);
+        this.issueSelectedListeners = this.issueSelectedListeners.filter((curr) => curr !== listener);
     }
 
     private notifyIssuesLoaded() {
-        this.issuesLoadedListeners.forEach(listener => listener());
+        this.issuesLoadedListeners.forEach((listener) => listener());
     }
 
     public onIssuesLoaded(listener: () => void) {
@@ -289,13 +296,11 @@ export class IssueList
 
     private isScrolledToBottom(): boolean {
         const element = this.getHTMLElement();
-        return (element.scrollHeight - element.scrollTop - 50) <= element.clientHeight; // 50px before bottom to start loading earlier
+        return element.scrollHeight - element.scrollTop - 50 <= element.clientHeight; // 50px before bottom to start loading earlier
     }
 }
 
-export class IssueListItem
-    extends LiEl {
-
+export class IssueListItem extends LiEl {
     private issue: Issue;
 
     private assignees: Principal[];
@@ -315,7 +320,9 @@ export class IssueListItem
     private createNamesAndIconView(): NamesAndIconView {
         const typeClass = this.issue.getType() === IssueType.PUBLISH_REQUEST ? 'publish-request' : 'issue';
         const statusClass = this.issue.getIssueStatus() === IssueStatus.CLOSED ? 'closed' : 'opened';
-        const namesAndIconView = new NamesAndIconViewBuilder().setSize(NamesAndIconViewSize.small).build()
+        const namesAndIconView = new NamesAndIconViewBuilder()
+            .setSize(NamesAndIconViewSize.small)
+            .build()
             .setMainName(this.issue.getTitleWithId())
             .setIconClass(`icon-${typeClass} ${statusClass}`)
             .setSubNameElements([SpanEl.fromText(this.makeSubName())]);
@@ -357,7 +364,10 @@ export class IssueListItem
     }
 
     private makeSubName(): string {
-        return IssueStatusInfoGenerator.create().setIssue(this.issue).setIssueStatus(this.issue.getIssueStatus()).setCurrentUser(
-            this.currentUser).generate();
+        return IssueStatusInfoGenerator.create()
+            .setIssue(this.issue)
+            .setIssueStatus(this.issue.getIssueStatus())
+            .setCurrentUser(this.currentUser)
+            .generate();
     }
 }

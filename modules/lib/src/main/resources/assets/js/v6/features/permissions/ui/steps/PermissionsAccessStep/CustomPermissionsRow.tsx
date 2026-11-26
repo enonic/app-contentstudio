@@ -1,7 +1,7 @@
 import { Checkbox, CheckboxChecked, GridList } from '@enonic/ui';
 import { type Principal } from '@enonic/ui-types';
 import { ReactElement } from 'react';
-import { Permission } from '../../../../../../app/access/Permission';
+import { Permission } from '../../../../../shared/lib/cms/permissions/Permission';
 import { getPrincipalAllowedPermissions } from '../../../../../shared/lib/cms/permissions/accessControl';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useStore } from '@nanostores/preact';

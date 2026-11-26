@@ -21,7 +21,7 @@ import { ContentId } from '../../content/ContentId';
 import { PageEventsManager } from '../PageEventsManager';
 import { PageNavigationEvent } from '../PageNavigationEvent';
 import { PageNavigationEventData, PageNavigationEventSource } from '../PageNavigationEventData';
-import { PageNavigationEventType } from '../PageNavigationEventType';
+import { PageNavigationEventType } from '../../../v6/shared/lib/page/PageNavigationEventType';
 import { type PageNavigationHandler } from '../PageNavigationHandler';
 import { PageNavigationMediator } from '../PageNavigationMediator';
 import { PageState } from './PageState';

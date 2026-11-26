@@ -6,7 +6,7 @@ import { ContentPath } from '../../../../../../app/content/ContentPath';
 import { ContentSummaryBuilder, type ContentSummary } from '../../../../../../app/content/ContentSummary';
 import { ContentId } from '../../../../../../app/content/ContentId';
 import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import type { ContentState } from '../../../../../../app/content/ContentState';
+import type { ContentState } from '../../../../../shared/lib/cms/content/ContentState';
 import { ContentStatusIcon } from '../../../../../shared/ui/icons/ContentStatusIcon';
 import { setPhrases } from '../../../../../shared/i18n';
 import { ImageSelectorItemView } from '../../image/ImageSelectorItemView';

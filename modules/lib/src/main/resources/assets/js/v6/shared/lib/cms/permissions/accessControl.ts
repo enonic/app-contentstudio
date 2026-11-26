@@ -1,6 +1,6 @@
 import { type AccessControlEntry } from '../../../../../app/access/AccessControlEntry';
 import { Access } from '../../../../../app/security/Access';
-import { type Permission } from '../../../../../app/access/Permission';
+import { type Permission } from './Permission';
 import { AccessHelper } from '../../../../../app/security/AccessHelper';
 
 export function accessControlEntriesToPrincipalKeys(accessControlEntries: AccessControlEntry[]): string[] {

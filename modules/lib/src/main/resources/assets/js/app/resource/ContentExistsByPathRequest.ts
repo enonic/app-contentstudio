@@ -1,12 +1,10 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type ContentsExistByPathJson} from './json/ContentsExistByPathJson';
-import {ContentsExistByPathResult} from './ContentsExistByPathResult';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type ContentsExistByPathJson } from '../../v6/entities/content/api/ContentsExistByPathJson';
+import { ContentsExistByPathResult } from './ContentsExistByPathResult';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
 
-export class ContentExistsByPathRequest
-    extends CmsContentResourceRequest<boolean> {
-
+export class ContentExistsByPathRequest extends CmsContentResourceRequest<boolean> {
     private readonly contentPath: string;
 
     constructor(contentPath: string) {
@@ -18,12 +16,12 @@ export class ContentExistsByPathRequest
 
     getParams(): object {
         return {
-            contentPaths: [this.contentPath]
+            contentPaths: [this.contentPath],
         };
     }
 
     protected parseResponse(response: JsonResponse<ContentsExistByPathJson>): boolean {
-       const result: ContentsExistByPathResult = new ContentsExistByPathResult(response.getResult());
+        const result: ContentsExistByPathResult = new ContentsExistByPathResult(response.getResult());
 
         return result.getContentsExistMap()[this.contentPath];
     }

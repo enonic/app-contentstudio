@@ -1,7 +1,7 @@
-import {Event} from '@enonic/lib-admin-ui/event/Event';
-import {ClassHelper} from '@enonic/lib-admin-ui/ClassHelper';
-import {type ContentSummary} from '../content/ContentSummary';
-import {Branch} from '../versioning/Branch';
+import { Event } from '@enonic/lib-admin-ui/event/Event';
+import { ClassHelper } from '@enonic/lib-admin-ui/ClassHelper';
+import { type ContentSummary } from '../content/ContentSummary';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 
 export interface ToggleSearchPanelWithDependenciesConfig {
     item: ContentSummary;
@@ -10,9 +10,7 @@ export interface ToggleSearchPanelWithDependenciesConfig {
     type?: string;
 }
 
-export class ToggleSearchPanelWithDependenciesEvent
-    extends Event {
-
+export class ToggleSearchPanelWithDependenciesEvent extends Event {
     private readonly item: ContentSummary;
 
     private readonly inbound: boolean;

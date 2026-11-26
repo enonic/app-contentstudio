@@ -1,14 +1,12 @@
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {CompareStatus} from '../content/CompareStatus';
-import {ContentId} from '../content/ContentId';
-import {type ContentPath} from '../content/ContentPath';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { CompareStatus } from '../content/CompareStatus';
+import { ContentId } from '../content/ContentId';
+import { type ContentPath } from '../content/ContentPath';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
+import { type ContentIdBaseItemJson } from '../../v6/entities/content/api/ContentIdBaseItemJson';
 
-export class GetDescendantsOfContentsRequest
-    extends CmsContentResourceRequest<ContentId[]> {
-
+export class GetDescendantsOfContentsRequest extends CmsContentResourceRequest<ContentId[]> {
     private contentPaths: ContentPath[] = [];
 
     public static LOAD_SIZE: number = 36;
@@ -43,6 +41,6 @@ export class GetDescendantsOfContentsRequest
     }
 
     protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
-        return response.getResult().map((item => new ContentId(item.id)));
+        return response.getResult().map((item) => new ContentId(item.id));
     }
 }

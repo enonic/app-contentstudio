@@ -1,4 +1,4 @@
-import { UrlAction } from '../UrlAction';
+import { UrlAction } from '../../v6/shared/lib/url/UrlAction';
 import { UrlHelper } from './UrlHelper';
 import { ContentAppHelper } from '../wizard/ContentAppHelper';
 import { showWarning } from '@enonic/lib-admin-ui/notify/MessageBus';

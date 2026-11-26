@@ -3,7 +3,7 @@ import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
-import { Branch } from '../../../../app/versioning/Branch';
+import { Branch } from '../../../shared/lib/cms/content/Branch';
 import { DEFAULT_ORDER, QUERY_FIELD, and, like, pathMatch, query } from '../../../entities/content/lib/query';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';

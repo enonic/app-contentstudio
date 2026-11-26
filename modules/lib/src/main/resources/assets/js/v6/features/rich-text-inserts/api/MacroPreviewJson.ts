@@ -2,8 +2,7 @@ export interface MacroPreviewStringJson {
     macro: string;
 }
 
-export interface MacroPreviewJson
-    extends MacroPreviewStringJson {
+export interface MacroPreviewJson extends MacroPreviewStringJson {
     html: string;
     pageContributions: PageContributionsJson;
 }

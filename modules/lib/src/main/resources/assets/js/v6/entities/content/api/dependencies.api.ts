@@ -6,7 +6,7 @@ import {
     ResolveDependenciesResult,
     type ResolveDependenciesResultJson,
 } from '../../../../app/resource/ResolveDependenciesResult';
-import { Branch } from '../../../../app/versioning/Branch';
+import { Branch } from '../../../shared/lib/cms/content/Branch';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 
 /**

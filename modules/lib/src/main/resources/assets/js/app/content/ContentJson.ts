@@ -1,4 +1,4 @@
-import { type AttachmentJson } from '../attachment/AttachmentJson';
+import { type AttachmentJson } from '../../v6/entities/content/api/AttachmentJson';
 import { type MixinJson } from '../resource/json/MixinJson';
 import { type PageJson } from '../page/PageJson';
 import { type AccessControlEntryJson } from '../access/AccessControlEntryJson';

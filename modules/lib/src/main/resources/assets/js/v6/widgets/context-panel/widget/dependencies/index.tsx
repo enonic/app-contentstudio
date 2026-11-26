@@ -1,6 +1,6 @@
 import { useStore } from '@nanostores/preact';
 import { type ReactElement, useEffect, useState } from 'react';
-import { DependencyType } from '../../../../../app/browse/DependencyType';
+import { DependencyType } from '../../../../shared/lib/cms/content/DependencyType';
 import { resolveDependencies } from '../../../../entities/content';
 import { $contextContent } from '../../model/contextContent.store';
 import { $activeWidgetId, $isContextOpen } from '../../model/contextWidgets.store';

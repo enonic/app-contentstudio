@@ -1,6 +1,6 @@
 import { Tooltip } from '@enonic/ui';
 import { type ReactElement, useRef } from 'react';
-import type { ContentState } from '../../../../app/content/ContentState';
+import type { ContentState } from '../../lib/cms/content/ContentState';
 import { useI18n } from '../../lib/hooks/useI18n';
 import { useContentRowFocus } from '../../lib/hooks/useContentRowFocus';
 import { getStatusTooltipKey, StatusIcon } from './StatusIcon';

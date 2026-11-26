@@ -1,7 +1,7 @@
 import { Extension, ExtensionConfig } from '@enonic/lib-admin-ui/extension/Extension';
 import { computed, map } from 'nanostores';
 import { i18n } from '../../../shared/i18n';
-import { UrlAction } from '../../../../app/UrlAction';
+import { UrlAction } from '../../../shared/lib/url/UrlAction';
 import { $config } from '../../../shared/config/config.store';
 import { fetchExtensions } from '../../../entities/extension';
 import { $noProjectMode } from '../../../entities/project/projects.store';

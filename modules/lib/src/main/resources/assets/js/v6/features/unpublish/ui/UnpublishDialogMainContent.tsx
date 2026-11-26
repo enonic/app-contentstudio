@@ -2,7 +2,7 @@ import { Button, Dialog } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { useCallback, useMemo, useRef, type ReactElement } from 'react';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
-import { Branch } from '../../../../app/versioning/Branch';
+import { Branch } from '../../../shared/lib/cms/content/Branch';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
 import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import {

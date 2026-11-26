@@ -4,7 +4,7 @@ import { type ReactElement, useEffect, useState } from 'react';
 import type { Content } from '../../../../../app/content/Content';
 import type { PageTemplate } from '../../../../../app/content/PageTemplate';
 import type { Descriptor } from '../../../../../app/page/Descriptor';
-import { PageMode } from '../../../../../app/page/PageMode';
+import { PageMode } from '../../../../shared/lib/page/PageMode';
 import {
     loadComponentDescriptor,
     loadDefaultPageTemplate,

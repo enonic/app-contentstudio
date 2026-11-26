@@ -17,10 +17,10 @@ import { type ContentId } from '../../content/ContentId';
 import { type BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
 import { ContentAggregation, MODIFIED_BUCKET_KEY } from './ContentAggregation';
 import { Bucket } from '@enonic/lib-admin-ui/aggregation/Bucket';
-import { WorkflowState } from '../../content/WorkflowState';
+import { WorkflowState } from '../../../v6/shared/lib/cms/content/WorkflowState';
 import { AggregationsQueryResult } from './AggregationsQueryResult';
 import { ContentResourceRequest } from '../../resource/ContentResourceRequest';
-import { type Branch } from '../../versioning/Branch';
+import { type Branch } from '../../../v6/shared/lib/cms/content/Branch';
 
 export class ContentAggregationsFetcher {
     private searchInputValues: SearchInputValues;

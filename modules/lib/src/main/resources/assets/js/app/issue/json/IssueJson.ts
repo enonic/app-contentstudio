@@ -1,10 +1,8 @@
-import {type PublishRequestJson} from './PublishRequestJson';
-import {type IssueSummaryJson} from './IssueSummaryJson';
-import {type IssueCommentJson} from './IssueCommentJson';
+import { type PublishRequestJson } from './PublishRequestJson';
+import { type IssueSummaryJson } from './IssueSummaryJson';
+import { type IssueCommentJson } from '../../../v6/entities/issue/api/IssueCommentJson';
 
-export interface IssueJson
-    extends IssueSummaryJson {
-
+export interface IssueJson extends IssueSummaryJson {
     approverIds: string[];
 
     publishRequest: PublishRequestJson;
@@ -12,7 +10,7 @@ export interface IssueJson
     comments: IssueCommentJson[];
 
     publishSchedule: {
-        from: string,
-        to: string
+        from: string;
+        to: string;
     };
 }

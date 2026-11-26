@@ -19,7 +19,7 @@ import {
 } from '../api/permissions.api';
 import { trackTask } from '../../../entities/task';
 import type { TaskResultState } from '../../../entities/task';
-import { Permission } from '../../../../app/access/Permission';
+import { Permission } from '../../../shared/lib/cms/permissions/Permission';
 import { compareAccessControlEntries } from '../../../shared/lib/cms/permissions/accessControl';
 import { fromLegacyPrincipalKey, toLegacyPrincipal } from '../../../shared/lib/cms/security/legacy';
 

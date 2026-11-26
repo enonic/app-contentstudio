@@ -2,7 +2,7 @@ import { Button } from '@enonic/ui';
 import { ReactElement, useCallback } from 'react';
 import { DependencyItem } from '.';
 import { DependencyParams } from '../../../../../app/browse/DependencyParams';
-import { DependencyType } from '../../../../../app/browse/DependencyType';
+import { DependencyType } from '../../../../shared/lib/cms/content/DependencyType';
 import { ShowDependenciesEvent } from '../../../../../app/browse/ShowDependenciesEvent';
 import { ContentId } from '../../../../../app/content/ContentId';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';

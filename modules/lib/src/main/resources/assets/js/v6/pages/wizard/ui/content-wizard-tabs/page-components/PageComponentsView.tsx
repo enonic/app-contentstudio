@@ -27,7 +27,7 @@ import { ComponentPath } from '../../../../../../app/page/region/ComponentPath';
 import { FragmentComponent } from '../../../../../../app/page/region/FragmentComponent';
 import { PageNavigationEvent } from '../../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../../../../app/wizard/PageNavigationEventData';
-import { PageNavigationEventType } from '../../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../../../shared/lib/page/PageNavigationEventType';
 import { PageNavigationMediator } from '../../../../../../app/wizard/PageNavigationMediator';
 import { useI18n } from '../../../../../shared/lib/hooks/useI18n';
 import { useSelectedPageOption } from '../../../../../widgets/inspectors/lib/usePageOptions';

@@ -1,5 +1,5 @@
 import type { ComponentPath } from '../../../../../app/page/region/ComponentPath';
-import type { ComponentTextUpdatedOrigin } from '../../../../../app/page/region/ComponentTextUpdatedOrigin';
+import type { ComponentTextUpdatedOrigin } from '../../../../shared/lib/page/ComponentTextUpdatedOrigin';
 import { ComponentType } from '../../../../../app/page/region/ComponentType';
 import { getIsMobile } from '@enonic/ui';
 import type { DescriptorKey } from '../../../../../app/page/DescriptorKey';
@@ -9,7 +9,7 @@ import { PageEventsManager } from '../../../../../app/wizard/PageEventsManager';
 import { PageState } from '../../../../../app/wizard/page/PageState';
 import { PageNavigationEvent } from '../../../../../app/wizard/PageNavigationEvent';
 import { PageNavigationEventData } from '../../../../../app/wizard/PageNavigationEventData';
-import { PageNavigationEventType } from '../../../../../app/wizard/PageNavigationEventType';
+import { PageNavigationEventType } from '../../../../shared/lib/page/PageNavigationEventType';
 import { PageNavigationMediator } from '../../../../../app/wizard/PageNavigationMediator';
 import { $config } from '../../../../shared/config/config.store';
 import { setDraftPage } from '../../../../pages/wizard/model/wizardContent.store';

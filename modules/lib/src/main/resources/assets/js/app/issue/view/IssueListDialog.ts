@@ -13,8 +13,8 @@ import { type IssuesCount, IssuesPanel } from './IssuesPanel';
 import { type Issue } from '../Issue';
 import { IssueServerEventsHandler } from '../event/IssueServerEventsHandler';
 import { GetIssueStatsRequest } from '../resource/GetIssueStatsRequest';
-import { type IssueStatsJson } from '../json/IssueStatsJson';
-import { IssueType } from '../IssueType';
+import { type IssueStatsJson } from '../../../v6/entities/issue/api/IssueStatsJson';
+import { IssueType } from '../../../v6/shared/lib/cms/issue/IssueType';
 import { AuthContext } from '@enonic/lib-admin-ui/auth/AuthContext';
 import { onActiveProjectChanged } from '../../../v6/entities/project/activeProject.store';
 

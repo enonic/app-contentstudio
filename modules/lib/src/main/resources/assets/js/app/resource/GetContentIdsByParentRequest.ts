@@ -1,12 +1,10 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {ContentId} from '../content/ContentId';
-import {type ChildOrder} from './order/ChildOrder';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { ContentId } from '../content/ContentId';
+import { type ChildOrder } from './order/ChildOrder';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
+import { type ContentIdBaseItemJson } from '../../v6/entities/content/api/ContentIdBaseItemJson';
 
-export class GetContentIdsByParentRequest
-    extends CmsContentResourceRequest<ContentId[]> {
-
+export class GetContentIdsByParentRequest extends CmsContentResourceRequest<ContentId[]> {
     private parentId: ContentId;
 
     private order: ChildOrder;
@@ -29,11 +27,11 @@ export class GetContentIdsByParentRequest
     getParams(): object {
         return {
             parentId: this.parentId ? this.parentId.toString() : null,
-            childOrder: this.order ? this.order.toString() : ''
+            childOrder: this.order ? this.order.toString() : '',
         };
     }
 
     protected parseResponse(response: JsonResponse<ContentIdBaseItemJson[]>): ContentId[] {
-        return response.getResult().map((item => new ContentId(item.id)));
+        return response.getResult().map((item) => new ContentId(item.id));
     }
 }

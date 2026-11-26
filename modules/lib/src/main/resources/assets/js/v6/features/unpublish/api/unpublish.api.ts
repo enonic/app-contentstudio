@@ -2,7 +2,7 @@ import { ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
 import { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
-import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
+import { type ContentIdBaseItemJson } from '../../../entities/content/api/ContentIdBaseItemJson';
 import { type InboundDependenciesJson } from '../../../../app/resource/json/InboundDependenciesJson';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';
 

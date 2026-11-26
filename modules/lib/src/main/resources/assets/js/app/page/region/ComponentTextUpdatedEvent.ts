@@ -1,10 +1,8 @@
-import {type ComponentPath} from './ComponentPath';
-import {ComponentUpdatedEvent} from './ComponentUpdatedEvent';
-import {type ComponentTextUpdatedOrigin} from './ComponentTextUpdatedOrigin';
+import { type ComponentPath } from './ComponentPath';
+import { ComponentUpdatedEvent } from './ComponentUpdatedEvent';
+import { type ComponentTextUpdatedOrigin } from '../../../v6/shared/lib/page/ComponentTextUpdatedOrigin';
 
-export class ComponentTextUpdatedEvent
-    extends ComponentUpdatedEvent {
-
+export class ComponentTextUpdatedEvent extends ComponentUpdatedEvent {
     private readonly text: string;
 
     private readonly origin: ComponentTextUpdatedOrigin;

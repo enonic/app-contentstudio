@@ -1,5 +1,5 @@
 import { map } from 'nanostores';
-import { type IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
+import { type IssueStatsJson } from './api/IssueStatsJson';
 import { IssueServerEventsHandler } from '../../../app/issue/event/IssueServerEventsHandler';
 import { $activeProject } from '../project';
 import { fetchIssueStats } from './api/issuesStats.api';

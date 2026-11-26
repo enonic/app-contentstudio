@@ -1,5 +1,5 @@
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
-import type { ContentState } from '../../../../../app/content/ContentState';
+import type { ContentState } from './ContentState';
 
 export function calcContentState(summary: ContentSummary | null | undefined): ContentState | null {
     if (!summary) {

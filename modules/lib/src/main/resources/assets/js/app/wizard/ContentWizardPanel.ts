@@ -55,7 +55,7 @@ import {
 } from '../../v6/pages/wizard/model/wizardValidation.store';
 import { type PreviewToolbarElement } from '../../v6/widgets/preview-panel/ui/PreviewToolbar';
 import { ContentWizardTabsToolbarElement } from '../../v6/pages/wizard/ui/content-wizard-tabs/ContentWizardTabsToolbarElement';
-import { Permission } from '../access/Permission';
+import { Permission } from '../../v6/shared/lib/cms/permissions/Permission';
 import {
     openPluginDialog,
     setAiCompareStatus,
@@ -98,7 +98,7 @@ import { GetPageTemplateByKeyRequest } from '../resource/GetPageTemplateByKeyReq
 import { Router } from '../Router';
 import { ProjectDeletedEvent } from '../settings/event/ProjectDeletedEvent';
 import { SiteModel } from '../site/SiteModel';
-import { UrlAction } from '../UrlAction';
+import { UrlAction } from '../../v6/shared/lib/url/UrlAction';
 import { ContentHelper } from '../util/ContentHelper';
 import { PageHelper } from '../util/PageHelper';
 import { UrlHelper } from '../util/UrlHelper';

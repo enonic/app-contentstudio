@@ -1,6 +1,6 @@
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { PublishStatus } from '../../../../../app/publish/PublishStatus';
-import type { ContentState } from '../../../../../app/content/ContentState';
+import type { ContentState } from './ContentState';
 
 export type SecondaryStatus = 'modified' | 'new' | 'unpublished';
 

@@ -3,7 +3,7 @@ import type { PropertyTree } from '@enonic/input-types/data';
 import { type MacroKey } from '@enonic/lib-admin-ui/macro/MacroKey';
 import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
 import { PreviewRequest } from './PreviewRequest';
-import { type MacroPreviewJson } from './MacroPreviewJson';
+import { type MacroPreviewJson } from '../../../v6/features/rich-text-inserts/api/MacroPreviewJson';
 import { MacroPreview } from '../MacroPreview';
 
 export class GetPreviewRequest extends PreviewRequest<MacroPreview> {

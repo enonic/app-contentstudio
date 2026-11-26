@@ -6,7 +6,7 @@ import { ContentName } from '../../../../app/content/ContentName';
 import { Mixin } from '../../../../app/content/Mixin';
 import { MixinName } from '../../../../app/content/MixinName';
 import { Workflow } from '../../../../app/content/Workflow';
-import { WorkflowState } from '../../../../app/content/WorkflowState';
+import { WorkflowState } from '../../../shared/lib/cms/content/WorkflowState';
 import { $wizardSectionChanges, initializeWizardContentState, resetWizardContent } from './wizardContent.store';
 import { getMixinDataContext } from './wizardMixinData.store';
 import { CONTENT_TYPE } from '../../../shared/lib/cms/schema/contentTypeName';

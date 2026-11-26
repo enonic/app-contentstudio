@@ -6,7 +6,7 @@ import { type Project } from '../../../../app/settings/data/project/Project';
 import { ProjectConfigContext } from '../../../../app/settings/data/project/ProjectConfigContext';
 import { ProjectAccess } from '../../../../app/settings/access/ProjectAccess';
 import { ProjectReadAccess } from '../../../../app/settings/data/project/ProjectReadAccess';
-import { type ProjectReadAccessType } from '../../../../app/settings/data/project/ProjectReadAccessType';
+import { type ProjectReadAccessType } from '../../../shared/lib/cms/projects/ProjectReadAccessType';
 import { ProjectItemPermissionsBuilder } from '../../../../app/settings/data/project/ProjectPermissions';
 import { type Principal } from '@enonic/ui-types';
 import { parsePrincipalKey } from '@enonic/ui-utils';

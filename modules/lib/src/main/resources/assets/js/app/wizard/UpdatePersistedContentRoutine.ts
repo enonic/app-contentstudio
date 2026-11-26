@@ -1,7 +1,7 @@
 import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
 import Q from 'q';
 import { type Content } from '../content/Content';
-import { WorkflowState } from '../content/WorkflowState';
+import { WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
 import { type Page } from '../page/Page';
 import { type PageCUDRequest } from '../resource/PageCUDRequest';
 import { UpdateContentRequest } from '../resource/UpdateContentRequest';

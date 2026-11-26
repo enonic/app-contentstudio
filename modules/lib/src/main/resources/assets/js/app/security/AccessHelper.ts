@@ -1,5 +1,5 @@
-import {Permission} from '../access/Permission';
-import {Access} from './Access';
+import { Permission } from '../../v6/shared/lib/cms/permissions/Permission';
+import { Access } from './Access';
 
 export class AccessHelper {
     public static getPermissionsFromAccess(access: Access): Permission[] {

@@ -7,7 +7,7 @@ import { type TextComponentJson } from './TextComponentJson';
 import { TextComponentType } from './TextComponentType';
 import { ComponentName } from './ComponentName';
 import { ComponentTextUpdatedEvent } from './ComponentTextUpdatedEvent';
-import { type ComponentTextUpdatedOrigin } from './ComponentTextUpdatedOrigin';
+import { type ComponentTextUpdatedOrigin } from '../../../v6/shared/lib/page/ComponentTextUpdatedOrigin';
 
 export class TextComponent extends Component {
     private text: string;

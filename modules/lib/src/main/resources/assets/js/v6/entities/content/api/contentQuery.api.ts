@@ -4,7 +4,7 @@ import type { AppError } from '@enonic/ui-utils';
 import { ContentId } from '../../../../app/content/ContentId';
 import { ContentSummary } from '../../../../app/content/ContentSummary';
 import { type ContentSummaryJson } from '../../../../app/content/ContentSummaryJson';
-import { type ContentIdBaseItemJson } from '../../../../app/resource/json/ContentIdBaseItemJson';
+import { type ContentIdBaseItemJson } from './ContentIdBaseItemJson';
 import { type ContentQueryResultJson } from '../../../../app/resource/json/ContentQueryResultJson';
 import { type ListContentResult } from '../../../../app/resource/ListContentResult';
 import { type ChildOrder } from '../../../../app/resource/order/ChildOrder';

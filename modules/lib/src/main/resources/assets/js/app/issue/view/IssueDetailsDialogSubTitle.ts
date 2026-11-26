@@ -1,17 +1,15 @@
 import Q from 'q';
-import {type Element} from '@enonic/lib-admin-ui/dom/Element';
-import {DivEl} from '@enonic/lib-admin-ui/dom/DivEl';
-import {type Principal} from '@enonic/lib-admin-ui/security/Principal';
-import {type Issue} from '../Issue';
-import {IssueStatusSelector} from './IssueStatusSelector';
-import {IssueStatusInfoGenerator} from './IssueStatusInfoGenerator';
-import {type IssueStatus} from '../IssueStatus';
-import {IssueTypeFormatter} from '../IssueType';
-import {type ValueChangedEvent} from '@enonic/lib-admin-ui/ValueChangedEvent';
+import { type Element } from '@enonic/lib-admin-ui/dom/Element';
+import { DivEl } from '@enonic/lib-admin-ui/dom/DivEl';
+import { type Principal } from '@enonic/lib-admin-ui/security/Principal';
+import { type Issue } from '../Issue';
+import { IssueStatusSelector } from './IssueStatusSelector';
+import { IssueStatusInfoGenerator } from './IssueStatusInfoGenerator';
+import { type IssueStatus } from '../IssueStatus';
+import { IssueTypeFormatter } from '../../../v6/shared/lib/cms/issue/IssueType';
+import { type ValueChangedEvent } from '@enonic/lib-admin-ui/ValueChangedEvent';
 
-export class IssueDetailsDialogSubTitle
-    extends DivEl {
-
+export class IssueDetailsDialogSubTitle extends DivEl {
     private issue: Issue;
 
     private currentUser: Principal;
@@ -57,7 +55,6 @@ export class IssueDetailsDialogSubTitle
     }
 
     doRender(): Q.Promise<boolean> {
-
         return super.doRender().then(() => {
             this.issueStatusSelector.onValueChanged((event) => {
                 this.notifyIssueStatusChanged(event);
@@ -87,8 +84,13 @@ export class IssueDetailsDialogSubTitle
     }
 
     private makeStatusInfo(): string {
-        return this.issue ? IssueStatusInfoGenerator.create().setIssue(this.issue).setIssueStatus(
-            this.issue.getIssueStatus()).setCurrentUser(this.currentUser).generate() : '';
+        return this.issue
+            ? IssueStatusInfoGenerator.create()
+                  .setIssue(this.issue)
+                  .setIssueStatus(this.issue.getIssueStatus())
+                  .setCurrentUser(this.currentUser)
+                  .generate()
+            : '';
     }
 
     private makeTypeClass(): string {

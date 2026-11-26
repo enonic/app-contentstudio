@@ -1,5 +1,5 @@
 import { type Ref } from 'react';
-import { type Branch } from '../../../../../app/versioning/Branch';
+import { type Branch } from '../../../../shared/lib/cms/content/Branch';
 import {
     ContentReferencesLink,
     type ContentReferencesLinkProps,

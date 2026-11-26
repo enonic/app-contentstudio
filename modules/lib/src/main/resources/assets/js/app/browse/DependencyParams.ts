@@ -1,8 +1,8 @@
 import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
 import { type ContentId } from '../content/ContentId';
-import { type DependencyType } from './DependencyType';
+import { type DependencyType } from '../../v6/shared/lib/cms/content/DependencyType';
 import { getActiveProjectName } from '../../v6/entities/project/activeProject.store';
-import { Branch } from '../versioning/Branch';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 
 export class DependencyParams {
     private readonly id: ContentId;

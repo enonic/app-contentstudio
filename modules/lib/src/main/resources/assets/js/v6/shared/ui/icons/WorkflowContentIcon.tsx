@@ -1,6 +1,6 @@
 import { ContentIcon } from './ContentIcon';
 import { ContentStatusIcon } from './ContentStatusIcon';
-import type { ContentState } from '../../../../app/content/ContentState';
+import type { ContentState } from '../../lib/cms/content/ContentState';
 
 type Props = {
     status: ContentState | null;

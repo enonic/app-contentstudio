@@ -1,11 +1,9 @@
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type MacroPreviewJson} from './resource/MacroPreviewJson';
-import {PageContributions} from './PageContributions';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type MacroPreviewJson } from '../../v6/features/rich-text-inserts/api/MacroPreviewJson';
+import { PageContributions } from './PageContributions';
 
-export class MacroPreview
-    implements Equitable {
-
+export class MacroPreview implements Equitable {
     private readonly html: string;
 
     private readonly macroString: string;
@@ -58,7 +56,6 @@ export class MacroPreview
 }
 
 export class MacroPreviewBuilder {
-
     html: string;
 
     macroString: string;

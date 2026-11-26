@@ -17,7 +17,7 @@ import {
     isContentBrowseWidget,
     isSettingsWidget,
 } from '../../widgets/context-panel/model/sidebarWidgets.store';
-import type { IssueStatsJson } from '../../../app/issue/json/IssueStatsJson';
+import type { IssueStatsJson } from '../../entities/issue/api/IssueStatsJson';
 import { BROWSE_SIDEBAR_ID, BROWSE_SIDEBAR_TOGGLE_ID } from './browseSidebar.constants';
 import { $isBrowseSidebarOpen, setBrowseSidebarOpen } from './model/browseSidebar.store';
 

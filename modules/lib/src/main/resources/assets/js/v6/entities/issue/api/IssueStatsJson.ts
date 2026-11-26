@@ -1,5 +1,4 @@
 export interface IssueStatsJson {
-
     openAssignedToMe: number;
 
     openCreatedByMe: number;

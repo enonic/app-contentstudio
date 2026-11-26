@@ -1,12 +1,11 @@
-import {ContentWizardPanelParams} from './ContentWizardPanelParams';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {UrlAction} from '../UrlAction';
-import {ContentId} from '../content/ContentId';
-import {CONFIG} from '@enonic/lib-admin-ui/util/Config';
-import {AppBarTabId} from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
+import { ContentWizardPanelParams } from './ContentWizardPanelParams';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { UrlAction } from '../../v6/shared/lib/url/UrlAction';
+import { ContentId } from '../content/ContentId';
+import { CONFIG } from '@enonic/lib-admin-ui/util/Config';
+import { AppBarTabId } from '@enonic/lib-admin-ui/app/bar/AppBarTabId';
 
 export class ContentAppHelper {
-
     static DISPLAY_AS_NEW_PARAM: string = 'displayAsNew';
 
     static DISPLAY_AS_NEW: string = `${ContentAppHelper.DISPLAY_AS_NEW_PARAM}=true`;

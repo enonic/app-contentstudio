@@ -1,20 +1,20 @@
-import {Thumbnail} from '@enonic/lib-admin-ui/thumb/Thumbnail';
-import {ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {PrincipalKey} from '@enonic/lib-admin-ui/security/PrincipalKey';
-import {type Equitable} from '@enonic/lib-admin-ui/Equitable';
-import {ObjectHelper} from '@enonic/lib-admin-ui/ObjectHelper';
-import {type ContentSummaryJson} from './ContentSummaryJson';
-import {ContentName} from './ContentName';
-import {ContentPath} from './ContentPath';
-import {assert} from '@enonic/lib-admin-ui/util/Assert';
-import {ContentUnnamed} from './ContentUnnamed';
-import {ContentInheritType} from './ContentInheritType';
-import {ContentId} from './ContentId';
-import {ChildOrder} from '../resource/order/ChildOrder';
-import {WorkflowState} from './WorkflowState';
-import {Workflow} from './Workflow';
-import {ContentSummaryHelper} from './ContentSummaryHelper';
-import {isEqual} from '../Diff';
+import { Thumbnail } from '@enonic/lib-admin-ui/thumb/Thumbnail';
+import { ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { PrincipalKey } from '@enonic/lib-admin-ui/security/PrincipalKey';
+import { type Equitable } from '@enonic/lib-admin-ui/Equitable';
+import { ObjectHelper } from '@enonic/lib-admin-ui/ObjectHelper';
+import { type ContentSummaryJson } from './ContentSummaryJson';
+import { ContentName } from './ContentName';
+import { ContentPath } from './ContentPath';
+import { assert } from '@enonic/lib-admin-ui/util/Assert';
+import { ContentUnnamed } from './ContentUnnamed';
+import { ContentInheritType } from './ContentInheritType';
+import { ContentId } from './ContentId';
+import { ChildOrder } from '../resource/order/ChildOrder';
+import { WorkflowState } from '../../v6/shared/lib/cms/content/WorkflowState';
+import { Workflow } from './Workflow';
+import { ContentSummaryHelper } from './ContentSummaryHelper';
+import { isEqual } from '../Diff';
 
 export class ContentSummary {
     private readonly id: string;
@@ -131,39 +131,27 @@ export class ContentSummary {
             return o;
         } else {
             return new ContentSummaryBuilder()
-                .setContentId(o["contentId"])
-                .setId(o["id"])
-                .setName(o["name"])
-                .setDisplayName(o["displayName"])
-                .setPath(o["path"])
-                .setHasChildren(o["children"])
-                .setType(o["type"])
-                .setIconUrl(o["iconUrl"])
-                .setCreator(o["owner"])
-                .setModifier(o["modifier"])
-                .setValid(o["valid"])
-                .setRequireValid(o["requireValid"])
-                .setDeletable(o["deletable"])
-                .setPublishFromTime(
-                    o["publishFromTime"]
-                    ? new Date(Date.parse(o["publishFromTime"]))
-                    : null,
-                )
-                .setPublishToTime(
-                    o["publishToTime"]
-                    ? new Date(Date.parse(o["publishToTime"]))
-                    : null,
-                )
-                .setPublishFirstTime(
-                    o["publishFirstTime"]
-                    ? new Date(Date.parse(o["publishFirstTime"]))
-                    : null,
-                )
-                .setWorkflow(o["workflow"])
-                .setInherit(o["inherit"])
-                .setOriginProject(o["originProject"])
-                .setOriginalParentPath(o["originalParentPath"])
-                .setOriginalName(o["originalName"])
+                .setContentId(o['contentId'])
+                .setId(o['id'])
+                .setName(o['name'])
+                .setDisplayName(o['displayName'])
+                .setPath(o['path'])
+                .setHasChildren(o['children'])
+                .setType(o['type'])
+                .setIconUrl(o['iconUrl'])
+                .setCreator(o['owner'])
+                .setModifier(o['modifier'])
+                .setValid(o['valid'])
+                .setRequireValid(o['requireValid'])
+                .setDeletable(o['deletable'])
+                .setPublishFromTime(o['publishFromTime'] ? new Date(Date.parse(o['publishFromTime'])) : null)
+                .setPublishToTime(o['publishToTime'] ? new Date(Date.parse(o['publishToTime'])) : null)
+                .setPublishFirstTime(o['publishFirstTime'] ? new Date(Date.parse(o['publishFirstTime'])) : null)
+                .setWorkflow(o['workflow'])
+                .setInherit(o['inherit'])
+                .setOriginProject(o['originProject'])
+                .setOriginalParentPath(o['originalParentPath'])
+                .setOriginalName(o['originalName'])
                 .build();
         }
     }
@@ -173,9 +161,7 @@ export class ContentSummary {
     }
 
     static fromJsonArray(jsonArray: ContentSummaryJson[]): ContentSummary[] {
-        return jsonArray.map((json: ContentSummaryJson) =>
-            ContentSummary.fromJson(json),
-        );
+        return jsonArray.map((json: ContentSummaryJson) => ContentSummary.fromJson(json));
     }
 
     getName(): ContentName {
@@ -307,16 +293,11 @@ export class ContentSummary {
     }
 
     isReady(): boolean {
-        return (
-            !!this.workflow && this.workflow.getState() === WorkflowState.READY
-        );
+        return !!this.workflow && this.workflow.getState() === WorkflowState.READY;
     }
 
     isInProgress(): boolean {
-        return (
-            !!this.workflow &&
-            this.workflow.getState() === WorkflowState.IN_PROGRESS
-        );
+        return !!this.workflow && this.workflow.getState() === WorkflowState.IN_PROGRESS;
     }
 
     getInherit(): ContentInheritType[] {
@@ -380,12 +361,7 @@ export class ContentSummary {
     }
 
     private isInheritedByType(type: ContentInheritType): boolean {
-        return (
-            this.isInherited() &&
-            this.inherit.some(
-                (inheritType: ContentInheritType) => inheritType === type,
-            )
-        );
+        return this.isInherited() && this.inherit.some((inheritType: ContentInheritType) => inheritType === type);
     }
 
     equals(o: Equitable): boolean {
@@ -516,12 +492,8 @@ export class ContentSummaryBuilder {
         this.children = json.hasChildren;
         this.type = new ContentTypeName(json.type);
         this.iconUrl = json.iconUrl;
-        this.thumbnail = json.thumbnail
-                         ? Thumbnail.create().fromJson(json.thumbnail).build()
-                         : null;
-        this.modifier = json.modifier
-                        ? PrincipalKey.fromString(json.modifier)
-                        : null;
+        this.thumbnail = json.thumbnail ? Thumbnail.create().fromJson(json.thumbnail).build() : null;
+        this.modifier = json.modifier ? PrincipalKey.fromString(json.modifier) : null;
         this.owner = json.owner ? PrincipalKey.fromString(json.owner) : null;
         this.page = json.isPage;
         this.valid = json.isValid;
@@ -530,37 +502,15 @@ export class ContentSummaryBuilder {
         this.id = json.id;
 
         this.contentId = new ContentId(json.id);
-        this.creator = json.creator
-                       ? PrincipalKey.fromString(json.creator)
-                       : null;
-        this.createdTime = json.createdTime
-                           ? new Date(Date.parse(json.createdTime))
-                           : null;
-        this.modifiedTime = json.modifiedTime
-                            ? new Date(Date.parse(json.modifiedTime))
-                            : null;
-        this.archivedTime = json.archivedTime
-                            ? new Date(Date.parse(json.archivedTime))
-                            : null;
-        this.archivedBy = json.archivedBy
-                          ? PrincipalKey.fromString(json.archivedBy)
-                          : null;
-        this.publishFirstTime =
-            json.publish && json.publish.first
-            ? new Date(Date.parse(json.publish.first))
-            : null;
-        this.publishFromTime =
-            json.publish && json.publish.from
-            ? new Date(Date.parse(json.publish.from))
-            : null;
-        this.publishToTime =
-            json.publish && json.publish.to
-            ? new Date(Date.parse(json.publish.to))
-            : null;
-        this.publishTime =
-            json.publish && json.publish.time
-            ? new Date(Date.parse(json.publish.time))
-            : null;
+        this.creator = json.creator ? PrincipalKey.fromString(json.creator) : null;
+        this.createdTime = json.createdTime ? new Date(Date.parse(json.createdTime)) : null;
+        this.modifiedTime = json.modifiedTime ? new Date(Date.parse(json.modifiedTime)) : null;
+        this.archivedTime = json.archivedTime ? new Date(Date.parse(json.archivedTime)) : null;
+        this.archivedBy = json.archivedBy ? PrincipalKey.fromString(json.archivedBy) : null;
+        this.publishFirstTime = json.publish && json.publish.first ? new Date(Date.parse(json.publish.first)) : null;
+        this.publishFromTime = json.publish && json.publish.from ? new Date(Date.parse(json.publish.from)) : null;
+        this.publishToTime = json.publish && json.publish.to ? new Date(Date.parse(json.publish.to)) : null;
+        this.publishTime = json.publish && json.publish.time ? new Date(Date.parse(json.publish.time)) : null;
 
         this.deletable = json.deletable;
         this.editable = json.editable;
@@ -568,13 +518,9 @@ export class ContentSummaryBuilder {
         this.childOrder = ChildOrder.fromJson(json.childOrder);
         this.workflow = Workflow.fromJson(json.workflow);
         this.inherit =
-            json.inherit && json.inherit.length > 0
-            ? json.inherit.map((type: string) => ContentInheritType[type])
-            : [];
+            json.inherit && json.inherit.length > 0 ? json.inherit.map((type: string) => ContentInheritType[type]) : [];
         this.originProject = json.originProject;
-        this.listTitle = ObjectHelper.isDefined(json.listTitle)
-                         ? json.listTitle
-                         : json.displayName;
+        this.listTitle = ObjectHelper.isDefined(json.listTitle) ? json.listTitle : json.displayName;
 
         this.originalParentPath = json.originalParentPath;
         this.originalName = json.originalName;
@@ -584,7 +530,7 @@ export class ContentSummaryBuilder {
     }
 
     private static createName(name: string) {
-        assert(name != null, "name cannot be null");
+        assert(name != null, 'name cannot be null');
         if (name.indexOf(ContentUnnamed.UNNAMED_PREFIX) === 0) {
             return new ContentUnnamed(name);
         } else {

@@ -1,28 +1,29 @@
-import {type JsonResponse} from '@enonic/lib-admin-ui/rest/JsonResponse';
-import {type AggregationQueryTypeWrapperJson} from '@enonic/lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
-import {type ContentQueryResultJson} from './json/ContentQueryResultJson';
-import {ContentQueryResult} from './ContentQueryResult';
-import {ResultMetadata} from './ResultMetadata';
-import {type ContentJson} from '../content/ContentJson';
-import {type ContentQuery} from '../content/ContentQuery';
-import {Expand} from '@enonic/lib-admin-ui/rest/Expand';
-import {BucketAggregation} from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
-import {type AggregationQuery} from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
-import {type FilterTypeWrapperJson} from '@enonic/lib-admin-ui/query/filter/FilterTypeWrapperJson';
-import {type Filter} from '@enonic/lib-admin-ui/query/filter/Filter';
-import {type ContentTypeName} from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
-import {HttpMethod} from '@enonic/lib-admin-ui/rest/HttpMethod';
-import {ContentSummary} from '../content/ContentSummary';
-import {type ContentSummaryJson} from '../content/ContentSummaryJson';
-import {CmsContentResourceRequest} from './CmsContentResourceRequest';
-import {type ContentIdBaseItemJson} from './json/ContentIdBaseItemJson';
-import {ContentId} from '../content/ContentId';
-import {type Content} from '../content/Content';
-import {Branch} from '../versioning/Branch';
+import { type JsonResponse } from '@enonic/lib-admin-ui/rest/JsonResponse';
+import { type AggregationQueryTypeWrapperJson } from '@enonic/lib-admin-ui/query/aggregation/AggregationQueryTypeWrapperJson';
+import { type ContentQueryResultJson } from './json/ContentQueryResultJson';
+import { ContentQueryResult } from './ContentQueryResult';
+import { ResultMetadata } from './ResultMetadata';
+import { type ContentJson } from '../content/ContentJson';
+import { type ContentQuery } from '../content/ContentQuery';
+import { Expand } from '@enonic/lib-admin-ui/rest/Expand';
+import { BucketAggregation } from '@enonic/lib-admin-ui/aggregation/BucketAggregation';
+import { type AggregationQuery } from '@enonic/lib-admin-ui/query/aggregation/AggregationQuery';
+import { type FilterTypeWrapperJson } from '@enonic/lib-admin-ui/query/filter/FilterTypeWrapperJson';
+import { type Filter } from '@enonic/lib-admin-ui/query/filter/Filter';
+import { type ContentTypeName } from '@enonic/lib-admin-ui/schema/content/ContentTypeName';
+import { HttpMethod } from '@enonic/lib-admin-ui/rest/HttpMethod';
+import { ContentSummary } from '../content/ContentSummary';
+import { type ContentSummaryJson } from '../content/ContentSummaryJson';
+import { CmsContentResourceRequest } from './CmsContentResourceRequest';
+import { type ContentIdBaseItemJson } from '../../v6/entities/content/api/ContentIdBaseItemJson';
+import { ContentId } from '../content/ContentId';
+import { type Content } from '../content/Content';
+import { Branch } from '../../v6/shared/lib/cms/content/Branch';
 
-export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTENT extends ContentSummary>
-    extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
-
+export class ContentQueryRequest<
+    CONTENT_JSON extends ContentSummaryJson,
+    CONTENT extends ContentSummary,
+> extends CmsContentResourceRequest<ContentQueryResult<CONTENT, CONTENT_JSON>> {
     private contentQuery: ContentQuery;
 
     private expand: Expand = Expand.SUMMARY;
@@ -81,11 +82,16 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         };
     }
 
-    protected parseResponse(response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>): ContentQueryResult<CONTENT, CONTENT_JSON> {
+    protected parseResponse(
+        response: JsonResponse<ContentQueryResultJson<CONTENT_JSON>>,
+    ): ContentQueryResult<CONTENT, CONTENT_JSON> {
         const responseResult: ContentQueryResultJson<CONTENT_JSON> = response.getResult();
         const aggregations = BucketAggregation.fromJsonArray(responseResult.aggregations);
         const contentsAsJson: ContentSummaryJson[] = responseResult.contents;
-        const metadata = new ResultMetadata(response.getResult().metadata.hits, response.getResult().metadata.totalHits);
+        const metadata = new ResultMetadata(
+            response.getResult().metadata.hits,
+            response.getResult().metadata.totalHits,
+        );
         let contents: (ContentSummary | Content | ContentId)[];
 
         if (this.expand === Expand.FULL) {
@@ -98,7 +104,12 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
         this.updateStateAfterLoad(contents as CONTENT[], metadata);
 
-        return new ContentQueryResult<CONTENT, CONTENT_JSON>(this.results, aggregations, contentsAsJson as CONTENT_JSON[], metadata);
+        return new ContentQueryResult<CONTENT, CONTENT_JSON>(
+            this.results,
+            aggregations,
+            contentsAsJson as CONTENT_JSON[],
+            metadata,
+        );
     }
 
     private updateStateAfterLoad(contents: CONTENT[], metadata: ResultMetadata) {
@@ -108,7 +119,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
         this.results = this.results.concat(contents);
 
-        this.allLoaded = (this.contentQuery.getFrom() + metadata.getHits()) >= metadata.getTotalHits();
+        this.allLoaded = this.contentQuery.getFrom() + metadata.getHits() >= metadata.getTotalHits();
         this.contentQuery.setFrom(this.contentQuery.getFrom() + metadata.getHits());
     }
 
@@ -135,7 +146,6 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
     }
 
     private queryFiltersToJson(queryFilters: Filter[]): FilterTypeWrapperJson[] {
-
         const queryFilterJsons: FilterTypeWrapperJson[] = [];
 
         if (queryFilters == null || queryFilters.length === 0) {
@@ -143,9 +153,7 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
         }
 
         queryFilters.forEach((queryFilter: Filter) => {
-
             queryFilterJsons.push(queryFilter.toJson());
-
         });
 
         return queryFilterJsons;
@@ -153,14 +161,14 @@ export class ContentQueryRequest<CONTENT_JSON extends ContentSummaryJson, CONTEN
 
     private expandAsString(): string {
         switch (this.expand) {
-        case Expand.FULL:
-            return 'full';
-        case Expand.SUMMARY:
-            return 'summary';
-        case Expand.NONE:
-            return 'none';
-        default:
-            return 'summary';
+            case Expand.FULL:
+                return 'full';
+            case Expand.SUMMARY:
+                return 'summary';
+            case Expand.NONE:
+                return 'none';
+            default:
+                return 'summary';
         }
     }
 

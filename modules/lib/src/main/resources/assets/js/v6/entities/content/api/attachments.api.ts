@@ -1,7 +1,7 @@
 import { type ResultAsync } from 'neverthrow';
 import { requestJson } from '@enonic/ui-utils/request';
 import type { AppError } from '@enonic/ui-utils';
-import { type AttachmentJson } from '../../../../app/attachment/AttachmentJson';
+import { type AttachmentJson } from './AttachmentJson';
 import { Attachments } from '../../../../app/attachment/Attachments';
 import { type ContentId } from '../../../../app/content/ContentId';
 import { getCmsApiUrl } from '../../../shared/lib/url/cms';

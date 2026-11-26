@@ -1,5 +1,4 @@
 export interface ProjectPermissionsJson {
-
     contributor: string[];
 
     author: string[];

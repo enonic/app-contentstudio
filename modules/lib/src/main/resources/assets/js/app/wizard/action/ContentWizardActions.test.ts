@@ -2,7 +2,7 @@ import { ManagedActionState } from '@enonic/lib-admin-ui/managedaction/ManagedAc
 import type { Action } from '@enonic/lib-admin-ui/ui/Action';
 import Q from 'q';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { Permission } from '../../access/Permission';
+import { Permission } from '../../../v6/shared/lib/cms/permissions/Permission';
 import type { Content } from '../../content/Content';
 import type { ContentSummaryAndCompareStatus } from '../../content/ContentSummaryAndCompareStatus';
 import type { ContentWizardPanel } from '../ContentWizardPanel';
