@@ -115,7 +115,9 @@ class SettingsItemStatisticsPanel extends Page {
         try {
             let locator = this.graphicElementByDisplayName(title) + XPATH.graphCardId;
             await this.waitForElementDisplayed(locator);
-            return await this.getText(locator);
+            // ? A card clipped by the overflowing viewport gives an empty getText().
+            let element = await this.findElement(locator);
+            return (await element.getProperty('textContent')).trim();
         } catch (err) {
             await this.handleError(
                 `Getting the identifier of '${title}' in the Projects graph`,
