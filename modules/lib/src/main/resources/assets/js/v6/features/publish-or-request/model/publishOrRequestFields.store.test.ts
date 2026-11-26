@@ -22,14 +22,15 @@ const REQUIRED = { visible: true, required: true };
 
 const MAIN_ITEM = { getId: () => 'main', getContentId: () => new ContentId('main') } as unknown as ContentSummary;
 
-// One main item and what the user cannot publish. The role is read when the dialog state
-// changes, so it is set before the state.
+// One main item that can be scheduled, and what the user cannot publish. The role is read
+// when the dialog state changes, so it is set before the state.
 const setDialog = (canRequest: boolean, blocked: string[] = []): void => {
     mockCanRequestPublish.mockReturnValue(canRequest);
     $publishOrRequestDialog.set({
         ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
         items: [MAIN_ITEM],
         notPublishableIds: blocked.map((id) => new ContentId(id)),
+        schedulable: true,
     });
 };
 
@@ -114,9 +115,26 @@ describe('publish or request fields store', () => {
             });
         });
 
-        it('should show the other fields and require none of them', () => {
+        describe('schedule', () => {
+            it('should be optional while something to publish can be scheduled', () => {
+                expect($publishOrRequestFieldStates.get().schedule).toEqual(OPTIONAL);
+            });
+
+            it('should be hidden while nothing to publish can be scheduled', () => {
+                $publishOrRequestDialog.setKey('schedulable', false);
+
+                expect($publishOrRequestFieldStates.get().schedule).toEqual(HIDDEN);
+            });
+
+            it('should be optional for a user who can only request', () => {
+                setDialog(true, ['main']);
+
+                expect($publishOrRequestFieldStates.get().schedule).toEqual(OPTIONAL);
+            });
+        });
+
+        it('should show the title and the comment and require neither', () => {
             expect($publishOrRequestFieldStates.get()).toMatchObject({
-                schedule: OPTIONAL,
                 title: OPTIONAL,
                 comment: OPTIONAL,
             });
@@ -189,6 +207,24 @@ describe('publish or request fields store', () => {
             $publishOrRequestFields.setKey('assignChecked', true);
 
             expect($isPublishOrRequestScheduleOpen.get()).toBe(false);
+        });
+
+        it('should be false while the field is hidden, even if ticked', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            $publishOrRequestDialog.setKey('schedulable', false);
+
+            expect($isPublishOrRequestScheduleOpen.get()).toBe(false);
+        });
+
+        it('should go back to a ticked field once it shows again', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+            $publishOrRequestDialog.setKey('schedulable', false);
+
+            $publishOrRequestDialog.setKey('schedulable', true);
+
+            expect($publishOrRequestFields.get().scheduleChecked).toBe(true);
+            expect($isPublishOrRequestScheduleOpen.get()).toBe(true);
         });
     });
 });

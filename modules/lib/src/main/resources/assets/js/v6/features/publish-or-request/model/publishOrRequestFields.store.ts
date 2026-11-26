@@ -6,6 +6,7 @@
 import { computed, map } from 'nanostores';
 import {
     $hasPublishOrRequestBlockedItems,
+    $isPublishOrRequestSchedulable,
     $publishOrRequestCapability,
     type PublishOrRequestCapability,
 } from './publishOrRequestDialog.store';
@@ -70,21 +71,22 @@ export const $isPublishOrRequestAssignOpen = computed(
         isFieldOpen(getAssignFieldState(capability, hasBlockedItems), assignChecked),
 );
 
-/** True when the schedule is asked for: the field is required, or the user ticked it. */
-export const $isPublishOrRequestScheduleOpen = computed($publishOrRequestFields, ({ scheduleChecked }): boolean =>
-    isFieldOpen(OPTIONAL_FIELD_STATE, scheduleChecked),
+/** True when the schedule is asked for: the field shows and the user ticked it. */
+export const $isPublishOrRequestScheduleOpen = computed(
+    [$isPublishOrRequestSchedulable, $publishOrRequestFields],
+    (schedulable, { scheduleChecked }): boolean => isFieldOpen(getScheduleFieldState(schedulable), scheduleChecked),
 );
 
-// TODO: [#11792] Make the schedule, the title and the comment follow their rules.
+// TODO: [#11792] Make the title and the comment follow their rules.
 /**
  * Whether each field shows and is required. It reads no typed value, so typing in a field
  * leaves it as it is.
  */
 export const $publishOrRequestFieldStates = computed(
-    [$publishOrRequestCapability, $hasPublishOrRequestBlockedItems],
-    (capability, hasBlockedItems): PublishOrRequestFieldStates => ({
+    [$publishOrRequestCapability, $hasPublishOrRequestBlockedItems, $isPublishOrRequestSchedulable],
+    (capability, hasBlockedItems, schedulable): PublishOrRequestFieldStates => ({
         assign: getAssignFieldState(capability, hasBlockedItems),
-        schedule: OPTIONAL_FIELD_STATE,
+        schedule: getScheduleFieldState(schedulable),
         title: OPTIONAL_FIELD_STATE,
         comment: OPTIONAL_FIELD_STATE,
     }),
@@ -107,6 +109,11 @@ function getAssignFieldState(
     if (capability === 'publish' || capability === 'none') return HIDDEN_FIELD_STATE;
 
     return capability === 'request' || hasBlockedItems ? REQUIRED_FIELD_STATE : OPTIONAL_FIELD_STATE;
+}
+
+// Hidden while nothing to publish can be scheduled. Never required.
+function getScheduleFieldState(schedulable: boolean): PublishOrRequestFieldState {
+    return schedulable ? OPTIONAL_FIELD_STATE : HIDDEN_FIELD_STATE;
 }
 
 // A hidden field is never open. A required one is open whatever the user ticked.

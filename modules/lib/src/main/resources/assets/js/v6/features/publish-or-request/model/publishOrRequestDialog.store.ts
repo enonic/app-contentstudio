@@ -62,6 +62,9 @@ export type PublishOrRequestDialogStore = {
     // Items that have something to publish, whatever is unticked
     publishableIds: ContentId[];
 
+    // Whether the applied selection has something to schedule: an item that is offline or expired
+    schedulable: boolean;
+
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: boolean;
 };
@@ -104,6 +107,9 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
 
     // Items that have something to publish, whatever is unticked
     publishableIds: [],
+
+    // Whether the applied selection has something to schedule: an item that is offline or expired
+    schedulable: false,
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: true,
@@ -175,6 +181,12 @@ export const $isPublishOrRequestNotPublishableExcludable = computed($publishOrRe
 export const $hasPublishOrRequestBlockedItems = computed(
     $publishOrRequestDialog,
     ({ notPublishableIds }): boolean => notPublishableIds.length > 0,
+);
+
+/** True when a schedule can be set, i.e. when an item to publish is offline or has expired. */
+export const $isPublishOrRequestSchedulable = computed(
+    $publishOrRequestDialog,
+    ({ schedulable }): boolean => schedulable,
 );
 
 /**

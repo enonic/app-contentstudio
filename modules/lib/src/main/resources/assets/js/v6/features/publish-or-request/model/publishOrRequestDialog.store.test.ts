@@ -7,6 +7,7 @@ import {
     $isPublishOrRequestInProgressExcludable,
     $isPublishOrRequestNextAllowed,
     $isPublishOrRequestPublishNowAllowed,
+    $isPublishOrRequestSchedulable,
     $publishOrRequestDependantsSelection,
     $publishOrRequestCapability,
     $publishOrRequestDialog,
@@ -134,6 +135,18 @@ describe('publish or request dialog store', () => {
             $publishOrRequestDialog.setKey('notPublishableIds', toIds('main'));
 
             expect($hasPublishOrRequestBlockedItems.get()).toBe(true);
+        });
+    });
+
+    describe('$isPublishOrRequestSchedulable', () => {
+        it('should be false until the server says a schedule can be set', () => {
+            expect($isPublishOrRequestSchedulable.get()).toBe(false);
+        });
+
+        it('should be true once it does', () => {
+            $publishOrRequestDialog.setKey('schedulable', true);
+
+            expect($isPublishOrRequestSchedulable.get()).toBe(true);
         });
     });
 

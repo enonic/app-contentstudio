@@ -63,6 +63,7 @@ export async function loadPublishOrRequestDialogData(): Promise<void> {
         inProgressIds: minResult.getInProgress().filter((id) => !hasContentIdInIds(id, invalidIds)),
         notPublishableIds: minResult.getNotPublishable(),
         publishableIds: maxResult.getPublishable().filter((id) => !hasContentIdInIds(id, hiddenIds)),
+        schedulable: minResult.isSchedulable(),
         ...pruneExclusions(dependantIds, requiredDependantIds),
     });
 }

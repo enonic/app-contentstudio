@@ -41,6 +41,7 @@ type Resolved = {
     getInvalid: () => ContentId[];
     getNotPublishable: () => ContentId[];
     getPublishable: () => ContentId[];
+    isSchedulable: () => boolean;
 };
 
 const createResolved = (
@@ -56,6 +57,7 @@ const createResolved = (
     getInvalid: () => invalidIds,
     getNotPublishable: () => notPublishableIds,
     getPublishable: () => [],
+    isSchedulable: () => false,
 });
 
 const mockResolved = (dependantIds: ContentId[], requiredIds: ContentId[] = []): void => {
@@ -275,6 +277,28 @@ describe('publish or request dialog load commands', () => {
             await loadPublishOrRequestDialogData();
 
             expect($publishOrRequestDialog.get().publishableIds).toEqual([ids[0], ids[2]]);
+        });
+
+        it('should store whether a schedule can be set, from the answer for the applied selection', async () => {
+            const ids = createIds(2);
+            exclude([ids[1]]);
+            mockResolvePublishDependencies
+                .mockReturnValueOnce(okAsync({ ...createResolved(ids), isSchedulable: () => true }))
+                .mockReturnValueOnce(okAsync({ ...createResolved([ids[0]]), isSchedulable: () => false }));
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().schedulable).toBe(false);
+        });
+
+        it('should keep that a schedule can be set once the answer says so', async () => {
+            mockResolvePublishDependencies.mockReturnValue(
+                okAsync({ ...createResolved([]), isSchedulable: () => true }),
+            );
+
+            await loadPublishOrRequestDialogData();
+
+            expect($publishOrRequestDialog.get().schedulable).toBe(true);
         });
 
         it('should report loading while the load runs', async () => {
