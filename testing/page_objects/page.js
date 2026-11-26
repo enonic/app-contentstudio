@@ -87,19 +87,31 @@ class Page {
 
     // An element removed from the DOM between findElements() and isDisplayed() throws a stale element error,
     // treat it as hidden.
+    // ? Element commands (isDisplayed) refetch a stale element and wait up to waitforTimeout for it to reappear,
+    // ? which outlasts short waits for an element to disappear. browser.execute fails on a stale element at once.
     async doFilterDisplayedElements(elements) {
         elements = Array.from(elements);
-        let pr = elements.map(async (el) => {
-            try {
-                return await el.isDisplayed();
-            } catch (err) {
-                if (/stale element/i.test(err.message)) {
-                    return false;
-                }
-                throw err;
+        let result;
+        try {
+            result = await this.browser.execute((els) => {
+                const params = { contentVisibilityAuto: true, opacityProperty: true, visibilityProperty: true };
+                const isVisible = (el) => {
+                    if (!el.isConnected) {
+                        return false;
+                    }
+                    if (getComputedStyle(el).display === 'contents') {
+                        return Array.from(el.children).some(isVisible);
+                    }
+                    return el.checkVisibility(params);
+                };
+                return els.map(isVisible);
+            }, elements);
+        } catch (err) {
+            if (/stale element/i.test(err.message) || err.name === 'stale element reference') {
+                return [];
             }
-        });
-        let result = await Promise.all(pr);
+            throw err;
+        }
         return elements.filter((el, i) => result[i]);
     }
 
