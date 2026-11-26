@@ -2,6 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
+import {
+    $publishOrRequestFields,
+    INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE,
+    type PublishOrRequestFieldsStore,
+} from '../publishOrRequestFields.store';
 import { closePublishOrRequestDialog, getPublishOrRequestDialogSessionId, openPublishOrRequestDialog } from './open';
 
 const { mockLoad, mockCancelLoad } = vi.hoisted(() => ({
@@ -19,11 +24,24 @@ const createItem = (id: string): ContentSummary =>
 
 const excludeChildrenIds = (): string[] => $publishOrRequestDialog.get().excludeChildrenIds.map(String);
 
+const FILLED_FIELDS: PublishOrRequestFieldsStore = {
+    assignChecked: true,
+    assigneeIds: ['user:system:a'],
+    scheduleChecked: true,
+    scheduleFrom: new Date('2030-01-01T08:00:00Z'),
+    scheduleTo: new Date('2030-02-01T08:00:00Z'),
+    scheduleFromError: 'Bad from',
+    scheduleToError: 'Bad to',
+    title: 'Title',
+    comment: 'Comment',
+};
+
 describe('publish or request dialog open commands', () => {
     beforeEach(() => {
         mockLoad.mockReset();
         mockCancelLoad.mockReset();
         $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE });
+        $publishOrRequestFields.set({ ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE });
     });
 
     afterEach(() => {
@@ -80,6 +98,14 @@ describe('publish or request dialog open commands', () => {
             });
         });
 
+        it('should empty the fields of an earlier run', () => {
+            $publishOrRequestFields.set({ ...FILLED_FIELDS });
+
+            openPublishOrRequestDialog([createItem('a')]);
+
+            expect($publishOrRequestFields.get()).toEqual(INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE);
+        });
+
         it('should load the dependencies of the items', () => {
             openPublishOrRequestDialog([createItem('a')]);
 
@@ -100,6 +126,14 @@ describe('publish or request dialog open commands', () => {
             closePublishOrRequestDialog();
 
             expect($publishOrRequestDialog.get()).toEqual(INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE);
+        });
+
+        it('should empty the fields', () => {
+            $publishOrRequestFields.set({ ...FILLED_FIELDS });
+
+            closePublishOrRequestDialog();
+
+            expect($publishOrRequestFields.get()).toEqual(INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE);
         });
 
         it('should drop a load that is still running', () => {

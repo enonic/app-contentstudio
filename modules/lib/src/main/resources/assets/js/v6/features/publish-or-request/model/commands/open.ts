@@ -2,15 +2,17 @@
 
 import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
+import { $publishOrRequestFields, INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE } from '../publishOrRequestFields.store';
 import { cancelPublishOrRequestDialogLoad, loadPublishOrRequestDialogData } from './load';
 
 /**
- * Opens the dialog for the given items on its first step and loads their dependencies.
- * With `includeChildren`, the children of every item come along as dependencies.
+ * Opens the dialog for the given items on its first step, with empty fields, and loads their
+ * dependencies. With `includeChildren`, the children of every item come along as dependencies.
  */
 export function openPublishOrRequestDialog(items: readonly ContentSummary[], includeChildren = false): void {
     sessionId += 1;
 
+    $publishOrRequestFields.set({ ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE });
     $publishOrRequestDialog.set({
         ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE,
         open: true,
@@ -21,12 +23,13 @@ export function openPublishOrRequestDialog(items: readonly ContentSummary[], inc
     void loadPublishOrRequestDialogData();
 }
 
-/** Closes the dialog, resets its state and drops a load that is still running. */
+/** Closes the dialog, resets its state and its fields, and drops a load that is still running. */
 export function closePublishOrRequestDialog(): void {
     sessionId += 1;
     cancelPublishOrRequestDialogLoad();
 
     $publishOrRequestDialog.set({ ...INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE });
+    $publishOrRequestFields.set({ ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE });
 }
 
 /**
