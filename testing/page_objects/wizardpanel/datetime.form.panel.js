@@ -23,12 +23,6 @@ class DateTimeForm extends OccurrencesFormView {
             await dateTimeElements[index].addValue(ch);
             await this.pause(20);
         }
-        // TODO the second option for setting values:
-        // await this.getBrowser().execute((el, val) => {
-        //     el.value = val;
-        //     el.dispatchEvent(new Event('input', { bubbles: true }));
-        //     el.dispatchEvent(new Event('change', { bubbles: true }));
-        // }, dateTimeElements[index], value);
         return await this.pause(300);
     }
 

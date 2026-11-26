@@ -18,7 +18,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
     const FOLDER_WITH_FILES = 'selenium-tests-folder';
     const EXPECTED_NUMBER_OF_ITEMS_IN_SELECTOR = 10;
 
-    it(`GIVEN display name of an image has been typed in option filter input (tree mode) WHEN the image has been clicked THEN then the option should be selected after clicking on OK button`, async () => {
+    it(`GIVEN display name of an image has been typed in the options filter input WHEN the filtered image has been clicked AND 'Apply' button has been pressed THEN the image should be displayed in the selected options`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         // 1. Open wizard with Image Selector:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_2_4);
@@ -38,7 +38,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
         );
     });
 
-    it(`GIVEN wizard for image-selector is opened WHEN random string 'zzzzzz' typed in the filter input THEN 'No matching items' should appear`, async () => {
+    it(`GIVEN wizard for image-selector is opened WHEN not existing name 'zzzzzz' has been typed in the options filter input THEN 'No matching items' message should appear`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         // 1. Open wizard with Image Selector:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_2_4);
@@ -48,11 +48,11 @@ describe('content.image.selector: Image selector dropdown specification', functi
         await imageSelectorForm.waitForEmptyOptionsMessage();
     });
 
-    it(`GIVEN wizard for image-selector is opened and actual name is typed in filter input WHEN random string 'zzzzzz'  has been typed in the filter input THEN 'No matching items' should appears`, async () => {
+    it(`GIVEN wizard for image-selector is opened AND name of existing image is typed in the options filter input WHEN not existing name 'zzzzzz' has been typed in the filter input THEN 'No matching items' message should appear`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         // 1. Open wizard with Image Selector:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_2_4);
-        // 2. Type an existing folder-name
+        // 2. Type the name of an existing image:
         await imageSelectorForm.doFilterOptions(appConst.TEST_IMAGES.SPUMANS);
         // 3. Type a not existing name:
         await imageSelectorForm.doFilterOptions('zzzzzz');
@@ -61,7 +61,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
         assert.ok(isDisplayed, "'No matching items' - this message should appear");
     });
 
-    it(`GIVEN wizard for image-selector is opened WHEN 'mode toggler' button has been pressed THEN mode should be switched to 'Tree' and expected folder with images should be present in the options`, async () => {
+    it(`GIVEN wizard for image-selector is opened WHEN 'mode toggler' button has been pressed THEN the selector should be switched to tree mode AND the folder with images should be the first option`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard with Image Selector:
@@ -78,7 +78,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
         );
     });
 
-    it(`GIVEN wizard for image-selector is opened WHEN clicked the expander icon for the "folder" option with images THEN The image status should be displayed within the options`, async () => {
+    it(`GIVEN image-selector is switched to tree mode WHEN the folder with images has been expanded THEN content status should be displayed for each image in the options`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard with Image Selector:
@@ -96,7 +96,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
         );
     });
 
-    it(`GIVEN image-selector is switched to tree mode then expanded WHEN clicked the expander icon for the "folder" option with images THEN expected images should be displayed`, async () => {
+    it(`GIVEN image-selector is switched to tree mode AND the folder with images is expanded WHEN an image has been clicked AND 'Apply' button has been pressed THEN the image should be displayed in the selected options`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard with Image Selector:
@@ -106,19 +106,20 @@ describe('content.image.selector: Image selector dropdown specification', functi
         await imageSelectorForm.clickOnModeTogglerButton();
         // 3. Expand a folder with images:
         await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
-        await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.CAPE);
+        // 4. Click on the image then click on 'Apply' button:
+        await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.BOOK);
         await imageSelectorForm.clickOnApplySelectionButton();
-        // 4. Verify the selected option:
+        // 5. Verify the selected option:
         await studioUtils.saveScreenshot('img_sel_tree_mode_image_selected');
         let result = await imageSelectorForm.getSelectedImagesDisplayNames();
         assert.equal(
             result[0],
-            appConst.TEST_IMAGES.CAPE,
+            appConst.TEST_IMAGES.BOOK,
             'Expected image should be displayed in the selected options',
         );
     });
 
-    it(`GIVEN wizard for image-selector(flat mode) is opened WHEN 'dropdown handle' button has been pressed THEN flat mode should be present in the options list`, async () => {
+    it(`GIVEN wizard for image-selector(flat mode) is opened WHEN 'dropdown handle' button has been pressed THEN images should be displayed in the options list in flat mode`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open wizard with Image Selector:
@@ -136,7 +137,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
     });
 
     // verifies https://github.com/enonic/lib-admin-ui/issues/628
-    it(`GIVEN wizard with image-selector is opened WHEN folder's name(folder has child image) has been typed in filter input THEN one option should be present in the dropdown list`, async () => {
+    it(`GIVEN wizard with image-selector is opened WHEN name of the folder with images and text files has been typed in the options filter input THEN only 2 images should be present in the dropdown list`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         // 1. Open wizard with Image Selector:
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_1_1);

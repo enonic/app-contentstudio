@@ -140,7 +140,7 @@ module.exports = Object.freeze({
     },
 
     VERSIONS_ITEM_HEADER: {
-        PERMISSIONS_UPDATED: 'Permissions updated',
+        PERMISSIONS: 'Permissions',
         CREATED: 'Created',
         EDITED: 'Edited',
         MARKED_AS_READY: 'Marked as Ready',
