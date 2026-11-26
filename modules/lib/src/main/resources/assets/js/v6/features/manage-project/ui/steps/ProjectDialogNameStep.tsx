@@ -2,6 +2,7 @@ import { Dialog, Input } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { ReactElement, type RefObject, useCallback, useEffect, useRef, useState } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { RequiredFieldsLegend } from '../../../../shared/ui/RequiredFieldsLegend';
 import { $projectDialog, setProjectDialogName } from '../../model/projectDialog.store';
 import { $projects } from '../../../../entities/project';
 import { prettifyProjectIdentifier, validateProjectIdentifier } from '../../../../shared/lib/cms/projects/identifier';
@@ -182,9 +183,11 @@ export const ProjectDialogNameStepContent = ({
     return (
         <Dialog.StepContent step="step-name" locked={locked}>
             <div ref={nameStepRef} className="flex flex-col gap-7.5">
+                <RequiredFieldsLegend />
                 {/* Name */}
                 <Input
                     label={projectNameLabel}
+                    aria-required={true}
                     value={name}
                     error={nameError}
                     onChange={(e) => processName(e.currentTarget.value)}
@@ -195,6 +198,7 @@ export const ProjectDialogNameStepContent = ({
                     <Input
                         ref={identifierRef}
                         label={projectIdentifierLabel}
+                        aria-required={true}
                         value={identifier}
                         error={identifierError}
                         onChange={(e) => processIdentifier(e.currentTarget.value)}

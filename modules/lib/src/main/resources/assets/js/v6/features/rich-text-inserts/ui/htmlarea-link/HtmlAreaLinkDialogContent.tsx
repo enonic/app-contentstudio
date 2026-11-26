@@ -2,6 +2,7 @@ import { TabContent } from '../../../../shared/ui/TabContent';
 import { Input, Tab } from '@enonic/ui';
 import { type ReactElement, useEffect, useRef } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { RequiredFieldsLegend } from '../../../../shared/ui/RequiredFieldsLegend';
 import { type LinkType, useHtmlAreaLinkDialogContext } from './HtmlAreaLinkDialogContext';
 import { AnchorTabPanel } from './AnchorTabPanel';
 import { ContentTabPanel } from './ContentTabPanel';
@@ -44,6 +45,7 @@ export const HtmlAreaLinkDialogContent = (): ReactElement => {
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-5">
+            <RequiredFieldsLegend />
             {linkTextEditable && (
                 <Input
                     ref={linkTextInputRef}

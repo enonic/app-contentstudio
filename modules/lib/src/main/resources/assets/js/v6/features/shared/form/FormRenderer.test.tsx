@@ -1,6 +1,14 @@
 import { type ApplicationKey } from '../../../shared/lib/cms/application/applicationKey';
 import { PropertySet, PropertyTree } from '@enonic/input-types/data';
-import { Form } from '@enonic/input-types/schema';
+import {
+    Form,
+    FormItemSet,
+    FormOptionSet,
+    FormOptionSetOption,
+    Input,
+    InputTypeName,
+    Occurrences,
+} from '@enonic/input-types/schema';
 import { cleanup, render, screen } from '@testing-library/preact';
 import type { ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -29,6 +37,10 @@ vi.mock('@enonic/input-types', () => ({
 
 vi.mock('../../../shared/ui/providers/FormI18nProvider', () => ({
     FormI18nProvider: ({ children }: { children: ReactNode }) => <div data-testid="i18n-provider">{children}</div>,
+}));
+
+vi.mock('../../../shared/lib/hooks/useI18n', () => ({
+    useI18n: () => 'Fields marked with an asterisk (*) are required.',
 }));
 
 vi.mock('./input-types/html-area', () => ({
@@ -60,20 +72,43 @@ type RenderFormOptions = {
     applicationKey?: ApplicationKey;
     project?: Readonly<Project> | null;
     content?: ContentSummary | null;
+    form?: Form;
+    excludeInputTypes?: readonly string[];
+    showRequiredFieldsLegend?: boolean;
 };
 
-function renderForm({ applicationKey, project, content }: RenderFormOptions = {}) {
+function renderForm({
+    applicationKey,
+    project,
+    content,
+    form = new Form(),
+    excludeInputTypes,
+    showRequiredFieldsLegend,
+}: RenderFormOptions = {}) {
     const propertySet: PropertySet = new PropertyTree().getRoot();
     return render(
         <FormRenderer
-            form={new Form()}
+            form={form}
             propertySet={propertySet}
             applicationKey={applicationKey}
             project={project}
             content={content}
+            excludeInputTypes={excludeInputTypes}
+            showRequiredFieldsLegend={showRequiredFieldsLegend}
         />,
     );
 }
+
+function input(name: string, minimum: number, type = 'TextLine'): Input {
+    return Input.create()
+        .setName(name)
+        .setLabel(name)
+        .setInputType(new InputTypeName(type))
+        .setOccurrences(Occurrences.minmax(minimum, 1))
+        .build();
+}
+
+const requiredFieldsText = 'Fields marked with an asterisk (*) are required.';
 
 describe('FormRenderer', () => {
     beforeEach(() => {
@@ -85,6 +120,78 @@ describe('FormRenderer', () => {
     });
 
     afterEach(cleanup);
+
+    it('explains the asterisk before the form fields', () => {
+        renderForm({ form: new Form([input('title', 1), input('summary', 0)]) });
+
+        const legend = screen.getByText(requiredFieldsText);
+        expect(legend.tagName).toBe('P');
+        expect(legend.getAttribute('aria-hidden')).toBeNull();
+        expect(
+            legend.compareDocumentPosition(screen.getByTestId('toolkit-form')) & Node.DOCUMENT_POSITION_FOLLOWING,
+        ).not.toBe(0);
+    });
+
+    it('omits the explanation for empty and entirely optional forms', () => {
+        const view = renderForm();
+        expect(screen.queryByText(requiredFieldsText)).toBeNull();
+
+        view.unmount();
+        renderForm({ form: new Form([input('summary', 0)]) });
+        expect(screen.queryByText(requiredFieldsText)).toBeNull();
+    });
+
+    it('explains required inputs nested in optional item and option sets once', () => {
+        const itemSet = new FormItemSet({
+            name: 'blocks',
+            label: 'Blocks',
+            occurrences: Occurrences.minmax(0, 5),
+            items: [input('heading', 1)],
+        });
+        const optionSet = new FormOptionSet({
+            name: 'layout',
+            label: 'Layout',
+            occurrences: Occurrences.minmax(0, 1),
+            multiselection: Occurrences.minmax(1, 1),
+            options: [new FormOptionSetOption({ name: 'text', label: 'Text', items: [input('body', 1)] })],
+        });
+
+        const view = renderForm({ form: new Form([itemSet]) });
+        expect(screen.getAllByText(requiredFieldsText)).toHaveLength(1);
+
+        view.unmount();
+        renderForm({ form: new Form([optionSet]) });
+        expect(screen.getAllByText(requiredFieldsText)).toHaveLength(1);
+    });
+
+    it('explains a required set even when all of its inputs are optional', () => {
+        const set = new FormItemSet({
+            name: 'blocks',
+            label: 'Blocks',
+            occurrences: Occurrences.minmax(1, 5),
+            items: [input('summary', 0)],
+        });
+
+        renderForm({ form: new Form([set]) });
+        expect(screen.getByText(requiredFieldsText)).toBeDefined();
+    });
+
+    it('omits the explanation when the only required input is excluded', () => {
+        renderForm({
+            form: new Form([input('image', 1, 'ImageUploader'), input('summary', 0)]),
+            excludeInputTypes: ['imageuploader'],
+        });
+
+        expect(screen.queryByText(requiredFieldsText)).toBeNull();
+        expect(screen.getByTestId('toolkit-form')).toBeDefined();
+    });
+
+    it('lets the surrounding form provide the explanation without repeating it', () => {
+        renderForm({ form: new Form([input('title', 1)]), showRequiredFieldsLegend: false });
+
+        expect(screen.queryByText(requiredFieldsText)).toBeNull();
+        expect(screen.getByTestId('toolkit-form')).toBeDefined();
+    });
 
     it('wraps the toolkit form in the phrases, the content language and an HTML area context', () => {
         renderForm();

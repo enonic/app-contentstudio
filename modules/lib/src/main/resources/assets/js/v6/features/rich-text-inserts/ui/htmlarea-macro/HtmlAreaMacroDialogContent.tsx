@@ -2,6 +2,7 @@ import { TabContent } from '../../../../shared/ui/TabContent';
 import { Tab } from '@enonic/ui';
 import { type ReactElement, useCallback, useEffect } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
+import { RequiredFieldsLegend } from '../../../../shared/ui/RequiredFieldsLegend';
 import { type MacroTab, useHtmlAreaMacroDialogContext } from './HtmlAreaMacroDialogContext';
 import { MacroSelector } from './MacroSelector';
 import { MacroConfigPanel } from './MacroConfigPanel';
@@ -37,6 +38,7 @@ export const HtmlAreaMacroDialogContent = (): ReactElement => {
 
     return (
         <div data-component={COMPONENT_NAME} className="flex flex-col gap-5">
+            <RequiredFieldsLegend />
             <MacroSelector />
 
             {hasDescriptor && (

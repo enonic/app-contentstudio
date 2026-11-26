@@ -4,6 +4,7 @@ import { CornerDownRight } from 'lucide-react';
 import { useRef, type ReactElement } from 'react';
 import { IssueType } from '../../../shared/lib/cms/issue/IssueType';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { RequiredFieldsLegend } from '../../../shared/ui/RequiredFieldsLegend';
 import { useDialogInitialFocus } from '../../../shared/lib/hooks/useDialogInitialFocus';
 import { useContentSelectionView } from '../../../shared/lib/hooks/useContentSelectionView';
 import { $config } from '../../../shared/config';
@@ -172,8 +173,10 @@ export const RequestPublishDialogContent = (): ReactElement => {
 
             <Dialog.Body className="min-h-0 overflow-y-auto rounded-sm outline-none focus:ring-2 focus:ring-ring/10 focus:ring-inset">
                 <div className="flex min-h-0 flex-col gap-7.5 px-5">
+                    <RequiredFieldsLegend />
                     <Input
                         label={titleLabel}
+                        aria-required={true}
                         ref={titleInputRef}
                         value={title}
                         onInput={(event) => setRequestPublishTitle(event.currentTarget.value)}
