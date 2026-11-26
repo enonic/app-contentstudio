@@ -4,6 +4,11 @@
 // The commands that change this state live in `./commands/fields`.
 
 import { computed, map } from 'nanostores';
+import {
+    $hasPublishOrRequestBlockedItems,
+    $publishOrRequestCapability,
+    type PublishOrRequestCapability,
+} from './publishOrRequestDialog.store';
 
 export type PublishOrRequestFieldsStore = {
     // Assign to: the user's choice to assign, kept while the field is required
@@ -58,37 +63,51 @@ export const $publishOrRequestFields = map<PublishOrRequestFieldsStore>({
     ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE,
 });
 
-// TODO: [#11792] Follow what the user may do and what the other fields hold.
-/** Whether each field shows and is required. For now every field shows and none is required. */
-export const $publishOrRequestFieldStates = computed(
-    $publishOrRequestFields,
-    (): PublishOrRequestFieldStates => OPTIONAL_FIELD_STATES,
-);
-
 /** True when the assignees are asked for: the field is required, or the user ticked it. */
 export const $isPublishOrRequestAssignOpen = computed(
-    [$publishOrRequestFieldStates, $publishOrRequestFields],
-    ({ assign }, { assignChecked }): boolean => isFieldOpen(assign, assignChecked),
+    [$publishOrRequestCapability, $hasPublishOrRequestBlockedItems, $publishOrRequestFields],
+    (capability, hasBlockedItems, { assignChecked }): boolean =>
+        isFieldOpen(getAssignFieldState(capability, hasBlockedItems), assignChecked),
 );
 
 /** True when the schedule is asked for: the field is required, or the user ticked it. */
-export const $isPublishOrRequestScheduleOpen = computed(
-    [$publishOrRequestFieldStates, $publishOrRequestFields],
-    ({ schedule }, { scheduleChecked }): boolean => isFieldOpen(schedule, scheduleChecked),
+export const $isPublishOrRequestScheduleOpen = computed($publishOrRequestFields, ({ scheduleChecked }): boolean =>
+    isFieldOpen(OPTIONAL_FIELD_STATE, scheduleChecked),
+);
+
+// TODO: [#11792] Make the schedule, the title and the comment follow their rules.
+/**
+ * Whether each field shows and is required. It reads no typed value, so typing in a field
+ * leaves it as it is.
+ */
+export const $publishOrRequestFieldStates = computed(
+    [$publishOrRequestCapability, $hasPublishOrRequestBlockedItems],
+    (capability, hasBlockedItems): PublishOrRequestFieldStates => ({
+        assign: getAssignFieldState(capability, hasBlockedItems),
+        schedule: OPTIONAL_FIELD_STATE,
+        title: OPTIONAL_FIELD_STATE,
+        comment: OPTIONAL_FIELD_STATE,
+    }),
 );
 
 // *
 // * Internal
 // *
 
+// The three states a field can be in. Shared, so a state that did not change is the same object.
+const HIDDEN_FIELD_STATE: PublishOrRequestFieldState = { visible: false, required: false };
 const OPTIONAL_FIELD_STATE: PublishOrRequestFieldState = { visible: true, required: false };
+const REQUIRED_FIELD_STATE: PublishOrRequestFieldState = { visible: true, required: true };
 
-const OPTIONAL_FIELD_STATES: PublishOrRequestFieldStates = {
-    assign: OPTIONAL_FIELD_STATE,
-    schedule: OPTIONAL_FIELD_STATE,
-    title: OPTIONAL_FIELD_STATE,
-    comment: OPTIONAL_FIELD_STATE,
-};
+// Hidden from who cannot request; required for who cannot publish everything that is listed.
+function getAssignFieldState(
+    capability: PublishOrRequestCapability,
+    hasBlockedItems: boolean,
+): PublishOrRequestFieldState {
+    if (capability === 'publish' || capability === 'none') return HIDDEN_FIELD_STATE;
+
+    return capability === 'request' || hasBlockedItems ? REQUIRED_FIELD_STATE : OPTIONAL_FIELD_STATE;
+}
 
 // A hidden field is never open. A required one is open whatever the user ticked.
 function isFieldOpen({ visible, required }: PublishOrRequestFieldState, checked: boolean): boolean {

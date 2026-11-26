@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import {
+    $hasPublishOrRequestBlockedItems,
     $hasPublishOrRequestExcludedDependants,
     $isPublishOrRequestInProgressExcludable,
     $isPublishOrRequestNextAllowed,
@@ -114,6 +115,25 @@ describe('publish or request dialog store', () => {
             $publishOrRequestDialog.setKey('excludedDependantIds', toIds('a', 'b'));
 
             expect($publishOrRequestPublishableCount.get()).toBe(1);
+        });
+    });
+
+    describe('$hasPublishOrRequestBlockedItems', () => {
+        it('should be false while the user can publish everything listed', () => {
+            expect($hasPublishOrRequestBlockedItems.get()).toBe(false);
+        });
+
+        it('should be true when the user cannot publish a dependency', () => {
+            $publishOrRequestDialog.setKey('notPublishableIds', toIds('a'));
+
+            expect($hasPublishOrRequestBlockedItems.get()).toBe(true);
+        });
+
+        it('should be true when the user cannot publish a main item', () => {
+            $publishOrRequestDialog.setKey('items', toItems('main'));
+            $publishOrRequestDialog.setKey('notPublishableIds', toIds('main'));
+
+            expect($hasPublishOrRequestBlockedItems.get()).toBe(true);
         });
     });
 

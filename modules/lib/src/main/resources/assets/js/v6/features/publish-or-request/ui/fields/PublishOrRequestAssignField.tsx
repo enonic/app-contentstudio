@@ -1,5 +1,6 @@
-// Assign to field of the publish or request dialog's second step: a checkbox that, once
-// ticked, asks for the users to assign the publish request to.
+// Assign to field of the publish or request dialog's second step: the users to assign the
+// publish request to. Behind a checkbox while assigning is a choice; without one when it is
+// the only way on.
 
 import { Checkbox } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
@@ -7,18 +8,33 @@ import { type ReactElement, useId } from 'react';
 import { useI18n } from '../../../../shared/lib/hooks/useI18n';
 import { PrincipalSelector, usePrincipalSearch, usePrincipalSelection } from '../../../shared/selectors/principal';
 import { setPublishOrRequestAssignChecked, setPublishOrRequestAssignees } from '../../model/commands/fields';
-import { $isPublishOrRequestAssignOpen, $publishOrRequestFields } from '../../model/publishOrRequestFields.store';
+import {
+    $isPublishOrRequestAssignOpen,
+    $publishOrRequestFieldStates,
+    $publishOrRequestFields,
+} from '../../model/publishOrRequestFields.store';
+import { PublishOrRequestFieldLabel } from './PublishOrRequestFieldLabel';
 
 const PUBLISH_OR_REQUEST_ASSIGN_FIELD_NAME = 'PublishOrRequestAssignField';
 
 export const PublishOrRequestAssignField = (): ReactElement => {
     const { assignChecked } = useStore($publishOrRequestFields, { keys: ['assignChecked'] });
+    const { assign } = useStore($publishOrRequestFieldStates);
     const isOpen = useStore($isPublishOrRequestAssignOpen);
 
     const helpId = useId();
 
     const label = useI18n('dialog.publishOrRequest.assign');
     const helpText = useI18n('dialog.publishOrRequest.assign.help');
+
+    if (assign.required) {
+        return (
+            <div data-component={PUBLISH_OR_REQUEST_ASSIGN_FIELD_NAME} className="flex flex-col gap-2">
+                <PublishOrRequestFieldLabel label={label} helpText={helpText} required />
+                <AssigneesSelector />
+            </div>
+        );
+    }
 
     return (
         <div data-component={PUBLISH_OR_REQUEST_ASSIGN_FIELD_NAME} className="flex flex-col gap-2.5">
@@ -36,7 +52,7 @@ export const PublishOrRequestAssignField = (): ReactElement => {
                 </p>
             </div>
 
-            {isOpen && <AssigneesSelector />}
+            {isOpen && <AssigneesSelector className="pl-6" />}
         </div>
     );
 };
@@ -47,8 +63,12 @@ PublishOrRequestAssignField.displayName = PUBLISH_OR_REQUEST_ASSIGN_FIELD_NAME;
 // * Internal
 // *
 
+type AssigneesSelectorProps = {
+    className?: string;
+};
+
 // The selector of the assignees. Apart from the field, so the users load only once it shows.
-function AssigneesSelector(): ReactElement {
+function AssigneesSelector({ className }: AssigneesSelectorProps): ReactElement {
     const { assigneeIds } = useStore($publishOrRequestFields, { keys: ['assigneeIds'] });
 
     const { options, handleSearchChange } = usePrincipalSearch();
@@ -60,7 +80,7 @@ function AssigneesSelector(): ReactElement {
 
     return (
         <PrincipalSelector
-            className="pl-6"
+            className={className}
             ariaLabel={assigneesLabel}
             options={options}
             selectedOptions={selectedOptions}

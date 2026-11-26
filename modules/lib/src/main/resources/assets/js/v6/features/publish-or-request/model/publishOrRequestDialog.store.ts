@@ -171,6 +171,12 @@ export const $isPublishOrRequestNotPublishableExcludable = computed($publishOrRe
     isEveryIdExcludable(state.notPublishableIds, state),
 );
 
+/** True when something listed cannot be published by the user, be it a main item or a dependency. */
+export const $hasPublishOrRequestBlockedItems = computed(
+    $publishOrRequestDialog,
+    ({ notPublishableIds }): boolean => notPublishableIds.length > 0,
+);
+
 /**
  * What the user may do: publishing takes the permission on every item the dialog was opened with,
  * requesting a role in the project. Right only once the dependencies are resolved.
