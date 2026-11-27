@@ -68,21 +68,23 @@ describe('publish or request fields store', () => {
     });
 
     describe('$publishOrRequestFieldStates', () => {
-        it('should stay the same value while the user types and ticks "Scheduled publish"', () => {
+        it('should stay the same value while the user types', () => {
             const before = $publishOrRequestFieldStates.get();
 
             $publishOrRequestFields.setKey('title', 'Typed');
             $publishOrRequestFields.setKey('comment', 'Typed');
-            $publishOrRequestFields.setKey('scheduleChecked', true);
 
             expect($publishOrRequestFieldStates.get()).toBe(before);
         });
 
-        it('should stay the same value while the user picks assignees', () => {
+        it('should stay the same value while the user picks assignees and dates', () => {
             $publishOrRequestFields.setKey('assignChecked', true);
+            $publishOrRequestFields.setKey('scheduleChecked', true);
             const before = $publishOrRequestFieldStates.get();
 
             $publishOrRequestFields.setKey('assigneeIds', ['user:system:a']);
+            $publishOrRequestFields.setKey('scheduleFrom', TOMORROW);
+            $publishOrRequestFields.setKey('scheduleTo', NEXT_WEEK);
 
             expect($publishOrRequestFieldStates.get()).toBe(before);
         });
@@ -189,8 +191,57 @@ describe('publish or request fields store', () => {
             });
         });
 
-        it('should show the comment and not require it', () => {
-            expect($publishOrRequestFieldStates.get().comment).toEqual(OPTIONAL);
+        describe('comment', () => {
+            it('should be optional while neither "Assign to" nor "Scheduled publish" is ticked', () => {
+                expect($publishOrRequestFieldStates.get().comment).toEqual(OPTIONAL);
+            });
+
+            it('should be required once "Assign to" is ticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(REQUIRED);
+            });
+
+            it('should be required once "Scheduled publish" is ticked', () => {
+                $publishOrRequestFields.setKey('scheduleChecked', true);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(REQUIRED);
+            });
+
+            it('should stay required while one of the two is still ticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+                $publishOrRequestFields.setKey('scheduleChecked', true);
+
+                $publishOrRequestFields.setKey('assignChecked', false);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(REQUIRED);
+            });
+
+            it('should be optional again once both are unticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+                $publishOrRequestFields.setKey('scheduleChecked', true);
+
+                $publishOrRequestFields.setKey('assignChecked', false);
+                $publishOrRequestFields.setKey('scheduleChecked', false);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(OPTIONAL);
+            });
+
+            it('should be required while "Assign to" is required, ticked or not', () => {
+                setDialog(true, ['main']);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(REQUIRED);
+            });
+
+            it('should be optional while both are hidden, even if ticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+                $publishOrRequestFields.setKey('scheduleChecked', true);
+
+                setDialog(false);
+                $publishOrRequestDialog.setKey('schedulable', false);
+
+                expect($publishOrRequestFieldStates.get().comment).toEqual(OPTIONAL);
+            });
         });
     });
 

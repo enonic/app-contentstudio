@@ -90,7 +90,6 @@ export const $publishOrRequestScheduleProblem = computed(
         isOpen ? getScheduleProblem(scheduleFrom, scheduleTo, new Date()) : undefined,
 );
 
-// TODO: [#11792] Make the comment follow its rule.
 /**
  * Whether each field shows and is required. It reads no typed value, so typing in a field
  * leaves it as it is.
@@ -101,12 +100,13 @@ export const $publishOrRequestFieldStates = computed(
         $hasPublishOrRequestBlockedItems,
         $isPublishOrRequestSchedulable,
         $isPublishOrRequestAssignOpen,
+        $isPublishOrRequestScheduleOpen,
     ],
-    (capability, hasBlockedItems, schedulable, isAssignOpen): PublishOrRequestFieldStates => ({
+    (capability, hasBlockedItems, schedulable, isAssignOpen, isScheduleOpen): PublishOrRequestFieldStates => ({
         assign: getAssignFieldState(capability, hasBlockedItems),
         schedule: getScheduleFieldState(schedulable),
         title: getTitleFieldState(isAssignOpen),
-        comment: OPTIONAL_FIELD_STATE,
+        comment: getCommentFieldState(isAssignOpen, isScheduleOpen),
     }),
 );
 
@@ -137,6 +137,12 @@ function getScheduleFieldState(schedulable: boolean): PublishOrRequestFieldState
 // The title of the publish request: asked for with the assignees, and never without them.
 function getTitleFieldState(isAssignOpen: boolean): PublishOrRequestFieldState {
     return isAssignOpen ? REQUIRED_FIELD_STATE : HIDDEN_FIELD_STATE;
+}
+
+// Always shown. Required with the assignees or the schedule, to say what the request or the
+// schedule is about.
+function getCommentFieldState(isAssignOpen: boolean, isScheduleOpen: boolean): PublishOrRequestFieldState {
+    return isAssignOpen || isScheduleOpen ? REQUIRED_FIELD_STATE : OPTIONAL_FIELD_STATE;
 }
 
 // Without "online to" the items stay online, so nothing can be wrong. Without "online from"
