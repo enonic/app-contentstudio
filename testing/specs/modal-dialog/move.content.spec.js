@@ -82,7 +82,7 @@ describe('move.content.spec: Tests for destination options in move dialog', func
             let moveContentDialog = new MoveContentDialog();
             let contentBrowsePanel = new ContentBrowsePanel();
             // 1. Select a folder with child items:
-            await studioUtils.findContentAndClickCheckBox(TEST_FOLDER_DISPLAY_NAME);
+            await studioUtils.findAndSelectItem(TEST_FOLDER_NAME)
             await contentBrowsePanel.clickOnExpanderIcon(TEST_FOLDER_NAME);
             await contentBrowsePanel.clickOnCheckboxAndSelectRowByName(appConst.TEST_IMAGES.CAPE);
             // 2. Open Move dialog:

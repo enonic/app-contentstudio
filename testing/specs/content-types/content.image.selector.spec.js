@@ -107,14 +107,14 @@ describe('content.image.selector: Image selector dropdown specification', functi
         // 3. Expand a folder with images:
         await imageSelectorForm.clickOnExpanderIconInOptionsList(appConst.TEST_DATA.TEST_FOLDER_IMAGES_1_DISPLAY_NAME);
         // 4. Click on the image then click on 'Apply' button:
-        await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.BOOK);
+        await imageSelectorForm.clickOnImageOptionInTreeMode(appConst.TEST_IMAGES.ELEPHANT);
         await imageSelectorForm.clickOnApplySelectionButton();
         // 5. Verify the selected option:
         await studioUtils.saveScreenshot('img_sel_tree_mode_image_selected');
         let result = await imageSelectorForm.getSelectedImagesDisplayNames();
         assert.equal(
             result[0],
-            appConst.TEST_IMAGES.CAPE,
+            appConst.TEST_IMAGES.ELEPHANT,
             'Expected image should be displayed in the selected options',
         );
     });
