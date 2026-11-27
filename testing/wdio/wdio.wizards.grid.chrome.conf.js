@@ -9,7 +9,6 @@ const browser_version = properties.get('browser.version');
 exports.config = {
     specs: [path.join(__dirname, '../specs/*.spec.js')],
     exclude: [
-        path.join(__dirname, '../specs/browse.selection.controller.spec.js'),
         path.join(__dirname, '../specs/outbound.dependency.rollback.version.spec.js'),
         path.join(__dirname, '../specs/site.app.uninstalled.spec.js'),
         path.join(__dirname, '../specs/site.configurator.htmlarea.spec.js'),

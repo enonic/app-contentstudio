@@ -114,7 +114,7 @@ describe('content.image.selector: Image selector dropdown specification', functi
         let result = await imageSelectorForm.getSelectedImagesDisplayNames();
         assert.equal(
             result[0],
-            appConst.TEST_IMAGES.BOOK,
+            appConst.TEST_IMAGES.CAPE,
             'Expected image should be displayed in the selected options',
         );
     });

@@ -106,8 +106,6 @@ const BUTTONS = {
     BUTTON_EDIT_ICON: "//button[@aria-label='Edit']",
     BUTTON_WITH_SPAN_ADD: "//button[child::span[text()='Add']]",
     NEW_CONTENT_BUTTON: "//button[contains(@class,'new-content-button')]",
-    REFRESH_BUTTON: "//button[contains(@class,'icon-loop')]",
-    SELECTION_PANEL_TOGGLER: `//button[contains(@id,'SelectionPanelToggler')]`,
     SELECTOR_MODE_TOGGLER: "//button[contains(@id,'ModeTogglerButton')]",
     UPLOAD_BUTTON: "//button[contains(@class,'upload-button')]",
     buttonByLabel: (label) => `//button[@type='button' and contains(.,'${label}')]`,

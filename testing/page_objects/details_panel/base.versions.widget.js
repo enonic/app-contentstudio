@@ -468,22 +468,6 @@ class BaseVersionsWidget extends Page {
         return this.extensionView + xpath.versionsListItemByName(displayName);
     }
 
-    // Checkbox for Edited, Created, Moved, Renamed version items.
-    // Returns false when the checkbox is not rendered (the version is not comparable):
-    async isCompareVersionCheckboxDisplayed(itemHeader, index) {
-        let i = index === undefined ? 0 : index;
-        let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
-        let elements = await this.findElements(itemLocator);
-        if (elements.length === 0 || elements[i] === undefined) {
-            throw new Error(`No version item found for the header: ${itemHeader} at index: ${i}`);
-        }
-        let checkboxElements = await elements[i].$$(xpath.compareCheckboxDiv);
-        if (checkboxElements.length === 0) {
-            return false;
-        }
-        return await checkboxElements[0].isDisplayed();
-    }
-
     // Toggles the 'Show all activities' checkbox: switches the widget between the 'full' display mode
     // (every activity) and the 'standard' one (data changes only):
     async clickOnShowAllActivitiesCheckbox() {
