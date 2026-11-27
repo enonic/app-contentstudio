@@ -9,6 +9,7 @@ import { NewIssueDialog } from '../../features/issues/ui/new-issue/NewIssueDialo
 import { ProjectDialog } from '../../features/manage-project/ui/ProjectDialog';
 import { ProjectSelectionDialog } from '../../features/manage-project/ui/ProjectSelectionDialog';
 import { PublishDialog } from '../../features/publish/ui/PublishDialog';
+import { PublishOrRequestDialog } from '../../features/publish-or-request/ui/PublishOrRequestDialog';
 import { RequestPublishDialog } from '../../features/request-publish/ui/RequestPublishDialog';
 import { SortDialog } from '../../features/sort/ui/SortDialog';
 import { UnpublishDialog } from '../../features/unpublish/ui/UnpublishDialog';
@@ -29,6 +30,7 @@ export const BrowseDialogs = (): ReactElement => {
             <ProjectSelectionDialog />
             <PermissionsDialog />
             <PublishDialog />
+            <PublishOrRequestDialog />
             <RequestPublishDialog />
             <SortDialog />
             <UnpublishDialog />

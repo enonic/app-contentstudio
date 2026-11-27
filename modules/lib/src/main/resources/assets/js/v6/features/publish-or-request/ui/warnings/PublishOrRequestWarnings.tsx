@@ -1,0 +1,51 @@
+// The warnings of the publish or request dialog's first step, or the ready entry when there
+// is none. Decides which ones show; each one lives in its own file in this folder.
+
+import { useStore } from '@nanostores/preact';
+import { type ReactElement } from 'react';
+import {
+    $isPublishOrRequestSelectionSynced,
+    $publishOrRequestCapability,
+    $publishOrRequestDialog,
+    $publishOrRequestPublishableCount,
+} from '../../model/publishOrRequestDialog.store';
+import { PublishOrRequestApplyWarning } from './PublishOrRequestApplyWarning';
+import { PublishOrRequestFailedWarning } from './PublishOrRequestFailedWarning';
+import { PublishOrRequestInProgressWarning } from './PublishOrRequestInProgressWarning';
+import { PublishOrRequestInvalidWarning } from './PublishOrRequestInvalidWarning';
+import { PublishOrRequestNothingToPublishWarning } from './PublishOrRequestNothingToPublishWarning';
+import { PublishOrRequestPermissionsWarning } from './PublishOrRequestPermissionsWarning';
+import { PublishOrRequestReadyEntry } from './PublishOrRequestReadyEntry';
+
+const PUBLISH_OR_REQUEST_WARNINGS_NAME = 'PublishOrRequestWarnings';
+
+export const PublishOrRequestWarnings = (): ReactElement => {
+    const { failed, inProgressIds, invalidIds, notPublishableIds } = useStore($publishOrRequestDialog, {
+        keys: ['failed', 'inProgressIds', 'invalidIds', 'notPublishableIds'],
+    });
+    const capability = useStore($publishOrRequestCapability);
+    const isSelectionSynced = useStore($isPublishOrRequestSelectionSynced);
+    const publishableCount = useStore($publishOrRequestPublishableCount);
+
+    const hasInProgress = inProgressIds.length > 0;
+    const hasInvalid = invalidIds.length > 0;
+    // A user who can only request publishing is not held back by what they cannot publish.
+    const hasNotPublishable = notPublishableIds.length > 0 && capability !== 'request';
+    const hasChecks = hasInProgress || hasInvalid || hasNotPublishable;
+
+    if (failed) return <PublishOrRequestFailedWarning />;
+    if (!isSelectionSynced) return <PublishOrRequestApplyWarning />;
+    if (!hasChecks && publishableCount === 0) return <PublishOrRequestNothingToPublishWarning />;
+    if (!hasChecks) return <PublishOrRequestReadyEntry />;
+
+    // The checks are about different items, so they show together.
+    return (
+        <div data-component={PUBLISH_OR_REQUEST_WARNINGS_NAME} className="flex flex-col gap-2.5">
+            {hasInProgress && <PublishOrRequestInProgressWarning />}
+            {hasInvalid && <PublishOrRequestInvalidWarning />}
+            {hasNotPublishable && <PublishOrRequestPermissionsWarning />}
+        </div>
+    );
+};
+
+PublishOrRequestWarnings.displayName = PUBLISH_OR_REQUEST_WARNINGS_NAME;
