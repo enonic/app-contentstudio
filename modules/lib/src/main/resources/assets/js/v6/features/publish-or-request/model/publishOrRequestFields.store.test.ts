@@ -1,9 +1,11 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
+import { $config } from '../../../shared/config/config.store';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from './publishOrRequestDialog.store';
 import {
     $isPublishOrRequestAssignOpen,
+    $isPublishOrRequestFieldsFilled,
     $isPublishOrRequestScheduleOpen,
     $isPublishOrRequestSubmitAllowed,
     $publishOrRequestAction,
@@ -39,6 +41,27 @@ const setDialog = (canRequest: boolean, blocked: string[] = []): void => {
         items: [MAIN_ITEM],
         notPublishableIds: blocked.map((id) => new ContentId(id)),
         schedulable: true,
+    });
+};
+
+// What a request asks for, on top of what is already entered.
+const fillRequest = (): void => {
+    $publishOrRequestFields.set({
+        ...$publishOrRequestFields.get(),
+        assignChecked: true,
+        assigneeIds: ['user:system:a'],
+        title: 'Title',
+        comment: 'Comment',
+    });
+};
+
+// What a schedule asks for, on top of what is already entered. The dates are far ahead.
+const fillSchedule = (): void => {
+    $publishOrRequestFields.set({
+        ...$publishOrRequestFields.get(),
+        scheduleChecked: true,
+        scheduleFrom: TOMORROW,
+        comment: 'Comment',
     });
 };
 
@@ -405,6 +428,136 @@ describe('publish or request fields store', () => {
         });
     });
 
+    describe('$isPublishOrRequestFieldsFilled', () => {
+        afterEach(() => {
+            $config.setKey('requiredPublishFrom', false);
+        });
+
+        it('should be true while nothing is asked for', () => {
+            expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+        });
+
+        it('should not mind what is entered in a field that is not asked for', () => {
+            $publishOrRequestFields.setKey('scheduleTo', YESTERDAY);
+            $publishOrRequestFields.setKey('scheduleFromError', 'Bad text');
+
+            expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+        });
+
+        describe('with "Assign to" on', () => {
+            beforeEach(fillRequest);
+
+            it('should be true once assignees, title and comment are entered', () => {
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+            });
+
+            it('should be false without assignees', () => {
+                $publishOrRequestFields.setKey('assigneeIds', []);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it.each(['', '   '])('should be false with the title "%s"', (title) => {
+                $publishOrRequestFields.setKey('title', title);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it.each(['', ' \n '])('should be false with the comment "%s"', (comment) => {
+                $publishOrRequestFields.setKey('comment', comment);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be false while "Assign to" is required and nothing is entered', () => {
+                $publishOrRequestFields.set({ ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE });
+
+                setDialog(true, ['main']);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be true again once "Assign to" is unticked, whatever is empty', () => {
+                $publishOrRequestFields.set({ ...INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE, assignChecked: true });
+
+                $publishOrRequestFields.setKey('assignChecked', false);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+            });
+        });
+
+        describe('with "Scheduled publish" on', () => {
+            beforeEach(() => {
+                vi.useFakeTimers();
+                vi.setSystemTime(NOW);
+                fillSchedule();
+            });
+
+            afterEach(() => {
+                vi.useRealTimers();
+            });
+
+            it('should be true with "online from" and a comment', () => {
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+            });
+
+            it('should be true with "online to" alone', () => {
+                $publishOrRequestFields.set({
+                    ...$publishOrRequestFields.get(),
+                    scheduleFrom: undefined,
+                    scheduleTo: TOMORROW,
+                });
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+            });
+
+            it('should be false without a date', () => {
+                $publishOrRequestFields.setKey('scheduleFrom', undefined);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be false with "online to" alone when "online from" is asked for', () => {
+                $config.setKey('requiredPublishFrom', true);
+
+                $publishOrRequestFields.set({
+                    ...$publishOrRequestFields.get(),
+                    scheduleFrom: undefined,
+                    scheduleTo: TOMORROW,
+                });
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be false while the dates are wrong', () => {
+                $publishOrRequestFields.setKey('scheduleTo', YESTERDAY);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it.each(['scheduleFromError', 'scheduleToError'] as const)('should be false while %s is set', (key) => {
+                $publishOrRequestFields.setKey(key, 'Bad text');
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be false without a comment', () => {
+                $publishOrRequestFields.setKey('comment', '');
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(false);
+            });
+
+            it('should be true again once nothing can be scheduled, whatever the dates', () => {
+                $publishOrRequestFields.setKey('scheduleTo', YESTERDAY);
+                $publishOrRequestFields.setKey('comment', '');
+
+                $publishOrRequestDialog.setKey('schedulable', false);
+
+                expect($isPublishOrRequestFieldsFilled.get()).toBe(true);
+            });
+        });
+    });
+
     describe('$isPublishOrRequestSubmitAllowed', () => {
         // The main item has something to publish, on top of what `setDialog` sets.
         const setPublishableDialog = (canRequest: boolean, blocked: string[] = []): void => {
@@ -420,12 +573,21 @@ describe('publish or request fields store', () => {
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
         });
 
-        it('should be true to schedule and to request too', () => {
-            $publishOrRequestFields.setKey('scheduleChecked', true);
+        it('should be true to schedule and to request too, once their fields are filled', () => {
+            fillSchedule();
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
 
-            $publishOrRequestFields.setKey('assignChecked', true);
+            fillRequest();
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+        });
+
+        it('should be false while a field that is asked for is empty', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
+
+            fillSchedule();
+            $publishOrRequestFields.setKey('assignChecked', true);
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
         });
 
         it.each([
@@ -439,12 +601,13 @@ describe('publish or request fields store', () => {
             $publishOrRequestDialog.set({ ...$publishOrRequestDialog.get(), ...patch });
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
 
-            $publishOrRequestFields.setKey('assignChecked', true);
+            fillRequest();
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
         });
 
         it('should be true to request while a dependency the user cannot publish is listed', () => {
             setPublishableDialog(true, ['dependency']);
+            fillRequest();
 
             expect($publishOrRequestAction.get()).toBe('request');
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
@@ -452,6 +615,7 @@ describe('publish or request fields store', () => {
 
         it('should be true for a user who can only request', () => {
             setPublishableDialog(true, ['main']);
+            fillRequest();
 
             expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
         });

@@ -5,6 +5,7 @@
 // The commands that change this state live in `./commands/fields`.
 
 import { computed, map } from 'nanostores';
+import { $config } from '../../../shared/config/config.store';
 import {
     $hasPublishOrRequestBlockedItems,
     $isPublishOrRequestNextAllowed,
@@ -105,17 +106,6 @@ export const $publishOrRequestAction = computed(
     (isAssignOpen, isScheduleOpen): PublishOrRequestAction => getAction(isAssignOpen, isScheduleOpen),
 );
 
-// TODO: [#11792] Wait for the required fields to be filled, with the saving phase.
-/**
- * True when the dialog can be submitted. Publishing and scheduling take what "Publish now"
- * takes; a request takes what going on from the first step takes.
- */
-export const $isPublishOrRequestSubmitAllowed = computed(
-    [$publishOrRequestAction, $isPublishOrRequestNextAllowed, $isPublishOrRequestPublishNowAllowed],
-    (action, isNextAllowed, isPublishNowAllowed): boolean =>
-        action === 'request' ? isNextAllowed : isPublishNowAllowed,
-);
-
 /**
  * Whether each field shows and is required. It reads no typed value, so typing in a field
  * leaves it as it is.
@@ -134,6 +124,41 @@ export const $publishOrRequestFieldStates = computed(
         title: getTitleFieldState(isAssignOpen),
         comment: getCommentFieldState(isAssignOpen, isScheduleOpen),
     }),
+);
+
+/** True when everything asked for on the second step is entered, and the dates are right. */
+export const $isPublishOrRequestFieldsFilled = computed(
+    [
+        $publishOrRequestFields,
+        $publishOrRequestFieldStates,
+        $isPublishOrRequestAssignOpen,
+        $isPublishOrRequestScheduleOpen,
+        $publishOrRequestScheduleProblem,
+        $config,
+    ],
+    (fields, { title, comment }, isAssignOpen, isScheduleOpen, scheduleProblem, { requiredPublishFrom }): boolean => {
+        if (isAssignOpen && fields.assigneeIds.length === 0) return false;
+        if (isScheduleOpen && !isScheduleFilled(fields, scheduleProblem, requiredPublishFrom)) return false;
+        if (title.required && isBlank(fields.title)) return false;
+
+        return !comment.required || !isBlank(fields.comment);
+    },
+);
+
+/**
+ * True when the dialog can be submitted: the fields are filled and the items allow the action.
+ * Publishing and scheduling take what "Publish now" takes; a request takes what going on from
+ * the first step takes.
+ */
+export const $isPublishOrRequestSubmitAllowed = computed(
+    [
+        $publishOrRequestAction,
+        $isPublishOrRequestNextAllowed,
+        $isPublishOrRequestPublishNowAllowed,
+        $isPublishOrRequestFieldsFilled,
+    ],
+    (action, isNextAllowed, isPublishNowAllowed, isFieldsFilled): boolean =>
+        isFieldsFilled && (action === 'request' ? isNextAllowed : isPublishNowAllowed),
 );
 
 // *
@@ -189,6 +214,23 @@ function getAction(isAssignOpen: boolean, isScheduleOpen: boolean): PublishOrReq
     if (isAssignOpen) return 'request';
 
     return isScheduleOpen ? 'schedule' : 'publish';
+}
+
+// A schedule takes a date and nothing wrong with the dates. "Online from" can be left empty,
+// to go online now, unless the configuration asks for it.
+function isScheduleFilled(
+    { scheduleFrom, scheduleTo, scheduleFromError, scheduleToError }: PublishOrRequestFieldsStore,
+    problem: PublishOrRequestScheduleProblem | undefined,
+    requiredPublishFrom: boolean,
+): boolean {
+    if (scheduleFromError != null || scheduleToError != null || problem != null) return false;
+    if (requiredPublishFrom) return scheduleFrom != null;
+
+    return scheduleFrom != null || scheduleTo != null;
+}
+
+function isBlank(value: string): boolean {
+    return value.trim().length === 0;
 }
 
 // A hidden field is never open. A required one is open whatever the user ticked.
