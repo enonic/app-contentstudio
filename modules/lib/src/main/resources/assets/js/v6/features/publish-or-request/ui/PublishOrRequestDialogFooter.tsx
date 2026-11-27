@@ -6,7 +6,7 @@ import { Button, cn, Stepper } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
-import { submitPublishOrRequestDialog } from '../model/commands/submit';
+import { publishPublishOrRequestItemsNow, submitPublishOrRequestDialog } from '../model/commands/submit';
 import {
     $isPublishOrRequestPublishNowAllowed,
     $publishOrRequestCapability,
@@ -59,7 +59,7 @@ export const PublishOrRequestDialogFooter = (): ReactElement => {
                         size="lg"
                         variant="outline"
                         disabled={!isPublishNowAllowed}
-                        onClick={handlePublishNow}
+                        onClick={publishPublishOrRequestItemsNow}
                         label={publishNowLabel}
                     />
                 )}
@@ -111,6 +111,3 @@ function SubmitButton(): ReactElement {
         />
     );
 }
-
-// TODO: [#11792] Publish right away, with the saving phase.
-function handlePublishNow(): void {}

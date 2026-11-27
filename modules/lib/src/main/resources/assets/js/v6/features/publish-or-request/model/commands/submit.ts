@@ -5,7 +5,11 @@ import { publishContent } from '../../../../entities/content/api/publish.api';
 import { cleanupTask, trackTask, type TaskResultState } from '../../../../entities/task';
 import { i18n } from '../../../../shared/i18n';
 import { notifyError, notifySuccess } from '../../../../shared/notifications';
-import { $publishOrRequestDialog, $publishOrRequestPublishableCount } from '../publishOrRequestDialog.store';
+import {
+    $isPublishOrRequestPublishNowAllowed,
+    $publishOrRequestDialog,
+    $publishOrRequestPublishableCount,
+} from '../publishOrRequestDialog.store';
 import {
     $isPublishOrRequestSubmitAllowed,
     $publishOrRequestAction,
@@ -31,6 +35,16 @@ export async function submitPublishOrRequestDialog(): Promise<void> {
         message: comment.trim() || undefined,
         schedule: action === 'schedule' ? { from: scheduleFrom, to: scheduleTo } : undefined,
     });
+}
+
+/**
+ * Publishes the items right away, from the first step: without a message or a schedule,
+ * whatever the second step holds. Does nothing while the items cannot be published now.
+ */
+export async function publishPublishOrRequestItemsNow(): Promise<void> {
+    if (!$isPublishOrRequestPublishNowAllowed.get()) return;
+
+    await publishItems({});
 }
 
 // *

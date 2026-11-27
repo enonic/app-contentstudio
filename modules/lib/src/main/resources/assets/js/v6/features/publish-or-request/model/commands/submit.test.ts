@@ -5,7 +5,7 @@ import type { ContentSummary } from '../../../../../app/content/ContentSummary';
 import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from '../publishOrRequestDialog.store';
 import { $publishOrRequestFields, INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE } from '../publishOrRequestFields.store';
 import { closePublishOrRequestDialog } from './open';
-import { submitPublishOrRequestDialog } from './submit';
+import { publishPublishOrRequestItemsNow, submitPublishOrRequestDialog } from './submit';
 
 const mocks = vi.hoisted(() => ({
     mockLoad: vi.fn(),
@@ -289,6 +289,75 @@ describe('publish or request dialog submit commands', () => {
 
             expect(mockPublishContent).not.toHaveBeenCalled();
             expect($publishOrRequestDialog.get().submitting).toBeUndefined();
+        });
+    });
+
+    describe('publishPublishOrRequestItemsNow', () => {
+        beforeEach(() => {
+            $publishOrRequestDialog.setKey('step', 'items');
+        });
+
+        it('should publish the items with the applied selection', async () => {
+            await publishPublishOrRequestItemsNow();
+
+            const [params] = mockPublishContent.mock.calls[0];
+            expect(params.ids.map(String)).toEqual(['main']);
+            expect(params.excludedIds.map(String)).toEqual(['d1']);
+            expect(params.excludeChildrenIds.map(String)).toEqual(['main']);
+        });
+
+        it('should send no message and no schedule, whatever the second step holds', async () => {
+            setFields({ scheduleChecked: true, scheduleFrom: FROM, scheduleTo: TO, comment: 'Later' });
+
+            await publishPublishOrRequestItemsNow();
+
+            const [params] = mockPublishContent.mock.calls[0];
+            expect(params.message).toBeUndefined();
+            expect(params.schedule).toBeUndefined();
+        });
+
+        it('should publish even while the second step is not filled', async () => {
+            setFields({ assignChecked: true });
+
+            await publishPublishOrRequestItemsNow();
+
+            expect(mockPublishContent).toHaveBeenCalledOnce();
+        });
+
+        it('should show the progress, tell that the items were published and close', async () => {
+            setFields({ scheduleChecked: true, scheduleFrom: FROM, comment: 'Later' });
+
+            await publishPublishOrRequestItemsNow();
+            expect($publishOrRequestDialog.get()).toMatchObject({ submitting: 'publish', taskId: 'task-1' });
+
+            completeTask('SUCCESS');
+
+            expect(mockNotifySuccess).toHaveBeenCalledExactlyOnceWith('dialog.publish.success.multiple 2');
+            expect($publishOrRequestDialog.get().open).toBe(false);
+        });
+
+        it('should tell, and bring the dialog back on its first step, when the server refuses', async () => {
+            mockPublishContent.mockReturnValue(errAsync(new Error('Refused')));
+
+            await publishPublishOrRequestItemsNow();
+
+            expect(mockNotifyError).toHaveBeenCalledExactlyOnceWith('dialog.publish.publishing.error');
+            expect($publishOrRequestDialog.get()).toMatchObject({ open: true, step: 'items' });
+            expect($publishOrRequestDialog.get().submitting).toBeUndefined();
+            expect(mockLoad).toHaveBeenCalledOnce();
+        });
+
+        it.each([
+            { name: 'the dependencies load', patch: { loading: true } },
+            { name: 'an item is in progress', patch: { inProgressIds: toIds('main') } },
+            { name: 'a dependency cannot be published by the user', patch: { notPublishableIds: toIds('d0') } },
+            { name: 'it is being submitted already', patch: { submitting: 'publish' as const } },
+        ])('should do nothing while $name', async ({ patch }) => {
+            $publishOrRequestDialog.set({ ...$publishOrRequestDialog.get(), ...patch });
+
+            await publishPublishOrRequestItemsNow();
+
+            expect(mockPublishContent).not.toHaveBeenCalled();
         });
     });
 });
