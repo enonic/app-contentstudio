@@ -34,8 +34,11 @@ class ProjectWizardDialog extends Page {
             let locator = this.container + XPATH.copyFromParentButton(parent);
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error(`Copy from parent button is displayed: screenshot ${screenshot} ` + err);
+            await this.handleError(
+                `Project Wizard - 'Copy from ${parent}' button should not be displayed`,
+                'err_copy_from_parent_displayed',
+                err,
+            );
         }
     }
 
@@ -44,60 +47,76 @@ class ProjectWizardDialog extends Page {
             let locator = this.container + XPATH.copyFromParentButton(parent);
             return await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error(`Copy from parent button is not displayed, screenshot: ${screenshot} ` + err);
+            await this.handleError(
+                `Project Wizard - 'Copy from ${parent}' button should be displayed`,
+                'err_copy_from_parent_not_displayed',
+                err,
+            );
         }
     }
 
     async waitForCopyFromParentButtonDisabled(parent) {
         try {
-            let locator = this.container + XPATH.copyFromParentButton(parent);
-            await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-            let elements = await this.getDisplayedElements(locator);
-            await elements[0].waitForEnabled({
+            let button = await this.findCopyFromParentButton(parent);
+            await button.waitForEnabled({
                 timeout: appConst.mediumTimeout,
                 reverse: true,
-                timeoutMsg: 'Copy button should be disabled!',
+                timeoutMsg: `'Copy from ${parent}' button is still enabled after ${appConst.mediumTimeout} ms`,
             });
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error(`Copy from parent button is not disabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(
+                `Project Wizard - 'Copy from ${parent}' button should be disabled`,
+                'err_copy_from_parent_enabled',
+                err,
+            );
         }
     }
 
     async waitForCopyFromParentButtonEnabled(parent) {
         try {
-            let locator = this.container + XPATH.copyFromParentButton(parent);
-            await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
-            let elements = await this.getDisplayedElements(locator);
-            await elements[0].waitForEnabled({
+            let button = await this.findCopyFromParentButton(parent);
+            await button.waitForEnabled({
                 timeout: appConst.mediumTimeout,
-                timeoutMsg: 'Copy button should be enabled!',
+                timeoutMsg: `'Copy from ${parent}' button is still disabled after ${appConst.mediumTimeout} ms`,
             });
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error(`Copy from parent button is not enabled, screenshot: ${screenshot} ` + err);
+            await this.handleError(
+                `Project Wizard - 'Copy from ${parent}' button should be enabled`,
+                'err_copy_from_parent_disabled',
+                err,
+            );
         }
     }
 
     async clickOnCopyFromParentButton(parent) {
         try {
-            let locator = this.container + XPATH.copyFromParentButton(parent);
-            await this.waitForCopyFromParentButtonDisplayed(parent);
-            let elements = await this.getDisplayedElements(locator);
-            return await elements[0].click();
+            let button = await this.findCopyFromParentButton(parent);
+            return await button.click();
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_copy_from_parent_button');
-            throw new Error(`Click on 'Copy from parent' button, screenshot:${screenshot} ` + err);
+            await this.handleError(
+                `Project Wizard - tried to click on 'Copy from ${parent}' button`,
+                'err_click_copy_from_parent',
+                err,
+            );
         }
+    }
+
+    // Waits for the button and returns the displayed element. Errors are handled by the callers.
+    async findCopyFromParentButton(parent) {
+        let locator = this.container + XPATH.copyFromParentButton(parent);
+        await this.waitUntilDisplayed(locator, appConst.mediumTimeout);
+        let elements = await this.getDisplayedElements(locator);
+        if (elements.length === 0) {
+            throw new Error(`'Copy from ${parent}' button was not found, locator: ${locator}`);
+        }
+        return elements[0];
     }
 
     async waitForNextButtonDisplayed() {
         try {
             return await this.waitUntilDisplayed(this.nextButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_next_button');
-            throw new Error(`'Next' button is not displayed:screenshot ${screenshot} ` + err);
+            await this.handleError("Project Wizard - 'Next' button should be displayed", 'err_next_not_displayed', err);
         }
     }
 
@@ -106,7 +125,7 @@ class ProjectWizardDialog extends Page {
             await this.waitForElementClickable(this.nextButton);
             return await this.waitForElementEnabled(this.nextButton);
         } catch (err) {
-            await this.handleError("'Next' button is not clickable", 'err_next_disabled', err);
+            await this.handleError("Project Wizard - 'Next' button should be enabled", 'err_next_disabled', err);
         }
     }
 
@@ -114,8 +133,7 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitForElementDisabled(this.nextButton, appConst.mediumTimeout);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_next_enabled');
-            throw new Error('Next button is not disabled Screenshot: ' + screenshot + '  ' + err);
+            await this.handleError("Project Wizard - 'Next' button should be disabled", 'err_next_enabled', err);
         }
     }
 
@@ -127,7 +145,7 @@ class ProjectWizardDialog extends Page {
             await this.clickOnElement(this.nextButton);
             return await this.pause(300);
         } catch (err) {
-            throw new Error('Project Wizard - Error occurred during clicking on Next button: ' + err);
+            await this.handleError("Project Wizard - tried to click on 'Next' button", 'err_click_next', err);
         }
     }
 
@@ -135,35 +153,12 @@ class ProjectWizardDialog extends Page {
         try {
             return await this.waitUntilDisplayed(this.previousButton, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError('Previous button is not displayed', 'err_previous_button', err);
+            await this.handleError(
+                "Project Wizard - 'Previous' button should be displayed",
+                'err_previous_not_displayed',
+                err,
+            );
         }
-    }
-
-    async clickOnCloseButton() {
-        try {
-            await this.clickOnElement(this.closeButton);
-            return await this.waitForDialogClosed();
-        } catch (err) {
-            await this.handleError('Error occurred during clicking on Close button', 'err_close_button', err);
-        }
-    }
-
-    async waitForDialogClosed() {
-        try {
-            return await this.waitForElementNotDisplayed(this.container, appConst.saveProjectTimeout);
-        } catch (err) {
-            await this.handleError('Project Wizard dialog was not closed', 'err_dialog_not_closed', err);
-        }
-    }
-
-    async getTitle() {
-        return await this.getText(this.container + XPATH.title);
-    }
-
-    async getStepDescription() {
-        let locator = this.container + XPATH.stepDescription;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getText(locator);
     }
 
     async clickOnPreviousButton() {
@@ -172,8 +167,46 @@ class ProjectWizardDialog extends Page {
             await this.waitForElementEnabled(this.previousButton, appConst.mediumTimeout);
             return await this.clickOnElement(this.previousButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_back_button');
-            throw new Error('Error after clicking on Back button, Screenshot: ' + screenshot + '  ' + err);
+            await this.handleError("Project Wizard - tried to click on 'Previous' button", 'err_click_previous', err);
+        }
+    }
+
+    async clickOnCloseButton() {
+        try {
+            await this.clickOnElement(this.closeButton);
+            return await this.waitForDialogClosed();
+        } catch (err) {
+            await this.handleError("Project Wizard - tried to click on 'Close' button", 'err_click_close', err);
+        }
+    }
+
+    async waitForDialogClosed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.container, appConst.saveProjectTimeout);
+        } catch (err) {
+            await this.handleError('Project Wizard - the dialog should be closed', 'err_dialog_not_closed', err);
+        }
+    }
+
+    async getTitle() {
+        try {
+            return await this.getText(this.container + XPATH.title);
+        } catch (err) {
+            await this.handleError('Project Wizard - tried to get the title', 'err_wizard_title', err);
+        }
+    }
+
+    async getStepDescription() {
+        try {
+            let locator = this.container + XPATH.stepDescription;
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            return await this.getText(locator);
+        } catch (err) {
+            await this.handleError(
+                'Project Wizard - tried to get the step description',
+                'err_wizard_step_description',
+                err,
+            );
         }
     }
 }

@@ -9,7 +9,7 @@ base {
 // Pin Node to 24.15.0 for Selenium tests. Node 24.16.0 sends SIGINT to wdio
 // shortly after launch, causing suites to exit 0 without running any specs.
 node {
-    version = '24.15.0'
+    version = '24.22.3'
 }
 
 configurations {
