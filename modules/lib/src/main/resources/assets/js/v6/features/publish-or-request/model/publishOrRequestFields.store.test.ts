@@ -68,11 +68,21 @@ describe('publish or request fields store', () => {
     });
 
     describe('$publishOrRequestFieldStates', () => {
-        it('should stay the same value while the user types and ticks', () => {
+        it('should stay the same value while the user types and ticks "Scheduled publish"', () => {
             const before = $publishOrRequestFieldStates.get();
 
+            $publishOrRequestFields.setKey('title', 'Typed');
             $publishOrRequestFields.setKey('comment', 'Typed');
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            expect($publishOrRequestFieldStates.get()).toBe(before);
+        });
+
+        it('should stay the same value while the user picks assignees', () => {
             $publishOrRequestFields.setKey('assignChecked', true);
+            const before = $publishOrRequestFieldStates.get();
+
+            $publishOrRequestFields.setKey('assigneeIds', ['user:system:a']);
 
             expect($publishOrRequestFieldStates.get()).toBe(before);
         });
@@ -139,11 +149,48 @@ describe('publish or request fields store', () => {
             });
         });
 
-        it('should show the title and the comment and require neither', () => {
-            expect($publishOrRequestFieldStates.get()).toMatchObject({
-                title: OPTIONAL,
-                comment: OPTIONAL,
+        describe('title', () => {
+            it('should be hidden while "Assign to" is unticked', () => {
+                expect($publishOrRequestFieldStates.get().title).toEqual(HIDDEN);
             });
+
+            it('should be required once "Assign to" is ticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+
+                expect($publishOrRequestFieldStates.get().title).toEqual(REQUIRED);
+            });
+
+            it('should be hidden again once "Assign to" is unticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+
+                $publishOrRequestFields.setKey('assignChecked', false);
+
+                expect($publishOrRequestFieldStates.get().title).toEqual(HIDDEN);
+            });
+
+            it('should be required while "Assign to" is required, ticked or not', () => {
+                setDialog(true, ['main']);
+
+                expect($publishOrRequestFieldStates.get().title).toEqual(REQUIRED);
+            });
+
+            it('should be hidden while "Assign to" is hidden, even if ticked', () => {
+                $publishOrRequestFields.setKey('assignChecked', true);
+
+                setDialog(false);
+
+                expect($publishOrRequestFieldStates.get().title).toEqual(HIDDEN);
+            });
+
+            it('should not follow the schedule checkbox', () => {
+                $publishOrRequestFields.setKey('scheduleChecked', true);
+
+                expect($publishOrRequestFieldStates.get().title).toEqual(HIDDEN);
+            });
+        });
+
+        it('should show the comment and not require it', () => {
+            expect($publishOrRequestFieldStates.get().comment).toEqual(OPTIONAL);
         });
     });
 

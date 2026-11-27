@@ -90,17 +90,22 @@ export const $publishOrRequestScheduleProblem = computed(
         isOpen ? getScheduleProblem(scheduleFrom, scheduleTo, new Date()) : undefined,
 );
 
-// TODO: [#11792] Make the title and the comment follow their rules.
+// TODO: [#11792] Make the comment follow its rule.
 /**
  * Whether each field shows and is required. It reads no typed value, so typing in a field
  * leaves it as it is.
  */
 export const $publishOrRequestFieldStates = computed(
-    [$publishOrRequestCapability, $hasPublishOrRequestBlockedItems, $isPublishOrRequestSchedulable],
-    (capability, hasBlockedItems, schedulable): PublishOrRequestFieldStates => ({
+    [
+        $publishOrRequestCapability,
+        $hasPublishOrRequestBlockedItems,
+        $isPublishOrRequestSchedulable,
+        $isPublishOrRequestAssignOpen,
+    ],
+    (capability, hasBlockedItems, schedulable, isAssignOpen): PublishOrRequestFieldStates => ({
         assign: getAssignFieldState(capability, hasBlockedItems),
         schedule: getScheduleFieldState(schedulable),
-        title: OPTIONAL_FIELD_STATE,
+        title: getTitleFieldState(isAssignOpen),
         comment: OPTIONAL_FIELD_STATE,
     }),
 );
@@ -127,6 +132,11 @@ function getAssignFieldState(
 // Hidden while nothing to publish can be scheduled. Never required.
 function getScheduleFieldState(schedulable: boolean): PublishOrRequestFieldState {
     return schedulable ? OPTIONAL_FIELD_STATE : HIDDEN_FIELD_STATE;
+}
+
+// The title of the publish request: asked for with the assignees, and never without them.
+function getTitleFieldState(isAssignOpen: boolean): PublishOrRequestFieldState {
+    return isAssignOpen ? REQUIRED_FIELD_STATE : HIDDEN_FIELD_STATE;
 }
 
 // Without "online to" the items stay online, so nothing can be wrong. Without "online from"
