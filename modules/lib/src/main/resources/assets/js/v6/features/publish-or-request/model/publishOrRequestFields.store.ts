@@ -1,6 +1,7 @@
 // State of the fields on the second step of the publish or request dialog: what the user
-// entered, and whether each field shows and is required. Kept apart from the dialog store,
-// so typing in a field does not run again what is derived from the items.
+// entered, whether each field shows and is required, and what the dialog does as a result.
+// Kept apart from the dialog store, so typing in a field does not run again what is derived
+// from the items.
 // The commands that change this state live in `./commands/fields`.
 
 import { computed, map } from 'nanostores';
@@ -43,6 +44,9 @@ export type PublishOrRequestFieldStates = Record<
 
 /** What is wrong with the dates of the schedule: "online to" has passed, or is not after "online from". */
 export type PublishOrRequestScheduleProblem = 'to-in-past' | 'to-not-after-from';
+
+/** What the dialog does with the items: publishes them now, at the dates entered, or asks someone to. */
+export type PublishOrRequestAction = 'publish' | 'schedule' | 'request';
 
 export const INITIAL_PUBLISH_OR_REQUEST_FIELDS_STATE: PublishOrRequestFieldsStore = {
     // Assign to: the user's choice to assign, kept while the field is required
@@ -88,6 +92,15 @@ export const $publishOrRequestScheduleProblem = computed(
     [$isPublishOrRequestScheduleOpen, $publishOrRequestFields],
     (isOpen, { scheduleFrom, scheduleTo }): PublishOrRequestScheduleProblem | undefined =>
         isOpen ? getScheduleProblem(scheduleFrom, scheduleTo, new Date()) : undefined,
+);
+
+/**
+ * What the dialog does, following what the user ticked and what they may do. A request with
+ * a schedule is still a request.
+ */
+export const $publishOrRequestAction = computed(
+    [$isPublishOrRequestAssignOpen, $isPublishOrRequestScheduleOpen],
+    (isAssignOpen, isScheduleOpen): PublishOrRequestAction => getAction(isAssignOpen, isScheduleOpen),
 );
 
 /**
@@ -156,6 +169,13 @@ function getScheduleProblem(
     if (to.getTime() <= now.getTime()) return 'to-in-past';
 
     return to.getTime() <= (from ?? now).getTime() ? 'to-not-after-from' : undefined;
+}
+
+// Assignees make it a request, with or without a schedule.
+function getAction(isAssignOpen: boolean, isScheduleOpen: boolean): PublishOrRequestAction {
+    if (isAssignOpen) return 'request';
+
+    return isScheduleOpen ? 'schedule' : 'publish';
 }
 
 // A hidden field is never open. A required one is open whatever the user ticked.

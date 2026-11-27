@@ -5,6 +5,7 @@ import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from
 import {
     $isPublishOrRequestAssignOpen,
     $isPublishOrRequestScheduleOpen,
+    $publishOrRequestAction,
     $publishOrRequestFieldStates,
     $publishOrRequestFields,
     $publishOrRequestScheduleProblem,
@@ -329,6 +330,77 @@ describe('publish or request fields store', () => {
 
             expect($publishOrRequestFields.get().scheduleChecked).toBe(true);
             expect($isPublishOrRequestScheduleOpen.get()).toBe(true);
+        });
+    });
+
+    describe('$publishOrRequestAction', () => {
+        it('should be publish while nothing is ticked', () => {
+            expect($publishOrRequestAction.get()).toBe('publish');
+        });
+
+        it('should be schedule once "Scheduled publish" is ticked', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            expect($publishOrRequestAction.get()).toBe('schedule');
+        });
+
+        it('should be request once "Assign to" is ticked', () => {
+            $publishOrRequestFields.setKey('assignChecked', true);
+
+            expect($publishOrRequestAction.get()).toBe('request');
+        });
+
+        it('should be request while both are ticked', () => {
+            $publishOrRequestFields.setKey('assignChecked', true);
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            expect($publishOrRequestAction.get()).toBe('request');
+        });
+
+        it('should go back to schedule once "Assign to" is unticked', () => {
+            $publishOrRequestFields.setKey('assignChecked', true);
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            $publishOrRequestFields.setKey('assignChecked', false);
+
+            expect($publishOrRequestAction.get()).toBe('schedule');
+        });
+
+        it('should be request for a user who can only request, ticked or not', () => {
+            setDialog(true, ['main']);
+
+            expect($publishOrRequestAction.get()).toBe('request');
+        });
+
+        it('should be request while a dependency the user cannot publish is listed', () => {
+            setDialog(true, ['dependency']);
+
+            expect($publishOrRequestAction.get()).toBe('request');
+        });
+
+        it('should be publish for a user who can only publish, even with "Assign to" ticked', () => {
+            $publishOrRequestFields.setKey('assignChecked', true);
+
+            setDialog(false);
+
+            expect($publishOrRequestAction.get()).toBe('publish');
+        });
+
+        it('should be publish while nothing can be scheduled, even with "Scheduled publish" ticked', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+
+            $publishOrRequestDialog.setKey('schedulable', false);
+
+            expect($publishOrRequestAction.get()).toBe('publish');
+        });
+
+        it('should not follow what the user types and picks', () => {
+            $publishOrRequestFields.setKey('title', 'Typed');
+            $publishOrRequestFields.setKey('comment', 'Typed');
+            $publishOrRequestFields.setKey('assigneeIds', ['user:system:a']);
+            $publishOrRequestFields.setKey('scheduleFrom', TOMORROW);
+
+            expect($publishOrRequestAction.get()).toBe('publish');
         });
     });
 
