@@ -5,6 +5,7 @@ import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import type { CompareResult } from '../../../entities/content';
 import { calcDependantsSelection, type DependantsSelection } from '../../../shared/lib/cms/content/dependantsSelection';
 import { hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
+import { isOnline } from '../../../shared/lib/cms/content/status';
 import { $config } from '../../../shared/config/config.store';
 
 //
@@ -19,7 +20,7 @@ import { $config } from '../../../shared/config/config.store';
 // * Types
 //
 
-type MainItem = {
+export type MainItem = {
     id: string;
     content: ContentSummary;
     included: boolean;
@@ -27,6 +28,15 @@ type MainItem = {
     required: boolean;
     hasUnpublishedChildren: boolean;
 };
+
+export type DescendantItem = {
+    id: string;
+    content: ContentSummary;
+    included: boolean;
+    required: boolean;
+};
+
+export type PrimaryRow = { kind: 'main'; item: MainItem } | { kind: 'descendant'; item: DescendantItem };
 
 type DependantItem = {
     id: string;
@@ -64,6 +74,8 @@ export type PublishDialogStore = {
     // State
     open: boolean;
     failed: boolean;
+    // Opened with the children of every item included ("Publish Tree")
+    tree: boolean;
     // Content
     items: ContentSummary[];
     // dependantItems moved to $publishDialogDependants
@@ -118,6 +130,7 @@ export type SyncedPublishContext = {
 export const initialPublishDialogState: PublishDialogStore = {
     open: false,
     failed: false,
+    tree: false,
     items: [],
     excludedItemsIds: [],
     excludedItemsWithChildrenIds: [],
@@ -158,10 +171,20 @@ export const $publishChecks = map<PublishChecksStore>(structuredClone(initialChe
 
 export const DEPENDANT_LOAD_SIZE = 36;
 
-// Full ordered dependant id list; summaries load lazily, a window at a time.
+// Full ordered dependant id list: descendants of the main items and their dependencies alike.
 export const $dependantIds = atom<ContentId[]>([]);
 
+// Dependants that are descendants of a main item with children included; listed under that item.
+// Ordered by group: the descendants of the first main item, then of the next one.
+export const $descendantIds = atom<ContentId[]>([]);
+
+// The same descendants keyed by the id of the main item they are listed under.
+export const $descendantIdsByRoot = atom<Map<string, ContentId[]>>(new Map());
+
+// Loaded summaries of the dependencies and of the descendants; each loads lazily, a window at a time.
 export const $publishDialogDependants = atom<ContentSummary[]>([]);
+
+export const $publishDialogDescendants = atom<ContentSummary[]>([]);
 
 // Dependant ids visible in the dialog (legacy `calcVisibleIds`): min dependants, direct excluded deps, included children
 export const $visibleDependantIds = atom<ContentId[]>([]);
@@ -170,6 +193,8 @@ export const $visibleDependantIds = atom<ContentId[]>([]);
 export const $showExcludedDependants = atom<boolean>(true);
 
 export const $dependantWindow = atom<number>(0);
+
+export const $descendantWindow = atom<number>(0);
 
 // Publishable ids (status != EQUAL) resolved by the server, across the full set
 export const $publishableContentIds = atom<ContentId[]>([]);
@@ -189,6 +214,14 @@ export const $publishScheduleErrors = map<PublishScheduleErrors>({});
 //
 // * Derived State
 //
+
+// Dependants left once the descendants are taken out: what the dependencies list shows.
+export const $dependencyIds = computed([$dependantIds, $descendantIds], (dependantIds, descendantIds): ContentId[] => {
+    if (descendantIds.length === 0) return dependantIds;
+
+    const descendants = new Set(descendantIds.map((id) => id.toString()));
+    return dependantIds.filter((id) => !descendants.has(id.toString()));
+});
 
 export const $publishDialogItemsWithChildren = computed($publishDialog, (state) => {
     return filterItemsWithChildren(state.items);
@@ -239,6 +272,46 @@ export const $mainPublishItems = computed(
     },
 );
 
+export const $descendantPublishItems = computed(
+    [$publishDialogDescendants, $draftPublishDialogSelection, $publishChecks],
+    (descendantItems, { excludedDependantItemsIds }, { requiredIds }): DescendantItem[] => {
+        return descendantItems.map((item) => ({
+            id: item.getId(),
+            content: item,
+            included: !hasContentIdInIds(item.getContentId(), excludedDependantItemsIds),
+            required: hasContentIdInIds(item.getContentId(), requiredIds),
+        }));
+    },
+);
+
+const $isPublishTree = computed($publishDialog, ({ tree }): boolean => tree);
+
+// Rows of the main list: every main item followed by its descendants. Stops at the first
+// descendant outside the loaded window, so the rows stay in order while the rest loads on scroll.
+// Publish Tree leaves out a main item with nothing to publish: only its descendants are listed.
+export const $primaryPublishRows = computed(
+    [$mainPublishItems, $descendantPublishItems, $descendantIdsByRoot, $descendantWindow, $isPublishTree],
+    (mainItems, descendantItems, idsByRoot, loaded, tree): PrimaryRow[] => {
+        const descendantsById = new Map(descendantItems.map((item) => [item.id, item]));
+        const rows: PrimaryRow[] = [];
+        let position = 0;
+
+        for (const item of mainItems) {
+            if (!tree || !isOnline(item.content)) rows.push({ kind: 'main', item });
+
+            for (const id of idsByRoot.get(item.id) ?? []) {
+                if (position >= loaded) return rows;
+                position += 1;
+
+                const descendant = descendantsById.get(id.toString());
+                if (descendant != null) rows.push({ kind: 'descendant', item: descendant });
+            }
+        }
+
+        return rows;
+    },
+);
+
 export const $dependantPublishItems = computed(
     [$publishDialogDependants, $publishDialog, $draftPublishDialogSelection, $publishChecks, $visibleDependantIds],
     (
@@ -268,7 +341,7 @@ export const $showPublishDependantsExcluded = computed($showExcludedDependants, 
 
 export const $publishDependantsSelection = computed(
     [
-        $dependantIds,
+        $dependencyIds,
         $visibleDependantIds,
         $publishChecks,
         $publishDialog,
@@ -309,7 +382,11 @@ export const $totalPublishableItems = computed($publishableIds, (publishableIds)
     return publishableIds.length;
 });
 
-export const $hasMoreDependants = computed([$dependantIds, $dependantWindow], (ids, loaded): boolean => {
+export const $hasMoreDependants = computed([$dependencyIds, $dependantWindow], (ids, loaded): boolean => {
+    return loaded < ids.length;
+});
+
+export const $hasMoreDescendants = computed([$descendantIds, $descendantWindow], (ids, loaded): boolean => {
     return loaded < ids.length;
 });
 

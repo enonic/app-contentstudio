@@ -15,11 +15,13 @@ import {
     applyDraftPublishDialogSelection,
     cancelDraftPublishDialogSelection,
     loadMoreDependants,
+    loadMoreDescendants,
     markAllAsReadyInProgressPublishItems,
     openPublishDialog,
     reloadPublishDialogData,
     resetPublishDialogContext,
     setPublishDialogDependantItemSelected,
+    setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
     setPublishSchedule,
     syncPublishDialogContext,
@@ -29,13 +31,16 @@ import {
 import { start as startPublishDialogService } from './publishDialog.service';
 import {
     $dependantPublishItems,
+    $descendantPublishItems,
     $draftPublishDialogSelection,
     $hasExcludedDependantItems,
     $hasMoreDependants,
+    $hasMoreDescendants,
     $hasSchedulableItems,
     $isPublishReady,
     $isPublishSelectionSynced,
     $isScheduleValid,
+    $primaryPublishRows,
     $publishCheckErrors,
     $publishDependantsSelection,
     $publishChecks,
@@ -135,7 +140,7 @@ describe('publishDialog.store', () => {
         mockFetchContentSummaries.mockReset().mockResolvedValue([]);
         mockHasUnpublishedChildren.mockReset().mockResolvedValue(ok(new Map()));
         mockCompareContent.mockReset().mockResolvedValue(ok(new Map()));
-        mockFindIdsByParents.mockReset().mockResolvedValue(ok([]));
+        mockFindIdsByParents.mockReset().mockResolvedValue(ok(new Map()));
         mockMarkAsReady.mockReset();
         mockPublishContent.mockReset();
         mockI18n.mockClear();
@@ -527,7 +532,7 @@ describe('publishDialog.store', () => {
 
         it('should re-include auto-excluded children when "include children" is toggled', async () => {
             const itemId = new ContentId('item-1');
-            mockFindIdsByParents.mockResolvedValue(ok([imageId]));
+            mockFindIdsByParents.mockResolvedValue(ok(new Map([['item-1', [imageId]]])));
             mockFetchContentSummaries.mockResolvedValue([createMockContent('image-1')]);
             mockResolvePublishDependencies.mockImplementation(({ excludedIds = [] }: { excludedIds?: ContentId[] }) =>
                 Promise.resolve(
@@ -549,9 +554,9 @@ describe('publishDialog.store', () => {
             expect($isPublishReady.get()).toBe(false);
             await flushDebouncedReload();
 
-            const [dependant] = $dependantPublishItems.get();
-            expect(dependant.included).toBe(true);
-            expect(dependant.hidden).toBe(false);
+            const [descendant] = $descendantPublishItems.get();
+            expect(descendant.included).toBe(true);
+            expect($dependantPublishItems.get()).toEqual([]);
             expect($publishDialog.get().excludedDependantItemsIds).toHaveLength(0);
             expect($hasExcludedDependantItems.get()).toBe(false);
             expect($isPublishReady.get()).toBe(true);
@@ -761,6 +766,228 @@ describe('publishDialog.store', () => {
             expect($dependantPublishItems.get()).toHaveLength(40);
             expect($hasMoreDependants.get()).toBe(false);
             expect($totalPublishableItems.get()).toBe(41);
+        });
+    });
+
+    describe('descendants of the main items', () => {
+        afterEach(() => {
+            $config.setKey('excludeDependencies', true);
+        });
+
+        const mockSummaries = (): void => {
+            mockFetchContentSummaries.mockImplementation((ids: ContentId[]) =>
+                Promise.resolve(ids.map((id) => createMockContent(id.toString()))),
+            );
+        };
+
+        const mockTree = (childIds: ContentId[], referenceIds: ContentId[]): void => {
+            mockFindIdsByParents.mockResolvedValue(ok(new Map([['parent-a', childIds]])));
+            mockResolvePublishDependencies.mockImplementation(
+                (params: { ids?: ContentId[]; excludeChildrenIds?: ContentId[]; excludedIds?: ContentId[] }) => {
+                    const withChildren = (params.excludeChildrenIds ?? []).length === 0;
+                    const excluded = (params.excludedIds ?? []).map((id) => id.toString());
+                    const dependants = [...(withChildren ? childIds : []), ...referenceIds].filter(
+                        (id) => !excluded.includes(id.toString()),
+                    );
+
+                    return createResolveResult({
+                        dependants,
+                        next: referenceIds,
+                        publishable: [...(params.ids ?? []), ...dependants],
+                    });
+                },
+            );
+            mockSummaries();
+        };
+
+        it('should list them apart from the dependencies when the tree is published', async () => {
+            const childIds = [new ContentId('child-b'), new ContentId('child-c')];
+            const referenceIds = [new ContentId('ref-d')];
+            mockTree(childIds, referenceIds);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })], true);
+            await flushInitialReload();
+
+            expect($publishDialog.get().tree).toBe(true);
+            expect($descendantPublishItems.get().map((item) => item.id)).toEqual(['child-b', 'child-c']);
+            expect($descendantPublishItems.get().every((item) => item.included)).toBe(true);
+            expect($dependantPublishItems.get().map((item) => item.id)).toEqual(['ref-d']);
+            expect($publishDependantsSelection.get().count).toBe(1);
+        });
+
+        it('should list the descendants of every main item right under it', async () => {
+            const descendantsOfA = [new ContentId('a-1'), new ContentId('a-2')];
+            const descendantsOfX = [new ContentId('x-1')];
+            const referenceId = new ContentId('ref-d');
+            mockFindIdsByParents.mockResolvedValue(
+                ok(
+                    new Map([
+                        ['parent-a', descendantsOfA],
+                        ['parent-x', descendantsOfX],
+                    ]),
+                ),
+            );
+            mockResolvePublishDependencies.mockImplementation((params: { ids?: ContentId[] }) =>
+                createResolveResult({
+                    dependants: [descendantsOfX[0], descendantsOfA[0], referenceId, descendantsOfA[1]],
+                    next: [referenceId],
+                    publishable: params.ids ?? [],
+                }),
+            );
+            mockSummaries();
+            $config.setKey('excludeDependencies', false);
+
+            openPublishDialog(
+                [
+                    createMockContent('parent-a', { hasChildren: true }),
+                    createMockContent('leaf'),
+                    createMockContent('parent-x', { hasChildren: true }),
+                ],
+                true,
+            );
+            await flushInitialReload();
+
+            expect($primaryPublishRows.get().map((row) => `${row.kind}:${row.item.id}`)).toEqual([
+                'main:parent-a',
+                'descendant:a-1',
+                'descendant:a-2',
+                'main:leaf',
+                'main:parent-x',
+                'descendant:x-1',
+            ]);
+            expect($dependantPublishItems.get().map((item) => item.id)).toEqual(['ref-d']);
+        });
+
+        it('should leave out a main item with nothing to publish in Publish Tree', async () => {
+            $config.setKey('excludeDependencies', false);
+            mockTree([new ContentId('child-b')], []);
+
+            openPublishDialog(
+                [createMockContent('parent-a', { hasChildren: true, isOnline: true }), createMockContent('leaf')],
+                true,
+            );
+            await flushInitialReload();
+
+            expect($primaryPublishRows.get().map((row) => `${row.kind}:${row.item.id}`)).toEqual([
+                'descendant:child-b',
+                'main:leaf',
+            ]);
+        });
+
+        it('should keep a main item with nothing to publish outside Publish Tree', async () => {
+            mockTree([new ContentId('child-b')], []);
+
+            openPublishDialog(
+                [createMockContent('parent-a', { hasChildren: true, isOnline: true }), createMockContent('leaf')],
+                false,
+            );
+            await flushInitialReload();
+
+            expect($primaryPublishRows.get().map((row) => `${row.kind}:${row.item.id}`)).toEqual([
+                'main:parent-a',
+                'main:leaf',
+            ]);
+        });
+
+        it('should drop the descendants of a main item once it is unticked and applied', async () => {
+            $config.setKey('excludeDependencies', false);
+            mockTree([new ContentId('child-b')], []);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })], true);
+            await flushInitialReload();
+
+            setPublishDialogItemSelected(new ContentId('parent-a'), false);
+            applyDraftPublishDialogSelection();
+            await flushDebouncedReload();
+
+            const rows = $primaryPublishRows.get();
+            expect(rows.map((row) => `${row.kind}:${row.item.id}`)).toEqual(['main:parent-a']);
+            expect(rows[0].item.included).toBe(false);
+        });
+
+        it('should hold back the rows that follow a descendant outside the loaded window', async () => {
+            $config.setKey('excludeDependencies', false);
+
+            const childIds = Array.from({ length: 40 }, (_, index) => new ContentId(`child-${index}`));
+            mockTree(childIds, []);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true }), createMockContent('leaf')], true);
+            await flushInitialReload();
+
+            expect($primaryPublishRows.get()).toHaveLength(37);
+            expect($primaryPublishRows.get().some((row) => row.item.id === 'leaf')).toBe(false);
+
+            await loadMoreDescendants();
+            await flushPromises();
+
+            expect($primaryPublishRows.get()).toHaveLength(42);
+            expect($primaryPublishRows.get().at(-1)?.item.id).toBe('leaf');
+        });
+
+        it('should keep the children out of both lists when they are not included', async () => {
+            const childIds = [new ContentId('child-b')];
+            const referenceIds = [new ContentId('ref-d')];
+            mockTree(childIds, referenceIds);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })]);
+            await flushInitialReload();
+
+            expect($publishDialog.get().tree).toBe(false);
+            expect($descendantPublishItems.get()).toEqual([]);
+            expect($dependantPublishItems.get().map((item) => item.id)).toEqual(['ref-d']);
+        });
+
+        it('should move them up once the children of an item get included', async () => {
+            const parentId = new ContentId('parent-a');
+            const childIds = [new ContentId('child-b')];
+            mockTree(childIds, []);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })]);
+            await flushInitialReload();
+
+            setPublishDialogItemWithChildrenSelected(parentId, true);
+            await flushDebouncedReload();
+
+            expect($descendantPublishItems.get().map((item) => item.id)).toEqual(['child-b']);
+            expect($dependantPublishItems.get()).toEqual([]);
+        });
+
+        it('should untick a descendant through the same selection as a dependency', async () => {
+            const childIds = [new ContentId('child-b'), new ContentId('child-c')];
+            mockTree(childIds, []);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })], true);
+            await flushInitialReload();
+
+            setPublishDialogDependantItemSelected(childIds[0], false);
+
+            expect($isPublishSelectionSynced.get()).toBe(false);
+            expect($descendantPublishItems.get().map((item) => item.included)).toEqual([false, true]);
+            expect($totalPublishableItems.get()).toBe(2);
+        });
+
+        it('should load them in a window of their own', async () => {
+            $config.setKey('excludeDependencies', false);
+
+            const childIds = Array.from({ length: 40 }, (_, index) => new ContentId(`child-${index}`));
+            const referenceIds = Array.from({ length: 40 }, (_, index) => new ContentId(`ref-${index}`));
+            mockTree(childIds, referenceIds);
+
+            openPublishDialog([createMockContent('parent-a', { hasChildren: true })], true);
+            await flushInitialReload();
+
+            expect($descendantPublishItems.get()).toHaveLength(36);
+            expect($dependantPublishItems.get()).toHaveLength(36);
+            expect($hasMoreDescendants.get()).toBe(true);
+            expect($hasMoreDependants.get()).toBe(true);
+
+            await loadMoreDescendants();
+            await flushPromises();
+
+            expect($descendantPublishItems.get()).toHaveLength(40);
+            expect($hasMoreDescendants.get()).toBe(false);
+            expect($dependantPublishItems.get()).toHaveLength(36);
+            expect($hasMoreDependants.get()).toBe(true);
         });
     });
 

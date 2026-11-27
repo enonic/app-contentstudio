@@ -17,6 +17,7 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
 
     let SITE;
     let TEST_FOLDER;
+    const UNNAMED_FOLDER = 'Unnamed Folder';
 
     it('Precondition: site should be added and marked as ready in the Publish dialog, then invalid child folder should be added', async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
@@ -40,7 +41,7 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         await studioUtils.doCloseWizardAndSwitchToGrid();
     });
 
-    it("GIVEN existing site with invalid child is selected AND 'Publish wizard' is opened WHEN 'Include children' has been clicked THEN 'Exclude all' link should appear in the dialog", async () => {
+    it("GIVEN existing site with invalid child is selected AND 'Publish wizard' is opened WHEN 'Include children' has been clicked THEN child items should appear in the main list AND 'Exclude invalid items' button should appear", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         // 1. Select an existing folder with invalid child and open Publish wizard:
@@ -49,16 +50,15 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         await contentPublishDialog.waitForDialogOpened();
         // 2. Click on 'Include children' button
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        // 3. Verify that 'All' checkbox is displayed and enabled:
-        await contentPublishDialog.waitForAllDependantsCheckboxDisplayed();
-        await contentPublishDialog.waitForAllDependantsCheckboxEnabled();
+        // 3. Verify that the site and its 2 child items are in the main list:
+        await contentPublishDialog.waitForNumberOfMainItems(3);
         // 4. Verify that "Exclude invalid items" button should be visible
         await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
         // 5. Verify that 'Publish Now' button is disabled in the dialog:
         await contentPublishDialog.waitForPublishNowButtonDisabled();
     });
 
-    it("GIVEN existing site with invalid child item is selected AND 'Publish wizard' is opened WHEN invalid dependent item has been unselected THEN 'Publish now' button gets enabled in the dialog", async () => {
+    it("GIVEN existing site with invalid child item is selected AND 'Publish wizard' is opened WHEN invalid child item has been unselected THEN 'Publish now' button gets enabled in the dialog", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         // 1. Select an existing folder with invalid child and open Publish wizard:
@@ -68,15 +68,16 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         // 2. Click on 'Include children' button
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
         // 3. Unselect the checkbox for 'unnamed' (invalid) folder:
-        await contentPublishDialog.clickOnCheckboxInDependentItem(appConst.UNNAMED_CONTENT_DISPLAY_NAME);
+        await contentPublishDialog.clickOnCheckboxInMainItem(UNNAMED_FOLDER);
         // 4. Apply the selection:
         await contentPublishDialog.clickOnApplyButton();
         // 5. Verify that 'Exclude invalid items' button gets not visible:
         await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
         // 6. Verify that 'Publish Now' button is enabled in the dialog, because of the valid child item has been excluded:
         await contentPublishDialog.waitForPublishNowButtonEnabled();
-        // 7. Verify that 'Hide excluded' button is displayed:
-        await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+        // 7. Verify that the excluded child item remains in the main list, unselected:
+        let isSelected = await contentPublishDialog.isMainItemCheckboxSelected(UNNAMED_FOLDER);
+        assert.ok(isSelected === false, 'The excluded child item should be unselected');
         // 8. Verify that 'Content is ready for publishing' record is displayed:
         await contentPublishDialog.waitForReadyForPublishingTextDisplayed();
     });
@@ -91,19 +92,16 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         // 2. Click on Include children button
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
         await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
-        let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 2, 'Two dependent items should be displayed');
+        // The site and its 2 child items should be in the main list:
+        await contentPublishDialog.waitForNumberOfMainItems(3);
         // 3. Click on 'Exclude invalid' items button:
         await contentPublishDialog.clickOnExcludeInvalidItemsButton();
         // 4. Verify that 'Exclude invalid items' button gets not visible:
         await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
-        depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        depItems[0].includes(appConst.UNNAMED_CONTENT_DISPLAY_NAME)
-            ? assert.ok(true, 'One invalid unnamed item should be present in the block')
-            : assert.fail('Invalid item is not displayed in the dependant block');
-        assert.equal(depItems.length, 2, '2 dependent items should be present in the block');
-        // 5. 'Hide excluded' button gets visible:
-        await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
+        // 5. The excluded invalid item remains in the main list, unselected:
+        await contentPublishDialog.waitForNumberOfMainItems(3);
+        let isSelected = await contentPublishDialog.isMainItemCheckboxSelected(UNNAMED_FOLDER);
+        assert.ok(isSelected === false, 'The excluded invalid item should be unselected');
     });
 
     it("Precondition 2: 'work in progress' folder should be added in the site", async () => {
@@ -123,8 +121,8 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         // 2. Click on 'Include children' button
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
         await contentPublishDialog.waitForExcludeInvalidItemsButtonDisplayed();
-        let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 3, 'Three dependent items should be displayed');
+        // The site and its 3 child items should be in the main list:
+        await contentPublishDialog.waitForNumberOfMainItems(4);
         await studioUtils.saveScreenshot('include_children_clicked');
         // 3. Click on 'Exclude invalid items':
         await contentPublishDialog.clickOnExcludeInvalidItemsButton();
@@ -136,16 +134,17 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         // 5. Verify that 'Exclude items in progress' buttons get not visible:
         await contentPublishDialog.waitForExcludeInvalidItemsButtonNotDisplayed();
         await contentPublishDialog.waitForExcludeItemsInProgressButtonNotDisplayed();
-        // 6. 'Hide excluded' button should be visible:
-        await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
-        // 7. The number of displayed dependant items should be reduced:
-        depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 3, 'Number of displayed dependent items should be reduced');
+        // 6. The excluded items remain in the main list, unselected:
+        await contentPublishDialog.waitForNumberOfMainItems(4);
+        let isSelected = await contentPublishDialog.isMainItemCheckboxSelected(TEST_FOLDER.displayName);
+        assert.ok(isSelected === false, "The excluded 'work in progress' item should be unselected");
+        // 7. There are no dependencies, so the 'Hide excluded' button should not be displayed:
+        await contentPublishDialog.waitForHideExcludedItemsButtonNotDisplayed();
         // 8. Publish Now button should be enabled now:
         await contentPublishDialog.waitForPublishNowButtonEnabled();
     });
 
-    it("WHEN 'Hide excluded' button has been clicked THEN the number of dependant items should be increased", async () => {
+    it("GIVEN invalid and 'work in progress' child items have been excluded WHEN the invalid item has been selected again THEN 'Apply' button gets visible AND 'Publish now' gets disabled", async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentPublishDialog = new ContentPublishDialog();
         // 1. Select an existing site with not valid child and open Publish wizard:
@@ -158,24 +157,16 @@ describe('publish.dialog.site.with.child.items.spec - Select a site with invalid
         await contentPublishDialog.clickOnExcludeInvalidItemsButton();
         // 4. Exclude all 'work in progress' items:
         await contentPublishDialog.clickOnExcludeItemsInProgressButton();
-        // 5. 'Hide Excluded' button should be visible:
-        await contentPublishDialog.clickOnHideExcludedItemsButton();
-        // 6. The number of dependant items should be reduced to 1:
-        let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 1, 'Three dependent items should be displayed');
-        await studioUtils.saveScreenshot('hide_excluded_items');
-        // 7. Verify that 'Show excluded items' button gets visible:
-        await contentPublishDialog.waitForShowExcludedItemsButtonDisplayed();
-        // 8. Click on 'Show Excluded items' button:
-        await contentPublishDialog.clickOnShowExcludedItemsButton();
-        // 9. Excluded items should be displayed now:
-        depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 3, '3 dependent items should be displayed');
-        assert.ok(
-            depItems[0].includes(appConst.UNNAMED_CONTENT_DISPLAY_NAME),
-            'Expected invalid item(unnamed) should be displayed in the dependant list',
-        );
-        assert.ok(depItems[2].includes('_templates'), 'Expected item-name should be displayed in the dependant list');
+        await contentPublishDialog.waitForPublishNowButtonEnabled();
+        // 5. The excluded items remain in the main list after the site:
+        let mainItems = await contentPublishDialog.waitForNumberOfMainItems(4);
+        assert.equal(mainItems[0], SITE.displayName, 'The site should be the first item in the main list');
+        await studioUtils.saveScreenshot('excluded_child_items');
+        // 6. Select the invalid item again:
+        await contentPublishDialog.clickOnCheckboxInMainItem(UNNAMED_FOLDER);
+        // 7. Verify that 'Apply' button gets visible and 'Publish Now' button gets disabled:
+        await contentPublishDialog.waitForApplySelectionButtonDisplayed();
+        await contentPublishDialog.waitForPublishNowButtonDisabled();
     });
 
     beforeEach(() => studioUtils.navigateToContentStudioApp());

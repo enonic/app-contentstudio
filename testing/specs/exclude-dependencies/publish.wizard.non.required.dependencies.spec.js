@@ -84,11 +84,11 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
         await contentPublishDialog.waitForAllDependenciesExcludedAndHiddenMessageDisplayed();
         // 7. Click on 'Include child items' toggle:
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        // 8. Verify that expected dependency item gets visible in the dialog:
-        await contentPublishDialog.waitForDependenciesListDisplayed();
-        let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(depItems.length, 1, 'non-required dependency should be displayed in the list');
-        assert.ok(depItems[0].includes('_templates'), 'non-required dependency should be displayed in the list');
+        // 8. Verify that the child item gets visible in the main list:
+        let mainItems = await contentPublishDialog.waitForNumberOfMainItems(2);
+        assert.ok(mainItems[1].includes('Templates'), 'The child item should be displayed in the main list');
+        // 9. Verify that the excluded dependency remains hidden:
+        await contentPublishDialog.waitForAllDependenciesExcludedAndHiddenMessageDisplayed();
     });
 
     it("GIVEN 'Show excluded' button has been clicked in the 'Publish Wizard' WHEN 'Show excluded' has been pressed THEN non-required dependency item gets visible in the modal dialog", async () => {
@@ -123,14 +123,15 @@ describe('publish.wizard.non.required.dependencies.spec - tests for config with 
         await contentPublishDialog.waitForDialogOpened();
         // 3. Click on Include children checkbox:
         await contentPublishDialog.clickOnIncludeChildrenCheckbox();
-        // 4. Verify the dependent items:
+        // 4. Verify that the child item is in the main list and the dependency is in the dependencies block:
+        let mainItems = await contentPublishDialog.waitForNumberOfMainItems(2);
+        assert.ok(mainItems[1].includes('Templates'), 'The child item should be displayed in the main list');
         let depItems = await contentPublishDialog.getDisplayNameInDependentItems();
+        assert.equal(depItems.length, 1, 'Only the non-required dependency should be in the dependencies block');
         assert.ok(
             depItems[0].includes(TEST_FOLDER.displayName),
             'non-required dependency should be displayed in the list',
         );
-        assert.equal(depItems.length, 2, 'child item should be displayed in the list');
-        assert.ok(depItems[1].includes('_templates'), 'non-required dependency should be displayed in the list');
         // 5. Verify - 'hide excluded' button should be displayed:
         await contentPublishDialog.waitForHideExcludedItemsButtonDisplayed();
         // 6. Non required item should be not checked

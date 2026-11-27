@@ -14,10 +14,11 @@ import {
     excludeInvalidPublishItems,
     excludeNotPublishablePublishItems,
     loadMoreDependants,
+    loadMoreDescendants,
     markAllAsReadyInProgressPublishItems,
-    removePublishDialogItem,
     reloadPublishDialogData,
     setPublishDialogDependantItemSelected,
+    setPublishDialogItemSelected,
     setPublishDialogItemWithChildrenSelected,
     setPublishDialogMessage,
     setPublishSchedule,
@@ -28,11 +29,12 @@ import {
     $dependantPublishItems,
     $hasExcludedDependantItems,
     $hasMoreDependants,
+    $hasMoreDescendants,
     $hasSchedulableItems,
     $isPublishChecking,
     $isPublishReady,
     $isPublishSelectionSynced,
-    $mainPublishItems,
+    $primaryPublishRows,
     $publishCheckErrors,
     $publishDependantsSelection,
     $publishDialog,
@@ -56,14 +58,15 @@ export const PublishDialogMainContent = ({
     onPublish,
     'data-component': componentName = PUBLISH_DIALOG_MAIN_CONTENT_NAME,
 }: PublishDialogMainContentProps): ReactElement => {
-    const { failed, message } = useStore($publishDialog, { keys: ['failed', 'message'] });
+    const { failed, message, tree } = useStore($publishDialog, { keys: ['failed', 'message', 'tree'] });
     const loading = useStore($isPublishChecking);
     const isPublishReady = useStore($isPublishReady);
     const { allowContentUpdate, defaultPublishFromTime } = useStore($config, {
         keys: ['allowContentUpdate', 'defaultPublishFromTime'],
     });
-    const mainItems = useStore($mainPublishItems);
+    const primaryRows = useStore($primaryPublishRows);
     const dependantItems = useStore($dependantPublishItems);
+    const hasMoreDescendants = useStore($hasMoreDescendants);
     const hasMoreDependants = useStore($hasMoreDependants);
     const publishCount = useStore($totalPublishableItems);
     const hasSchedulableItems = useStore($hasSchedulableItems);
@@ -205,11 +208,41 @@ export const PublishDialogMainContent = ({
                 <div className="min-h-0 flex-1 overflow-y-auto md:contents">
                     <SplitList>
                         <SplitList.Primary
-                            items={mainItems}
-                            getItemId={(item) => item.id}
+                            items={primaryRows}
+                            getItemId={({ item }) => item.id}
                             disabled={loading}
-                            renderRow={(item) => {
-                                const showChildrenCheckbox = item.hasUnpublishedChildren && item.content.hasChildren();
+                            loading={loading}
+                            hasMore={hasMoreDescendants}
+                            onEndReached={loadMoreDescendants}
+                            renderRow={(row) => {
+                                if (row.kind === 'descendant') {
+                                    return (
+                                        <ContentRow
+                                            key={row.item.id}
+                                            content={row.item.content}
+                                            id={row.item.id}
+                                            disabled={loading}
+                                            layout="mobile-selectable-status-below"
+                                        >
+                                            <ContentRow.Checkbox
+                                                checked={row.item.included}
+                                                onCheckedChange={(checked) =>
+                                                    setPublishDialogDependantItemSelected(
+                                                        row.item.content.getContentId(),
+                                                        checked,
+                                                    )
+                                                }
+                                                disabled={row.item.required || loading}
+                                            />
+                                            <ContentRow.Label action="edit" variant="detailed" />
+                                            <PublishDialogItemStatus />
+                                        </ContentRow>
+                                    );
+                                }
+
+                                const { item } = row;
+                                const showChildrenCheckbox =
+                                    !tree && item.hasUnpublishedChildren && item.content.hasChildren();
                                 return (
                                     <>
                                         <ContentRow
@@ -217,14 +250,17 @@ export const PublishDialogMainContent = ({
                                             content={item.content}
                                             id={item.id}
                                             disabled={loading}
-                                            layout="mobile-status-below"
+                                            layout="mobile-selectable-status-below"
                                         >
+                                            <ContentRow.Checkbox
+                                                checked={item.included}
+                                                onCheckedChange={(checked) =>
+                                                    setPublishDialogItemSelected(item.content.getContentId(), checked)
+                                                }
+                                                disabled={item.required || loading}
+                                            />
                                             <ContentRow.Label action="edit" variant="detailed" />
                                             <PublishDialogItemStatus />
-                                            <ContentRow.RemoveButton
-                                                onRemove={() => removePublishDialogItem(item.content.getContentId())}
-                                                disabled={item.required || loading || mainItems.length === 1}
-                                            />
                                         </ContentRow>
 
                                         {showChildrenCheckbox && (

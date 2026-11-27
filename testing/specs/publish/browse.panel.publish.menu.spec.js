@@ -125,7 +125,7 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await contentBrowsePanel.waitForPublishTreeButtonVisible();
     });
 
-    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE' button has been pressed THEN published dependent items should not be displayed in the dialog`, async () => {
+    it(`GIVEN existing published site has been selected WHEN 'PUBLISH TREE' button has been pressed THEN published items should not be displayed in the dialog`, async () => {
         let contentBrowsePanel = new ContentBrowsePanel();
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
@@ -144,11 +144,10 @@ describe('browse.panel.publish.menu.spec tests for Publish button in grid-toolba
         await studioUtils.doCloseWindowTabAndSwitchToBrowsePanel();
         // 5. Click on 'PUBLISH TREE...' button:
         await contentBrowsePanel.clickOnPublishTreeButton();
-        // 6. Verify that published dependent items are not included(displayed) in the list:
+        // 6. Verify that the published site and its published child are not displayed in the main list:
         await contentPublishDialog.waitForDialogOpened();
-        let actualItems = await contentPublishDialog.getDisplayNameInDependentItems();
-        assert.equal(actualItems.length, 1, 'The list should contain only one item');
-        assert.ok(actualItems[0].includes('_templates'), 'The list of items should contains only one item');
+        let actualItems = await contentPublishDialog.waitForNumberOfMainItems(1);
+        assert.ok(actualItems[0].includes('Templates'), 'The list of items should contains only one item');
     });
 
     //test verifies https://github.com/enonic/app-contentstudio/issues/493
