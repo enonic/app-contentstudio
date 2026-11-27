@@ -5,6 +5,7 @@ import { $publishOrRequestDialog, INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE } from
 import {
     $isPublishOrRequestAssignOpen,
     $isPublishOrRequestScheduleOpen,
+    $isPublishOrRequestSubmitAllowed,
     $publishOrRequestAction,
     $publishOrRequestFieldStates,
     $publishOrRequestFields,
@@ -401,6 +402,71 @@ describe('publish or request fields store', () => {
             $publishOrRequestFields.setKey('scheduleFrom', TOMORROW);
 
             expect($publishOrRequestAction.get()).toBe('publish');
+        });
+    });
+
+    describe('$isPublishOrRequestSubmitAllowed', () => {
+        // The main item has something to publish, on top of what `setDialog` sets.
+        const setPublishableDialog = (canRequest: boolean, blocked: string[] = []): void => {
+            setDialog(canRequest, blocked);
+            $publishOrRequestDialog.setKey('publishableIds', [new ContentId('main')]);
+        };
+
+        beforeEach(() => {
+            setPublishableDialog(true);
+        });
+
+        it('should be true to publish once the items are ready', () => {
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+        });
+
+        it('should be true to schedule and to request too', () => {
+            $publishOrRequestFields.setKey('scheduleChecked', true);
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+
+            $publishOrRequestFields.setKey('assignChecked', true);
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+        });
+
+        it.each([
+            { name: 'the dependencies load', patch: { loading: true } },
+            { name: 'the load failed', patch: { failed: true } },
+            { name: 'the selection is not applied', patch: { excludedDependantIds: [new ContentId('dependency')] } },
+            { name: 'an item is in progress', patch: { inProgressIds: [new ContentId('main')] } },
+            { name: 'an item is invalid', patch: { invalidIds: [new ContentId('main')] } },
+            { name: 'there is nothing to publish', patch: { publishableIds: [] } },
+        ])('should be false for every action while $name', ({ patch }) => {
+            $publishOrRequestDialog.set({ ...$publishOrRequestDialog.get(), ...patch });
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
+
+            $publishOrRequestFields.setKey('assignChecked', true);
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
+        });
+
+        it('should be true to request while a dependency the user cannot publish is listed', () => {
+            setPublishableDialog(true, ['dependency']);
+
+            expect($publishOrRequestAction.get()).toBe('request');
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+        });
+
+        it('should be true for a user who can only request', () => {
+            setPublishableDialog(true, ['main']);
+
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(true);
+        });
+
+        it('should be false to publish while a dependency the user cannot publish is listed', () => {
+            setPublishableDialog(false, ['dependency']);
+
+            expect($publishOrRequestAction.get()).toBe('publish');
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
+        });
+
+        it('should be false for a user who can neither publish nor request', () => {
+            setPublishableDialog(false, ['main']);
+
+            expect($isPublishOrRequestSubmitAllowed.get()).toBe(false);
         });
     });
 

@@ -7,6 +7,8 @@
 import { computed, map } from 'nanostores';
 import {
     $hasPublishOrRequestBlockedItems,
+    $isPublishOrRequestNextAllowed,
+    $isPublishOrRequestPublishNowAllowed,
     $isPublishOrRequestSchedulable,
     $publishOrRequestCapability,
     type PublishOrRequestCapability,
@@ -101,6 +103,17 @@ export const $publishOrRequestScheduleProblem = computed(
 export const $publishOrRequestAction = computed(
     [$isPublishOrRequestAssignOpen, $isPublishOrRequestScheduleOpen],
     (isAssignOpen, isScheduleOpen): PublishOrRequestAction => getAction(isAssignOpen, isScheduleOpen),
+);
+
+// TODO: [#11792] Wait for the required fields to be filled, with the saving phase.
+/**
+ * True when the dialog can be submitted. Publishing and scheduling take what "Publish now"
+ * takes; a request takes what going on from the first step takes.
+ */
+export const $isPublishOrRequestSubmitAllowed = computed(
+    [$publishOrRequestAction, $isPublishOrRequestNextAllowed, $isPublishOrRequestPublishNowAllowed],
+    (action, isNextAllowed, isPublishNowAllowed): boolean =>
+        action === 'request' ? isNextAllowed : isPublishNowAllowed,
 );
 
 /**
