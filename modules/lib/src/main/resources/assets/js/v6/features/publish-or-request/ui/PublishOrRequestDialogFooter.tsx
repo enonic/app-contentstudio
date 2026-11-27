@@ -6,6 +6,7 @@ import { Button, cn, Stepper } from '@enonic/ui';
 import { useStore } from '@nanostores/preact';
 import { type ReactElement } from 'react';
 import { useI18n } from '../../../shared/lib/hooks/useI18n';
+import { submitPublishOrRequestDialog } from '../model/commands/submit';
 import {
     $isPublishOrRequestPublishNowAllowed,
     $publishOrRequestCapability,
@@ -101,12 +102,15 @@ function SubmitButton(): ReactElement {
             : { publish: publishLabel, schedule: scheduleLabel, request: requestLabel };
 
     return (
-        <Button size="lg" variant="solid" disabled={!isSubmitAllowed} onClick={handleSubmit} label={labels[action]} />
+        <Button
+            size="lg"
+            variant="solid"
+            disabled={!isSubmitAllowed}
+            onClick={submitPublishOrRequestDialog}
+            label={labels[action]}
+        />
     );
 }
 
 // TODO: [#11792] Publish right away, with the saving phase.
 function handlePublishNow(): void {}
-
-// TODO: [#11792] Publish, schedule or request, with the saving phase.
-function handleSubmit(): void {}

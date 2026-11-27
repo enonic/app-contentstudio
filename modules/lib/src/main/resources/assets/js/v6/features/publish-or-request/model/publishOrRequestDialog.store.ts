@@ -23,6 +23,9 @@ export type PublishOrRequestDialogStep = (typeof PUBLISH_OR_REQUEST_DIALOG_STEPS
 /** What the user may do with the items the dialog was opened with. */
 export type PublishOrRequestCapability = 'publish' | 'request' | 'publish-request' | 'none';
 
+/** What is being sent to the server. A scheduled publish is a publish. */
+export type PublishOrRequestSubmitting = 'publish' | 'request';
+
 export type PublishOrRequestDialogStore = {
     // Dialog
     open: boolean;
@@ -67,6 +70,11 @@ export type PublishOrRequestDialogStore = {
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: boolean;
+
+    // What is being submitted, if anything. A publish runs as a task on the server, known by
+    // its id once the server has taken it.
+    submitting: PublishOrRequestSubmitting | undefined;
+    taskId: string | undefined;
 };
 
 export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStore = {
@@ -113,6 +121,11 @@ export const INITIAL_PUBLISH_OR_REQUEST_DIALOG_STATE: PublishOrRequestDialogStor
 
     // Whether the dependencies applied as excluded are listed ("Show / Hide excluded")
     showExcluded: true,
+
+    // What is being submitted, if anything. A publish runs as a task on the server, known by
+    // its id once the server has taken it.
+    submitting: undefined,
+    taskId: undefined,
 };
 
 export const $publishOrRequestDialog = map<PublishOrRequestDialogStore>({
@@ -237,13 +250,14 @@ export const $isPublishOrRequestPublishNowAllowed = computed(
 // *
 
 // True when something stands in the way of going on, whatever the user may do: the items are not
-// resolved, the selection is not applied, a check fails or there is nothing to publish.
+// resolved, the selection is not applied, a check fails, there is nothing to publish, or the
+// dialog is being submitted already.
 function hasBlocker(
-    { loading, failed, inProgressIds, invalidIds }: PublishOrRequestDialogStore,
+    { loading, failed, submitting, inProgressIds, invalidIds }: PublishOrRequestDialogStore,
     isSelectionSynced: boolean,
     publishableCount: number,
 ): boolean {
-    if (loading || failed || !isSelectionSynced) return true;
+    if (loading || failed || submitting != null || !isSelectionSynced) return true;
 
     return inProgressIds.length > 0 || invalidIds.length > 0 || publishableCount === 0;
 }

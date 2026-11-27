@@ -64,8 +64,13 @@ export const stop = (): void => {
 
 let unsubscribers: (() => void)[] = [];
 
-// Events are of no interest while the dialog is closed.
-const onEvent = createGuardedSocketHandler(() => $publishOrRequestDialog.get().open);
+// Events are of no interest while the dialog is closed, nor while it is being submitted:
+// what is sent is what was on screen.
+const onEvent = createGuardedSocketHandler(() => {
+    const { open, submitting } = $publishOrRequestDialog.get();
+
+    return open && submitting == null;
+});
 
 const toContentIds = (items: ContentServerChangeItem[]): ContentId[] => items.map((item) => item.getContentId());
 

@@ -164,6 +164,28 @@ describe('publishOrRequestDialog.service', () => {
         expect(mockRefreshItems).not.toHaveBeenCalled();
     });
 
+    it('should ignore the events while the dialog is being submitted', () => {
+        $publishOrRequestDialog.setKey('submitting', 'publish');
+
+        emitContentUpdated([createItem('a')]);
+        emitContentPublished([createItem('a')]);
+        emitContentDeleted([createChangeItem('a')]);
+
+        expect(mockApplyChanges).not.toHaveBeenCalled();
+        expect(mockRefreshItems).not.toHaveBeenCalled();
+        expect(mockRemove).not.toHaveBeenCalled();
+    });
+
+    it('should listen again once the submit is over', () => {
+        $publishOrRequestDialog.setKey('submitting', 'publish');
+        $publishOrRequestDialog.setKey('submitting', undefined);
+        const updated = [createItem('a')];
+
+        emitContentUpdated(updated);
+
+        expect(mockApplyChanges).toHaveBeenCalledExactlyOnceWith(updated);
+    });
+
     it('should listen once across repeated starts and not at all after stop', () => {
         start();
         emitContentUpdated([createItem('a')]);

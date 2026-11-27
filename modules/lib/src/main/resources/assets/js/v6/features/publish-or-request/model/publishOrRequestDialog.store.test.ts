@@ -224,6 +224,8 @@ describe('publish or request dialog store', () => {
             { blocker: 'an item in progress', patch: { inProgressIds: toIds('a') } },
             { blocker: 'an invalid item', patch: { invalidIds: toIds('a') } },
             { blocker: 'nothing to publish', patch: { publishableIds: [] } },
+            { blocker: 'a publish being submitted', patch: { submitting: 'publish' as const } },
+            { blocker: 'a request being submitted', patch: { submitting: 'request' as const } },
         ])('should allow neither with $blocker, whatever the user may do', ({ patch }) => {
             setReady(true, patch);
 
