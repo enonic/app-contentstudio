@@ -1,9 +1,10 @@
 /**
- * Created on 26.03.2020. updated 0n 20.05.2026
+ * Created on 26.03.2020. updated on 27.11.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const builder = require('../../libs/content.builder');
 const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const appConst = require('../../libs/app_const');
@@ -30,6 +31,15 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
     const PROJ_IDENTIFIER = studioUtils.generateRandomName('id');
     const IMPORTED_SITE = 'site040269';
     const IMPORTED_PROJECT = 'Default';
+
+    const USER_NAME = builder.generateRandomName('user');
+
+    it(`Precondition: new system user should be created`, async () => {
+        // 'su' and 'anonymous' can not be members of project roles (enonic/xp#12443), so a regular user is used:
+        let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
+        let user = builder.buildUser(USER_NAME, appConst.PASSWORD.MEDIUM, builder.generateEmail(USER_NAME), roles);
+        await studioUtils.createSystemUserViaApi(user);
+    });
 
     // Verifies:  Project identifier field is editable issue#2923
     it(`WHEN existing project is opened THEN expected identifier, description and language should be displayed`, async () => {
@@ -116,7 +126,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         assert.equal(actualIdentifier, PROJ_IDENTIFIER, 'Expected Identifier should be displayed in the grid');
     });
 
-    it(`GIVEN existing project is opened WHEN 'SU' has been added in 'custom read access' THEN 'SU' should appear in the selected options`, async () => {
+    it(`GIVEN existing project is opened WHEN a user has been added in 'Custom Read Access' AND the project has been updated THEN the user should be displayed in the selected options`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         // 1.Click on the project and press 'Edit' button:
         await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
@@ -132,12 +142,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         await projectWizardDialogAccessModeStep.waitForLoaded();
         // 2. click on 'Custom' radio:
         await projectWizardDialogAccessModeStep.clickOnAccessModeRadio('Custom');
-        // 3. Select SU in the Principal combobox
-        await projectWizardDialogAccessModeStep.selectUserInCustomReadAccessSelector(
-            appConst.systemUsersDisplayName.SUPER_USER,
-        );
+        // 3. Select the user in the Principal combobox
+        await projectWizardDialogAccessModeStep.selectUserInCustomReadAccessSelector(USER_NAME);
 
-        // 4. Verify that SU is added in 'Custom Read Access'
+        // 4. Verify that the user is added in 'Custom Read Access'
         let result = await projectWizardDialogAccessModeStep.getSelectedUsersInCustomReadAccessSelector();
         await projectWizardDialogAccessModeStep.clickOnNextButton();
         let confirmationDialog = new ConfirmationDialog();
@@ -158,10 +166,10 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         await projectWizardDialogSummaryStep.clickOnUpdateProjectButton();
 
         assert.equal(result.length, 1, 'One option should be selected in Custom Read Access');
-        assert.equal(result[0], appConst.systemUsersDisplayName.SUPER_USER, "SU should be in 'Custom Read Access'");
+        assert.equal(result[0], USER_NAME, "The user should be in 'Custom Read Access'");
     });
 
-    it(`WHEN existing project with selected 'Custom Access mode' has been opened THEN 'Custom Access mode' radio should be selected AND expected user should be in this form`, async () => {
+    it(`WHEN existing project with 'Custom' access mode has been reopened THEN the added user should be displayed in 'Custom Read Access'`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         // 1.Click on the project and press 'Edit' button:
         await settingsBrowsePanel.clickOnRowByDisplayName(PROJECT_DISPLAY_NAME);
@@ -178,11 +186,7 @@ describe('edit.project.spec - ui-tests for editing a project', function () {
         // 2. Verify that expected user is displayed in Custom Read Access
         let result = await projectWizardDialogAccessModeStep.getSelectedUsersInCustomReadAccessSelector();
         assert.equal(result.length, 1, 'One option should be selected in Custom Access mode');
-        assert.equal(
-            result[0],
-            appConst.systemUsersDisplayName.SUPER_USER,
-            "'SU' option should be in 'Custom Read Access'",
-        );
+        assert.equal(result[0], USER_NAME, "The user should be in 'Custom Read Access'");
     });
 
     it('Precondition: the second project should be saved', async () => {

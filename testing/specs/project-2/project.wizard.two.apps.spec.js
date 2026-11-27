@@ -1,9 +1,10 @@
 /**
- * Created on 07.02.2023  updated on 06.11.2026
+ * Created on 07.02.2023  updated on 27.11.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const builder = require('../../libs/content.builder');
 const projectUtils = require('../../libs/project.utils.js');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const appConst = require('../../libs/app_const');
@@ -37,6 +38,15 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
     // Inputs in the config form of 'All Content Types App':
     const BACKGROUND_IMAGE_LABEL = 'Background image';
     const POSTS_FOLDER_LABEL = 'Posts folder';
+
+    const USER_NAME = builder.generateRandomName('user');
+
+    it(`Precondition: new system user should be created`, async () => {
+        // 'su' and 'anonymous' can not be members of project roles (enonic/xp#12443), so a regular user is used:
+        let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
+        let user = builder.buildUser(USER_NAME, appConst.PASSWORD.MEDIUM, builder.generateEmail(USER_NAME), roles);
+        await studioUtils.createSystemUserViaApi(user);
+    });
 
     it(`GIVEN project with two selected apps is opened THEN expected application should be present in the wizard page`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
@@ -150,7 +160,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         assert.ok(apps.length === 0, 'Application should not be displayed in the app-step');
     });
 
-    it(`GIVEN layer wizard is opened AND Navigated to App step WHEN one mor app has been added THEN the app should be displayed with Remove icon`, async () => {
+    it(`GIVEN layer wizard is opened AND Navigated to App step WHEN one more app has been added THEN the app should be displayed with Remove icon`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let parentProjectStep = new ProjectWizardDialogParentProjectStep();
         let accessModeStep = new ProjectWizardDialogAccessModeStep();
@@ -226,7 +236,7 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
 
     // Project's applications should be displayed in Settings Statistics Panel #7655
     // https://github.com/enonic/app-contentstudio/issues/7655
-    it(`GIVEN layer with inherited apps is selected WHEN language has been copied from the parent AND 'Editor' role has been added THEN the updates should be displayed in Statistics Panel`, async () => {
+    it(`GIVEN layer with inherited apps is selected WHEN language has been copied from the parent AND a user has been added with 'Editor' role THEN the updates should be displayed in Statistics Panel`, async () => {
         let settingsBrowsePanel = new SettingsBrowsePanel();
         let settingsItemStatisticsPanel = new SettingsItemStatisticsPanel();
         // 1. Click on the layer with inherited apps:
@@ -257,16 +267,13 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         let accessModeStep = new ProjectWizardDialogAccessModeStep();
         await accessModeStep.waitForLoaded();
         await accessModeStep.clickOnNextButton();
-        // 5. Add 'Super User' with 'Editor' role:
+        // 5. Add the user with 'Editor' role:
         let projectRolesStep = new ProjectWizardDialogPermissionsStep();
         await projectRolesStep.waitForLoaded();
-        await projectRolesStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
-        await projectRolesStep.updateUserAccessRole(
-            appConst.systemUsersDisplayName.SUPER_USER,
-            appConst.PROJECT_ROLES.EDITOR,
-        );
-        let role = await projectRolesStep.getRoleInSelectedPrincipal(appConst.systemUsersDisplayName.SUPER_USER);
-        assert.equal(role, appConst.PROJECT_ROLES.EDITOR, `'Editor' role should be selected for Super User`);
+        await projectRolesStep.selectProjectAccessRole(USER_NAME);
+        await projectRolesStep.updateUserAccessRole(USER_NAME, appConst.PROJECT_ROLES.EDITOR);
+        let role = await projectRolesStep.getRoleInSelectedPrincipal(USER_NAME);
+        assert.equal(role, appConst.PROJECT_ROLES.EDITOR, `'Editor' role should be selected for the user`);
         await studioUtils.saveScreenshot('layer_wizard_editor_role_added');
         await projectRolesStep.clickOnNextButton();
         let applicationsStep = new ProjectWizardDialogApplicationsStep();
@@ -281,13 +288,9 @@ describe('project.wizard.two.apps.spec - Select 2 applications in project wizard
         // 7. Verify that the updates are displayed in the Statistics Panel - the language:
         let actualLanguage = await settingsItemStatisticsPanel.getLanguage();
         assert.equal(actualLanguage, appConst.LANGUAGES.EN, 'The copied language should be displayed');
-        // 8. 'Super User' should be displayed in 'Editors':
+        // 8. The user should be displayed in 'Editors':
         let editors = await settingsItemStatisticsPanel.getEditors();
-        assert.deepEqual(
-            editors,
-            [appConst.systemUsersDisplayName.SUPER_USER],
-            `'Super User' should be displayed in 'Editors'`,
-        );
+        assert.deepEqual(editors, [USER_NAME], `The user should be displayed in 'Editors'`);
         // 9. The name, the access mode and the applications should not be changed:
         displayName = await settingsItemStatisticsPanel.getItemDisplayName();
         assert.equal(displayName, LAYER_WITH_INHERITED_APPS, 'Expected display name should be displayed');

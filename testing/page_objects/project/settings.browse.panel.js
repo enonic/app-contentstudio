@@ -17,6 +17,9 @@ const XPATH = {
 
     projectsFolderRow: `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ItemLabel']//span[contains(@class,'font-semibold') and text()='Projects']]`,
 
+    rowExpandControl: `//button[@data-component='VirtualizedTreeList.RowExpandControl']`,
+    rowSelectionControl: `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`,
+
     projectCheckboxByName: (name) =>
         `//div[@data-component='VirtualizedTreeList.Row' and descendant::div[@data-component='ProjectLabel']//span[contains(@class,'font-semibold') and contains(.,'${name}')]]` +
         `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`,
@@ -28,27 +31,28 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     get deleteButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Delete');
+        return this.toolbar + BUTTONS.buttonAriaLabel('Delete');
     }
 
     get newButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('New');
+        return this.toolbar + BUTTONS.buttonAriaLabel('New');
     }
 
     get editButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Edit');
+        return this.toolbar + BUTTONS.buttonAriaLabel('Edit');
     }
 
     get syncButton() {
-        return XPATH.toolbarDiv + BUTTONS.buttonAriaLabel('Sync');
+        return this.toolbar + BUTTONS.buttonAriaLabel('Sync');
     }
 
     get treeGrid() {
         return XPATH.container + XPATH.settingsTreeListDataComponent;
     }
 
+    // Alias of 'toolbar', it is used in BaseBrowsePanel:
     get browseToolbar() {
-        return XPATH.container + XPATH.toolbarDiv;
+        return this.toolbar;
     }
 
     get selectAllCheckboxLabel() {
@@ -69,18 +73,19 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         );
     }
 
+    expanderIconByDisplayName(displayName) {
+        return XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName) + XPATH.rowExpandControl;
+    }
+
     async clickOnExpanderIcon(name) {
         try {
-            let expanderIcon =
-                XPATH.settingsTreeListDataComponent +
-                TREE_GRID.itemByDisplayName(name) +
-                `//button[@data-component='VirtualizedTreeList.RowExpandControl']`;
+            let expanderIcon = this.expanderIconByDisplayName(name);
             await this.waitForElementDisplayed(expanderIcon, appConst.mediumTimeout);
             await this.clickOnElement(expanderIcon);
             return await this.pause(500);
         } catch (err) {
             await this.handleError(
-                `Error occurred after clicking on expander-icon: ${name}`,
+                `Tried to click on the expander icon in the row: ${name}`,
                 'err_click_on_expander',
                 err,
             );
@@ -92,7 +97,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(projectName);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Project is not displayed: ${projectName}`, 'err_browse_panel', err);
+            await this.handleError(`Project should be displayed: ${projectName}`, 'err_project_not_displayed', err);
         }
     }
 
@@ -102,8 +107,8 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             return await this.waitForElementNotDisplayed(locator, appConst.mediumTimeout);
         } catch (err) {
             await this.handleError(
-                `Project is still displayed: ${projectDisplayName}`,
-                'err_project_not_displayed',
+                `Project should not be displayed: ${projectDisplayName}`,
+                'err_project_still_displayed',
                 err,
             );
         }
@@ -115,11 +120,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath);
             await this.clickOnElement(nameXpath);
         } catch (err) {
-            await this.handleError(
-                `Error occurred after clicking on the row with display name: ${displayName}`,
-                'err_click_row',
-                err,
-            );
+            await this.handleError(`Tried to click on the row with display name: ${displayName}`, 'err_click_row', err);
         }
     }
 
@@ -128,59 +129,55 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByName(id);
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
         } catch (err) {
-            await this.handleError(`Row with the id is not displayed: ${id}`, 'err_find_item', err);
+            await this.handleError(
+                `Project with the identifier should be displayed: ${id}`,
+                'err_project_id_not_displayed',
+                err,
+            );
         }
     }
 
+    // The same as waitForItemDisplayed:
     async waitForProjectByDisplayNameDisplayed(displayName) {
-        try {
-            let nameXpath = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByDisplayName(displayName);
-            return await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(`Project is not visible: ${displayName}`, 'err_find_project', err);
-        }
+        return await this.waitForItemDisplayed(displayName);
     }
 
     async clickOnCheckboxAndSelectRowByName(name) {
         try {
             let nameXpath = XPATH.projectCheckboxByName(name);
             await this.waitUntilDisplayed(nameXpath, appConst.mediumTimeout);
-            let checkboxElement = await this.getDisplayedElements(nameXpath);
-            await checkboxElement[0].click();
+            let checkboxElements = await this.getDisplayedElements(nameXpath);
+            if (checkboxElements.length === 0) {
+                throw new Error(`Checkbox was not found in the project row, locator: ${nameXpath}`);
+            }
+            await checkboxElements[0].click();
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Project's checkbox was not found: ${name}`, 'err_checkbox_proj', err);
+            await this.handleError(`Tried to click on the checkbox of the project: ${name}`, 'err_checkbox_proj', err);
         }
     }
 
     async clickOnProjectsFolderCheckbox() {
         try {
-            let locator =
-                XPATH.settingsTreeListDataComponent +
-                XPATH.projectsFolderRow +
-                `//div[@data-component='VirtualizedTreeList.RowSelectionControl']`;
+            let locator = XPATH.settingsTreeListDataComponent + XPATH.projectsFolderRow + XPATH.rowSelectionControl;
             await this.waitForElementDisplayed(locator, appConst.shortTimeout);
             await this.clickOnElement(locator);
             return await this.pause(300);
         } catch (err) {
             await this.handleError(
-                'Error occurred after clicking on Projects folder checkbox',
+                "Tried to click on the checkbox of 'Projects' folder",
                 'err_projects_folder_checkbox',
                 err,
             );
         }
     }
 
+    // Returns false when the expander icon does not appear in the row within the short timeout:
     async isExpanderIconPresent(name) {
         try {
-            let expanderIcon =
-                XPATH.settingsTreeListDataComponent +
-                TREE_GRID.itemByDisplayName(name) +
-                `//button[@data-component='VirtualizedTreeList.RowExpandControl']`;
-            await this.waitForElementDisplayed(expanderIcon, appConst.shortTimeout);
+            await this.waitForElementDisplayed(this.expanderIconByDisplayName(name), appConst.shortTimeout);
             return true;
         } catch (err) {
-            await this.saveScreenshotUniqueName('expander_not_displayed');
             return false;
         }
     }
@@ -199,10 +196,14 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     // Returns the state of 'Select all' checkbox input: true when all rows are selected
     async isSelectAllCheckboxSelected() {
-        let locator = this.selectAllCheckboxLabel + `//input[@type='checkbox']`;
-        await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
-        let state = await this.getAttribute(locator, 'data-state');
-        return state === 'checked';
+        try {
+            let locator = this.selectAllCheckboxLabel + `//input[@type='checkbox']`;
+            await this.waitForElementDisplayed(this.selectAllCheckboxLabel, appConst.mediumTimeout);
+            let state = await this.getAttribute(locator, 'data-state');
+            return state === 'checked';
+        } catch (err) {
+            await this.handleError(`Tried to get the state of 'Select all' checkbox`, 'err_select_all_state', err);
+        }
     }
 
     // The old 'Selection Controller' checkbox is replaced with the 'Select all' checkbox in the tree list toolbar:
@@ -216,7 +217,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             await this.handleError(
                 `'Clear selection' checkbox should be displayed in the tree list toolbar`,
-                'err_clear_selection_checkbox',
+                'err_clear_selection_not_displayed',
                 err,
             );
         }
@@ -228,7 +229,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             await this.handleError(
                 `'Clear selection' checkbox should not be displayed in the tree list toolbar`,
-                'err_clear_selection_checkbox',
+                'err_clear_selection_displayed',
                 err,
             );
         }
@@ -240,7 +241,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.clickOnElement(this.clearSelectionCheckboxLabel);
             return await this.pause(300);
         } catch (err) {
-            await this.handleError(`Tried to click on 'Clear selection' checkbox`, 'err_clear_selection_checkbox', err);
+            await this.handleError(`Tried to click on 'Clear selection' checkbox`, 'err_click_clear_selection', err);
         }
     }
 
@@ -264,12 +265,16 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     }
 
     async openProjectWizardDialog() {
-        let parentProjectStep = new ProjectWizardDialogParentProjectStep();
-        // 1.'New...' button has been clicked:
-        await this.clickOnNewButton();
-        // 2. 'Project Wizard Dialog' should be loaded:
-        await parentProjectStep.waitForLoaded();
-        return parentProjectStep;
+        try {
+            let parentProjectStep = new ProjectWizardDialogParentProjectStep();
+            // 1.'New...' button has been clicked:
+            await this.clickOnNewButton();
+            // 2. 'Project Wizard Dialog' should be loaded:
+            await parentProjectStep.waitForLoaded();
+            return parentProjectStep;
+        } catch (err) {
+            await this.handleError('Tried to open the Project Wizard dialog', 'err_open_project_wizard', err);
+        }
     }
 
     async rightClickOnProjects() {
@@ -278,7 +283,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath);
             return await this.doRightClick(nameXpath);
         } catch (err) {
-            await this.handleError('Error occurred after right click on Projects row', 'err_rightClick_projects', err);
+            await this.handleError("Tried to right click on 'Projects' row", 'err_rightClick_projects', err);
         }
     }
 
@@ -288,7 +293,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementDisplayed(nameXpath, appConst.mediumTimeout);
             return await this.doRightClick(nameXpath);
         } catch (err) {
-            await this.handleError(`Error when right clicking on project row: ${displayName}`, 'err_rightClick', err);
+            await this.handleError(`Tried to right click on the project row: ${displayName}`, 'err_rightClick', err);
         }
     }
 
@@ -303,6 +308,18 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
     // Looks up a project row by its identifier (the <small> sub-name) and returns the bold display name
     // without the trailing language suffix (e.g. ' (en)') that the renderer appends as a nested span.
     async getProjectDisplayName(name) {
+        try {
+            return await this.doGetProjectDisplayName(name);
+        } catch (err) {
+            await this.handleError(
+                `Tried to get the display name of the project with identifier: ${name}`,
+                'err_project_display_name',
+                err,
+            );
+        }
+    }
+
+    async doGetProjectDisplayName(name) {
         const rowLocator = XPATH.settingsTreeListDataComponent + TREE_GRID.itemByName(name);
         const displayNameLocator = rowLocator + TREE_GRID.PROJECT_LABEL_DISPLAY_NAME_SPAN;
         const languageSuffixLocator = rowLocator + TREE_GRID.PROJECT_LABEL_LANGUAGE_SUFFIX_SPAN;
@@ -321,12 +338,20 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
 
     // Looks up a project row by its display name and returns the identifier shown in <small>.
     async getProjectIdentifier(displayName) {
-        const identifierLocator =
-            XPATH.settingsTreeListDataComponent +
-            TREE_GRID.itemByDisplayName(displayName) +
-            TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
-        await this.waitForElementDisplayed(identifierLocator);
-        return await this.getText(identifierLocator);
+        try {
+            const identifierLocator =
+                XPATH.settingsTreeListDataComponent +
+                TREE_GRID.itemByDisplayName(displayName) +
+                TREE_GRID.PROJECT_LABEL_IDENTIFIER_SMALL;
+            await this.waitForElementDisplayed(identifierLocator);
+            return await this.getText(identifierLocator);
+        } catch (err) {
+            await this.handleError(
+                `Tried to get the identifier of the project: ${displayName}`,
+                'err_project_identifier',
+                err,
+            );
+        }
     }
 
     async waitForSyncButtonEnabled() {
@@ -341,7 +366,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForElementDisplayed(this.syncButton);
         } catch (err) {
-            await this.handleError('Sync button should be enabled', 'err_sync_disabled_button', err);
+            await this.handleError('Sync button should be displayed', 'err_sync_not_displayed_button', err);
         }
     }
 
@@ -358,11 +383,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForSyncButtonEnabled();
             return await this.clickOnElement(this.syncButton);
         } catch (err) {
-            await this.handleError(
-                `Error occurred after clicking on 'Sync' button`,
-                'err_browsepanel_sync_button',
-                err,
-            );
+            await this.handleError(`Tried to click on 'Sync' button`, 'err_browsepanel_sync_button', err);
         }
     }
 
@@ -371,11 +392,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.deleteButton);
             return await this.clickOnElement(this.deleteButton);
         } catch (err) {
-            await this.handleError(
-                `Error occurred after clicking on 'Delete' button`,
-                'err_settings_delete_button',
-                err,
-            );
+            await this.handleError(`Tried to click on 'Delete' button`, 'err_settings_delete_button', err);
         }
     }
 
@@ -383,7 +400,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForElementDisabled(this.deleteButton);
         } catch (err) {
-            await this.handleError('Delete button is not disabled', 'err_delete_button', err);
+            await this.handleError('Delete button should be disabled', 'err_delete_button_enabled', err);
         }
     }
 
@@ -391,7 +408,7 @@ class SettingsBrowsePanel extends BaseBrowsePanel {
         try {
             await this.waitForElementEnabled(this.deleteButton);
         } catch (err) {
-            await this.handleError('Delete button is not enabled', 'err_delete_button', err);
+            await this.handleError('Delete button should be enabled', 'err_delete_button_disabled', err);
         }
     }
 }

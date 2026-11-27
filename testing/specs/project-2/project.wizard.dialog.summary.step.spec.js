@@ -1,16 +1,16 @@
 /**
- * Created on 31.08.2022 updated  on 27.05.2026
+ * Created on 31.08.2022 updated on 27.11.2026
  */
 const assert = require('node:assert');
 const webDriverHelper = require('../../libs/WebDriverHelper');
 const studioUtils = require('../../libs/studio.utils.js');
+const builder = require('../../libs/content.builder');
 const SettingsBrowsePanel = require('../../page_objects/project/settings.browse.panel');
 const appConst = require('../../libs/app_const');
 const ProjectWizardDialogApplicationsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.applications.step');
 const ProjectWizardDialogParentProjectStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.parent.project.step');
 const ProjectWizardDialogAccessModeStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.access.mode.step');
 const ProjectWizardDialogPermissionsStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.permissions.step');
-const ConfirmationDialog = require('../../page_objects/confirmation.dialog');
 const ProjectWizardDialogSummaryStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.summary.step');
 const ProjectWizardDialogNameAndIdStep = require('../../page_objects/project/project-wizard-dialog/project.wizard.name.id.step');
 
@@ -22,7 +22,16 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
 
     const PROJECT_DISPLAY_NAME = studioUtils.generateRandomName('proj');
 
-    it(`WHEN Summary step wizard is loaded THEN expected parameters should be displayed`, async () => {
+    const USER_NAME = builder.generateRandomName('user');
+
+    it(`Precondition: new system user should be created`, async () => {
+        // 'su' and 'anonymous' can not be members of project roles (enonic/xp#12443), so a regular user is used:
+        let roles = [appConst.SYSTEM_ROLES.ADMIN_CONSOLE];
+        let user = builder.buildUser(USER_NAME, appConst.PASSWORD.MEDIUM, builder.generateEmail(USER_NAME), roles);
+        await studioUtils.createSystemUserViaApi(user);
+    });
+
+    it(`GIVEN a user has been selected in Permissions step WHEN Summary step is loaded THEN expected parameters should be displayed`, async () => {
         let applicationsStep = new ProjectWizardDialogApplicationsStep();
         let settingsBrowsePanel = new SettingsBrowsePanel();
         // 1.Open new project wizard:
@@ -46,7 +55,7 @@ describe('project.wizard.dialog.summary.step.spec - ui-tests for Summary wizard 
         await accessModeStep.clickOnNextButton();
         let permissionsStep = new ProjectWizardDialogPermissionsStep();
         await permissionsStep.waitForLoaded();
-        await permissionsStep.selectProjectAccessRole(appConst.systemUsersDisplayName.SUPER_USER);
+        await permissionsStep.selectProjectAccessRole(USER_NAME);
         await permissionsStep.clickOnNextButton();
         if (await applicationsStep.isLoaded()) {
             await applicationsStep.clickOnNextButton();
