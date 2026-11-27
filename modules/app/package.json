@@ -59,7 +59,7 @@
     "neverthrow": "^8.2.0",
     "preact": "^11.2.0",
     "q": "^1.5.1",
-    "react-resizable-panels": "4.24.1",
+    "react-resizable-panels": "4.24.3",
     "react-virtuoso": "^4.18.23",
     "sortablejs": "^1.15.6"
   },
