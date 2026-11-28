@@ -92,7 +92,7 @@
     "less-loader": "^13.1.0",
     "oxfmt": "0.80.0",
     "oxlint": "1.95.0",
-    "postcss-loader": "^8.2.0",
+    "postcss-loader": "^8.2.2",
     "postcss-normalize": "^13.0.1",
     "postcss-sort-media-queries": "^6.7.1",
     "typescript": "7.0.2"
