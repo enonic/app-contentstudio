@@ -8,10 +8,6 @@ export type WizardToolbarCollaborator = {
 };
 
 export type WizardToolbarStore = {
-    projectLabel: string;
-    projectName: string;
-    projectLanguage: string;
-    projectHasIcon: boolean;
     collaborators: WizardToolbarCollaborator[];
     publishStatus: PublishStatus | null;
     contentName: string;
@@ -19,7 +15,6 @@ export type WizardToolbarStore = {
     canRenameContentPath: boolean;
     isContentOnline: boolean;
     contentState: ContentState | null;
-    isLayerProject: boolean;
     isContentInherited: boolean;
     isContentDataInherited: boolean;
 };

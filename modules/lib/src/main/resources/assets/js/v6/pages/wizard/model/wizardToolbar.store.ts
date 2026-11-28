@@ -3,8 +3,10 @@ import { NamePrettyfier } from '@enonic/lib-admin-ui/NamePrettyfier';
 import { map } from 'nanostores';
 import { ContentName } from '../../../../app/content/ContentName';
 import { ContentUnnamed } from '../../../../app/content/ContentUnnamed';
-import type { PublishStatus } from '../../../../app/publish/PublishStatus';
+import type { ContentSummaryAndCompareStatus } from '../../../../app/content/ContentSummaryAndCompareStatus';
+import { PublishStatus } from '../../../../app/publish/PublishStatus';
 import { $config } from '../../../shared/config/config.store';
+import { calcTreePublishStatus } from '../../../shared/lib/cms/content/status';
 import {
     $contentType,
     $wizardContentState,
@@ -17,10 +19,6 @@ import {
 import type { WizardToolbarCollaborator, WizardToolbarStore } from './wizardToolbar.types';
 
 const createInitialState = (): WizardToolbarStore => ({
-    projectLabel: '',
-    projectName: '',
-    projectLanguage: '',
-    projectHasIcon: false,
     collaborators: [],
     publishStatus: null,
     contentName: '',
@@ -28,7 +26,6 @@ const createInitialState = (): WizardToolbarStore => ({
     canRenameContentPath: false,
     isContentOnline: false,
     contentState: null,
-    isLayerProject: false,
     isContentInherited: false,
     isContentDataInherited: false,
 });
@@ -103,51 +100,42 @@ $wizardContentState.subscribe((contentState) => {
     $wizardToolbar.setKey('contentState', contentState);
 });
 
-export function setWizardToolbarProjectLabel(projectLabel: string): void {
-    $wizardToolbar.setKey('projectLabel', projectLabel);
-}
-
-export function setWizardToolbarProjectInfo(
-    projectName: string,
-    projectLanguage: string,
-    projectHasIcon: boolean,
-): void {
-    $wizardToolbar.setKey('projectName', projectName);
-    $wizardToolbar.setKey('projectLanguage', projectLanguage);
-    $wizardToolbar.setKey('projectHasIcon', projectHasIcon);
-}
-
 export function setWizardToolbarCollaborators(collaborators: WizardToolbarCollaborator[]): void {
     $wizardToolbar.setKey('collaborators', collaborators);
 }
 
-export function setWizardToolbarPublishStatus(publishStatus: PublishStatus | null): void {
+function resolvePublishStatus(item: ContentSummaryAndCompareStatus | undefined): PublishStatus | null {
+    const publishStatus = item?.getPublishStatus();
+    if (publishStatus != null) return publishStatus;
+
+    const summary = item?.getContentSummary();
+    if (summary != null) return calcTreePublishStatus(summary);
+
+    return $wizardToolbar.get().publishStatus ?? null;
+}
+
+function resolveContentName(item: ContentSummaryAndCompareStatus | undefined): string {
+    const draftName = $wizardDraftName.get()?.toString() || '';
+    if (draftName.length > 0) return draftName;
+
+    const summaryName = item?.getContentSummary()?.getName()?.toString() || '';
+    if (summaryName.length > 0) return normalizeContentName(summaryName);
+
+    return normalizeContentName(item?.getPath()?.getName() || '');
+}
+
+/** Shows the content the wizard has loaded or received from the server. */
+export function setWizardToolbarContent(item: ContentSummaryAndCompareStatus | undefined): void {
+    const publishStatus = resolvePublishStatus(item);
+    const contentName = resolveContentName(item);
+
     $wizardToolbar.setKey('publishStatus', publishStatus);
-}
-
-export function setWizardToolbarContentName(contentName: string): void {
     $wizardToolbar.setKey('contentName', contentName);
-}
-
-export function setWizardToolbarContentParentPath(contentParentPath: string): void {
-    $wizardToolbar.setKey('contentParentPath', contentParentPath);
-}
-
-export function setWizardToolbarCanRenameContentPath(canRenameContentPath: boolean): void {
-    $wizardToolbar.setKey('canRenameContentPath', canRenameContentPath);
-}
-
-export function setWizardToolbarIsContentOnline(isContentOnline: boolean): void {
-    $wizardToolbar.setKey('isContentOnline', isContentOnline);
-}
-
-export function setWizardToolbarIsLayerProject(isLayerProject: boolean): void {
-    $wizardToolbar.setKey('isLayerProject', isLayerProject);
-}
-
-export function setWizardToolbarContentInheritance(isInherited: boolean, isDataInherited: boolean): void {
-    $wizardToolbar.setKey('isContentInherited', isInherited);
-    $wizardToolbar.setKey('isContentDataInherited', isDataInherited);
+    $wizardToolbar.setKey('contentParentPath', item?.getPath()?.getParentPath()?.toString() ?? '');
+    $wizardToolbar.setKey('canRenameContentPath', !!item?.getPath());
+    $wizardToolbar.setKey('isContentOnline', publishStatus != null && publishStatus !== PublishStatus.OFFLINE);
+    $wizardToolbar.setKey('isContentInherited', !!item?.isInherited());
+    $wizardToolbar.setKey('isContentDataInherited', !!item?.isDataInherited());
 }
 
 export function resetWizardToolbar(): void {

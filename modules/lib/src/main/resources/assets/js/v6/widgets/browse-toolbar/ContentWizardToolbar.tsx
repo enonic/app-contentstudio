@@ -17,6 +17,7 @@ import {
     openPluginDialog,
 } from '../../features/ai';
 import { $wizardToolbar } from '../../pages/wizard/model/wizardToolbar.store';
+import { $activeProjectInfo } from '../../entities/project/activeProjectInfo.store';
 import { formatContentFullPath } from '../../shared/lib/cms/content/paths';
 import { getInitials } from '../../shared/lib/format/initials';
 import { useElementVisibility } from '../../shared/lib/hooks/useElementVisibility';
@@ -86,32 +87,29 @@ export const ContentWizardToolbar = ({
     const wizardActions = useStore($wizardActions);
     const { md, xl } = useBreakpoints();
     const {
-        projectLabel,
-        projectName,
-        projectLanguage,
-        projectHasIcon,
+        label: projectLabel,
+        name: projectName,
+        language: projectLanguage,
+        hasIcon: projectHasIcon,
+        isLayer: isLayerProject,
+    } = useStore($activeProjectInfo);
+    const {
         collaborators,
         publishStatus,
         contentName,
         contentParentPath,
         canRenameContentPath,
         contentState,
-        isLayerProject,
         isContentInherited,
         isContentDataInherited,
     } = useStore($wizardToolbar, {
         keys: [
-            'projectLabel',
-            'projectName',
-            'projectLanguage',
-            'projectHasIcon',
             'collaborators',
             'publishStatus',
             'contentName',
             'contentParentPath',
             'canRenameContentPath',
             'contentState',
-            'isLayerProject',
             'isContentInherited',
             'isContentDataInherited',
         ],
