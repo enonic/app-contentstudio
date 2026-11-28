@@ -11,10 +11,7 @@ const height = properties.get('browser.height');
 exports.config = {
     specs: [path.join(__dirname, '../specs/content-types-2/*.spec.js')],
 
-    exclude: [
-        path.join(__dirname, '../specs/content-types-2/folder.content.revert.permissions.spec.js'),
-        path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js'),
-    ],
+    exclude: [path.join(__dirname, '../specs/content-types-2/revert.zoomed.image.spec.js')],
 
     maxInstances: 2,
     strictSelectors: false,

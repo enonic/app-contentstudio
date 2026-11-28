@@ -18,7 +18,7 @@ class BaseBrowsePanel extends Page {
     }
 
     hotKeyNew() {
-        return this.getBrowser().keys(['Alt', 'n']);
+        return this.getBrowser().keys([Key.Alt, 'n']);
     }
 
     async hotKeyDelete() {
@@ -58,64 +58,51 @@ class BaseBrowsePanel extends Page {
         }
     }
 
-    // wait for the "Show Selection" circle appears in the toolbar
-    async waitForSelectionTogglerVisible() {
-        try {
-            await this.waitForElementDisplayed(this.selectionPanelToggler);
-            let attr = await this.getAttribute(this.selectionPanelToggler, 'class');
-            return attr.includes('any-selected');
-        } catch (err) {
-            return false;
-        }
+    // Input of the selection controller checkbox in the tree list toolbar. Its label is 'Select all' when nothing
+    // is selected and 'Clear selection (N)' when rows are selected. The input is visually hidden ('sr-only'),
+    // its state is exposed in 'data-state': 'unchecked', 'checked' (all rows are selected) or 'indeterminate'.
+    get selectionControllerCheckBox() {
+        return "//input[@type='checkbox' and (@aria-label='Select all' or contains(@aria-label,'Clear selection'))]";
     }
 
-    async waitForSelectionTogglerNotVisible() {
+    async getSelectionControllerState() {
+        await this.waitForExist(this.selectionControllerCheckBox, appConst.mediumTimeout);
+        return await this.getAttribute(this.selectionControllerCheckBox, 'data-state');
+    }
+
+    // Waits until the selection controller checkbox gets 'partial' - the 'minus' icon with the 'Clear selection (N)' label
+    // (some rows are selected, but not all):
+    async waitForSelectionControllerPartial() {
         try {
-            await this.waitForElementNotDisplayed(this.selectionPanelToggler);
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let state = await this.getSelectionControllerState();
+                    return state === 'indeterminate';
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: 'Selection Controller checkbox should be displayed as partial',
+                },
+            );
         } catch (err) {
             await this.handleError(
-                'Selection toggle should not be visible. ',
-                'err_selection_toggler_should_not_visible',
+                'Browse Panel, Selection Controller checkbox should be partial. ',
+                'err_selection_controller_partial',
                 err,
             );
         }
     }
 
-    //Clicks on 'circle' (Show Selection tooltip)with a number and filters items in the grid:
-    async clickOnSelectionToggler() {
-        await this.waitForSelectionTogglerVisible();
-        await this.waitForElementDisplayed(
-            this.selectionPanelToggler + "/div[@data-label='selected']",
-            appConst.mediumTimeout,
-        );
-        await this.clickOnElement(this.selectionPanelToggler).catch((err) =>
-            this.handleError('Tried to click on Selection Toggle...', 'err_clicking_selection_toggle', err),
-        );
-        return await this.pause(400);
-    }
-
-    //Wait for Selection Controller checkBox gets 'partial', then returns true, otherwise exception will be thrown
-    async waitForSelectionControllerPartial() {
-        let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
-        await this.getBrowser().waitUntil(
-            async () => {
-                let text = await this.getAttribute(selector, 'class');
-                return text.includes('partial');
-            },
-            { timeout: appConst.shortTimeout, timeoutMsg: 'Selection Controller checkBox should displayed as partial' },
-        );
-    }
-
+    // returns true if the selection controller checkbox is 'partial' (some rows are selected, but not all):
     async isSelectionControllerPartial() {
-        let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
-        let text = await this.getAttribute(selector, 'class');
-        return text.includes('partial');
+        let state = await this.getSelectionControllerState();
+        return state === 'indeterminate';
     }
 
-    // returns true if 'Selection Controller' checkbox is selected:
-    isSelectionControllerSelected() {
-        let selector = this.selectionControllerCheckBox + "//input[@type='checkbox']";
-        return this.isSelected(selector);
+    // returns true if the selection controller checkbox is checked (all loaded rows are selected):
+    async isSelectionControllerSelected() {
+        let state = await this.getSelectionControllerState();
+        return state === 'checked';
     }
 
     // gets list of content display names
@@ -147,8 +134,7 @@ class BaseBrowsePanel extends Page {
         try {
             await this.waitForElementDisabled(this.editButton);
         } catch (err) {
-            let screenshot = await this.saveScreenshotUniqueName('err_edit_disabled_button');
-            throw Error(`Edit button should be disabled screenshot: ${screenshot} ` + err);
+            await this.handleError('Browse Panel, Edit button should be disabled. ', 'err_edit_disabled_button', err);
         }
     }
 
@@ -159,10 +145,6 @@ class BaseBrowsePanel extends Page {
         } catch (err) {
             await this.handleError('Browse Panel, Edit button should be enabled. ', 'err_edit_button_enabled', err);
         }
-    }
-
-    isEditButtonEnabled() {
-        return this.isElementEnabled(this.editButton);
     }
 
     async clickOnNewButton() {
@@ -194,16 +176,21 @@ class BaseBrowsePanel extends Page {
 
     // Click on row-checkbox by name
     async clickOnCheckboxByName(name) {
-        let listElements = TREE_GRID.itemByName(name);
-        let result = await this.findElements(listElements);
-        if (result.length === 0) {
-            throw new Error(`Tree grid, The Checkbox was not found! ${name}`);
+        try {
+            let rowLocator = TREE_GRID.itemByName(name);
+            await this.waitForElementDisplayed(rowLocator, appConst.mediumTimeout);
+            let rows = await this.findElements(rowLocator);
+            // click on the checkbox in the last row with this name:
+            let checkboxElement = await rows[rows.length - 1].$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
+            await checkboxElement.waitForDisplayed({ timeout: appConst.mediumTimeout });
+            await checkboxElement.click();
+        } catch (err) {
+            await this.handleError(
+                `Browse Panel, tried to click on the checkbox in the row: ${name}`,
+                'err_click_on_row_checkbox',
+                err,
+            );
         }
-        let listElement = result[result.length - 1];
-        let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
-        // check only the last element:
-        await checkboxElement.waitForDisplayed();
-        await checkboxElement.click();
     }
 
     async clickOnCheckboxByDisplayName(displayName) {
@@ -212,90 +199,121 @@ class BaseBrowsePanel extends Page {
         await this.clickOnElement(checkboxElement);
     }
 
+    // Waits until the checkbox in the row gets checked (aria-checked='true'):
     async waitForRowCheckboxSelected(itemName) {
-        let listElements = TREE_GRID.itemByName(itemName);
-        let result = await this.findElements(listElements);
-        if (result.length === 0) {
-            throw new Error(`Tree Grid, Checkbox was not found! ${itemName}`);
+        try {
+            let rowLocator = TREE_GRID.itemByName(itemName);
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let rows = await this.findElements(rowLocator);
+                    if (rows.length === 0) {
+                        return false;
+                    }
+                    // check only the last row with this name:
+                    let checkboxElement = await rows[rows.length - 1].$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
+                    let ariaChecked = await checkboxElement.getAttribute('aria-checked');
+                    return ariaChecked === 'true';
+                },
+                { timeout: appConst.mediumTimeout, timeoutMsg: 'The checkbox was not selected in the row' },
+            );
+        } catch (err) {
+            await this.handleError(
+                `Browse Panel, checkbox should be selected in the row: ${itemName}`,
+                'err_row_checkbox_selected',
+                err,
+            );
         }
-        // get the last 'ContentsTreeGridListElement' element:
-        let listElement = result[result.length - 1];
-        // get the checkbox input for the last 'ContentsTreeGridListElement' element
-        let checkboxElement = await listElement.$('.' + TREE_GRID.TREE_LIST_ITEM_CHECKBOX_LABEL);
-
-        await this.getBrowser().waitUntil(
-            async () => {
-                let isChecked = await checkboxElement.getAttribute('aria-checked');
-                return isChecked;
-            },
-            { timeout: appConst.mediumTimeout, timeoutMsg: 'The Checkbox was not selected' },
-        );
     }
 
     async waitForContextMenuDisplayed() {
-        await this.getBrowser().waitUntil(
-            async () => {
-                let result = await this.getDisplayedElements(TREE_GRID.CONTENT_ITEM_CONTEXT_MENU);
-                return result.length > 0;
-            },
-            {
-                timeout: appConst.mediumTimeout,
-                timeoutMsg: 'Tree grid - Context menu was not loaded for the content item',
-            },
-        );
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let result = await this.getDisplayedElements(TREE_GRID.CONTENT_ITEM_CONTEXT_MENU);
+                    return result.length > 0;
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: 'Tree grid - Context menu was not loaded for the content item',
+                },
+            );
+        } catch (err) {
+            await this.handleError('Browse Panel, context menu should be displayed. ', 'err_context_menu', err);
+        }
     }
 
     async waitForContextMenuItemNotDisplayed(menuItem) {
+        try {
+            let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
+            return await this.waitForElementNotDisplayed(menuItemSelector, appConst.mediumTimeout);
+        } catch (err) {
+            await this.handleError(
+                `Browse Panel, the context menu item '${menuItem}' should not be displayed: `,
+                'err_context_menu_item_displayed',
+                err,
+            );
+        }
+    }
+
+    // Waits until the context menu item is displayed and gets the expected state.
+    // A disabled item has aria-disabled='true', an enabled one has no such attribute.
+    // Errors are not handled here - callers wrap this method with handleError.
+    async waitForContextMenuItemState(menuItem, shouldBeDisabled) {
         let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
-        return await this.waitForElementNotDisplayed(menuItemSelector, appConst.mediumTimeout);
+        let expectedState = shouldBeDisabled ? 'disabled' : 'enabled';
+        await this.getBrowser().waitUntil(
+            async () => {
+                let elements = await this.getDisplayedElements(menuItemSelector);
+                if (elements.length === 0) {
+                    return false;
+                }
+                let ariaDisabled = await elements[0].getAttribute('aria-disabled');
+                return (ariaDisabled === 'true') === shouldBeDisabled;
+            },
+            {
+                timeout: appConst.mediumTimeout,
+                timeoutMsg: `Context menu item '${menuItem}' is not displayed or not ${expectedState} in ${appConst.mediumTimeout} ms`,
+            },
+        );
     }
 
     async waitForContextMenuItemEnabled(menuItem) {
         try {
-            let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
-            let el = await this.getDisplayedElements(menuItemSelector);
-            if (el.length === 0) {
-                throw new Error('Tree Grid, Context Menu item is not displayed: ' + menuItem);
-            }
-            return await this.browser.waitUntil(
-                async () => {
-                    let result = await el[0].getAttribute('aria-disabled');
-                    return result === null;
-                },
-                { timeout: appConst.mediumTimeout, timeoutMsg: 'context menu item is not enabled in 3000 ms' },
-            );
+            await this.waitForContextMenuItemState(menuItem, false);
         } catch (err) {
             await this.handleError(
                 `Browse Panel, the context menu item '${menuItem}' should be enabled: `,
-                'err_context_menu_item_',
+                'err_context_menu_item_enabled',
                 err,
             );
         }
     }
 
     async waitForContextMenuItemDisabled(menuItem) {
-        let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
-        let el = await this.getDisplayedElements(menuItemSelector);
-        if (el.length === 0) {
-            throw new Error('Menu item is not displayed: ' + menuItem);
+        try {
+            await this.waitForContextMenuItemState(menuItem, true);
+        } catch (err) {
+            await this.handleError(
+                `Browse Panel, the context menu item '${menuItem}' should be disabled: `,
+                'err_context_menu_item_disabled',
+                err,
+            );
         }
-        return await this.browser.waitUntil(
-            async () => {
-                let result = await el[0].getAttribute('aria-disabled');
-                return result === 'true';
-            },
-            { timeout: appConst.mediumTimeout, timeoutMsg: 'context menu item should be disabled' },
-        );
     }
 
+    // Waits until the context menu item gets enabled then clicks on it:
     async clickOnMenuItem(menuItem) {
-        let menuItemSelector = TREE_GRID.itemContextMenuItemByName(menuItem);
-        await this.waitForContextMenuItemEnabled(menuItem);
-        let el = await this.getDisplayedElements(menuItemSelector);
-        if (el.length === 0) {
-            throw new Error(`Tree Grid, Context Menu item was not displayed: ${menuItem}`);
+        try {
+            await this.waitForContextMenuItemState(menuItem, false);
+            let elements = await this.getDisplayedElements(TREE_GRID.itemContextMenuItemByName(menuItem));
+            await elements[0].click();
+        } catch (err) {
+            await this.handleError(
+                `Browse Panel, tried to click on the context menu item '${menuItem}': `,
+                'err_click_context_menu_item',
+                err,
+            );
         }
-        await el[0].click();
     }
 
     async doubleClickOnRowByDisplayName(displayName) {
@@ -317,12 +335,6 @@ class BaseBrowsePanel extends Page {
     async waitForBrowseToolbarRoleAttribute(expectedRole) {
         let locator = this.toolbar;
         await this.waitForAttributeValue(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ROLE, expectedRole);
-    }
-
-    // check for Accessibility attributes: aria-label
-    async waitForBrowseToolbarAriaLabelAttribute() {
-        let locator = this.toolbar;
-        await this.waitForAttributeIsPresent(locator, appConst.ACCESSIBILITY_ATTRIBUTES.ARIA_LABEL);
     }
 }
 

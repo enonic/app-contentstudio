@@ -140,7 +140,7 @@ module.exports = Object.freeze({
     },
 
     VERSIONS_ITEM_HEADER: {
-        PERMISSIONS_UPDATED: 'Permissions updated',
+        PERMISSIONS: 'Permissions',
         CREATED: 'Created',
         EDITED: 'Edited',
         MARKED_AS_READY: 'Marked as Ready',
@@ -211,7 +211,7 @@ module.exports = Object.freeze({
     TIMEOUT_4: 4000,
     TIMEOUT_5: 5000,
     longTimeout: 10000,
-    saveProjectTimeout: 20000,
+    saveProjectTimeout: 25000,
     shortTimeout: 2000,
     TIMEOUT_1: 1000,
     SUITE_TIMEOUT: 180000,

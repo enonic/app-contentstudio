@@ -13,7 +13,8 @@ const xpath = {
         return `//div[@data-component='VersionsListItem' and descendant::span[contains(.,'${name}')]]`;
     },
     versionItemExpanded: "//div[@data-component='VersionsListItem' and descendant::button[@aria-label='Restore']]",
-    publishMessageDiv: "//div[contains(@class, 'publish-message')]",
+    // Publish message is rendered only in the expanded item, as its direct child (see VersionsListItem.tsx):
+    publishMessageDiv: "/div[contains(@class,'text-sm') and contains(@class,'font-normal')]",
     selectionToolbar: "//div[@data-component='VersionSelectionToolbar']",
     // Compare checkbox inside a version item (relative locator, the input itself is hidden):
     compareCheckboxDiv: ".//div[@data-component='Checkbox']",
@@ -61,8 +62,9 @@ class BaseVersionsWidget extends Page {
         return this.extensionView + xpath.versionsListItemByName('Created');
     }
 
+    // Items with the 'Permissions' header (the item was called 'Permissions updated' in the legacy widget):
     get permissionsUpdatedItems() {
-        return this.extensionView + xpath.versionsListItemByName('Permissions updated');
+        return this.extensionView + xpath.versionsListItemByName(appConst.VERSIONS_ITEM_HEADER.PERMISSIONS);
     }
 
     get movedItems() {
@@ -245,12 +247,33 @@ class BaseVersionsWidget extends Page {
         }
     }
 
+    // Gets publish messages from 'Published' items. A message is displayed only in the expanded item,
+    // and 'Published' items are listed only when 'Show all activities' is checked.
+    // The widget collapses the expanded item when the content is updated (e.g. by the events after publishing),
+    // so the top 'Published' item is expanded again until its message stays displayed.
     async getPublishMessagesFromPublishedItems() {
-        await this.waitForElementDisplayed(this.versionItems);
-        //get all version items with the header:
-        let locator = xpath.versionsListItemByName(appConst.VERSIONS_ITEM_HEADER.PUBLISHED) + xpath.publishMessageDiv;
-        await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
-        return await this.getTextInDisplayedElements(locator);
+        try {
+            await this.waitForElementDisplayed(this.publishedItems, appConst.mediumTimeout);
+            let locator = this.publishedItems + xpath.publishMessageDiv;
+            await this.getBrowser().waitUntil(
+                async () => {
+                    if (!(await this.isElementDisplayed(locator))) {
+                        let items = await this.findElements(this.publishedItems);
+                        await items[0].click();
+                    }
+                    await this.pause(700);
+                    return await this.isElementDisplayed(locator);
+                },
+                { timeout: appConst.longTimeout, interval: 300 },
+            );
+            return await this.getTextInDisplayedElements(locator);
+        } catch (err) {
+            await this.handleError(
+                `Versions Widget - publish message in 'Published' item`,
+                'err_version_publish_message',
+                err,
+            );
+        }
     }
 
     async clickAndExpandVersionItemByHeader(versionHeader, index) {
@@ -443,22 +466,6 @@ class BaseVersionsWidget extends Page {
     // Headers or displayNames :Created, Edited.  Permissions Updated is excluded
     versionItemByDisplayName(displayName) {
         return this.extensionView + xpath.versionsListItemByName(displayName);
-    }
-
-    // Checkbox for Edited, Created, Moved, Renamed version items.
-    // Returns false when the checkbox is not rendered (the version is not comparable):
-    async isCompareVersionCheckboxDisplayed(itemHeader, index) {
-        let i = index === undefined ? 0 : index;
-        let itemLocator = this.extensionView + xpath.versionsListItemByName(itemHeader);
-        let elements = await this.findElements(itemLocator);
-        if (elements.length === 0 || elements[i] === undefined) {
-            throw new Error(`No version item found for the header: ${itemHeader} at index: ${i}`);
-        }
-        let checkboxElements = await elements[i].$$(xpath.compareCheckboxDiv);
-        if (checkboxElements.length === 0) {
-            return false;
-        }
-        return await checkboxElements[0].isDisplayed();
     }
 
     // Toggles the 'Show all activities' checkbox: switches the widget between the 'full' display mode

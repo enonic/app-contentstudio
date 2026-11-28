@@ -4,14 +4,12 @@ const propertiesReader =
     propertiesReaderModule.propertiesReader || propertiesReaderModule.default || propertiesReaderModule;
 const file = path.join(__dirname, '/../browser.properties');
 const properties = propertiesReader({ sourceFile: file });
-const browser_version = properties.get('browser.version');
 
 exports.config = {
     specs: [path.join(__dirname, '../specs/publish/*.spec.js'), path.join(__dirname, '../specs/issue/*.spec.js')],
     exclude: [
         path.join(__dirname, '../specs/publish/request.publish.dialog.validation.spec.js'),
         path.join(__dirname, '../specs/publish/request.publishing.dialog.mark.as.ready.spec.js'),
-        path.join(__dirname, '../specs/publish/version.items.after.publishing.spec.js'),
     ],
 
     maxInstances: 1,

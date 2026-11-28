@@ -10,7 +10,6 @@ const XPATH = {
     container: "//div[contains(@role,'dialog') and descendant::h2[contains(.,'Publishing Wizard')]]",
     dialogTitle: "//h2[text()='Publishing Wizard']",
     dialogStateBarDiv: "//div[contains(@id,'DialogStateBar')]",
-    logMessageLink: "//div[contains(@class,'content-dialog-sub-title')]/a",
     publishScheduleForm: "//div[@data-component='PublishScheduleForm']",
     includeChildrenCheckbox:
         DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
@@ -128,15 +127,6 @@ class ContentPublishDialog extends Page {
             await this.pause(1000);
         } catch (err) {
             await this.handleError(`Publish Dialog, click on 'Apply' button `, 'err_apply_button', err);
-        }
-    }
-
-    async clickOnLogMessageLink() {
-        try {
-            await this.waitForElementDisplayed(this.logMessageLink, appConst.mediumTimeout);
-            return await this.clickOnElement(this.logMessageLink);
-        } catch (err) {
-            await this.handleError(`Publish Dialog, log message input `, 'err_log_message_input', err);
         }
     }
 

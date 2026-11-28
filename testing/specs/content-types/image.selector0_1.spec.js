@@ -21,7 +21,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
     const IMAGE_DISPLAY_NAME1 = appConst.TEST_IMAGES.SEVEROMOR;
     const IMPORTED_SITE_NAME = appConst.TEST_DATA.IMPORTED_SITE_NAME;
 
-    it('GIVEN wizard for new Image Selector(0:1) has been opened WHEN image selector has been expanded and one option has been clicked THEN the image should be displayed in the selected options', async () => {
+    it(`GIVEN an image has been selected in the wizard for new Image Selector(0:1) WHEN 'Mark as ready' button has been pressed THEN the selected image should be displayed in the dependent items of Publish dialog`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
@@ -29,7 +29,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_1);
         await contentWizard.typeDisplayName(appConst.generateRandomName('selector'));
         await imageSelectorForm.waitForOptionsFilterInputDisplayed();
-        // 2. Expand the image-selector and click on an image-item:
+        // 2. Type the image name in the options filter input and select the image:
         await imageSelectorForm.filterOptionsAndSelectImage(appConst.TEST_IMAGES.TELK);
         await contentWizard.pause(500);
         // 3. Verify the selected image:
@@ -53,7 +53,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         assert.ok(isPresent, 'Publish Wizard - The selected image should be displayed in Dependent Items block');
     });
 
-    it('GIVEN wizard for new Image Selector(0:1) has been opened WHEN name has been typed THEN options filter input should be displayed AND the content gets valid', async () => {
+    it(`GIVEN name has been typed in the wizard for new Image Selector(0:1) AND image is not selected WHEN 'Mark as ready' button has been pressed THEN the content should be valid AND gets 'Ready for publishing'`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         let contentPublishDialog = new ContentPublishDialog();
@@ -61,7 +61,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         await studioUtils.selectSiteAndOpenNewWizard(IMPORTED_SITE_NAME, appConst.contentTypes.IMG_SELECTOR_0_1);
         // 2. Fill the name input:
         await contentWizard.typeDisplayName(CONTENT_NAME);
-        // 3. Verify that options filter input is displayed
+        // 3. Verify that options filter input and uploader button are displayed:
         await imageSelectorForm.waitForOptionsFilterInputDisplayed();
         await imageSelectorForm.waitForUploaderButtonDisplayed();
         await imageSelectorForm.pause(1000);
@@ -71,7 +71,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
             isInvalid === false,
             'This content should be valid, because the image selector is not required input',
         );
-        // 5. Click on Mark as ready button:
+        // 5. Click on 'Mark as ready' button then close the Publish dialog:
         await contentWizard.clickOnMarkAsReadyButton();
         await contentPublishDialog.waitForDialogOpened();
         await contentPublishDialog.clickOnCloseButton();
@@ -89,7 +89,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         );
     });
 
-    it(`GIVEN existing content (image is not selected) opened WHEN an image has been selected THEN content gets Work in progress`, async () => {
+    it(`GIVEN existing 'Ready for publishing' content (image is not selected) is opened WHEN an image has been selected THEN options filter input gets hidden AND the content gets 'Work in progress'`, async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open existing content (image is not selected):
@@ -100,7 +100,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         // 3. Verify the expected selected option:
         let names = await imageSelectorForm.getSelectedImagesDisplayNames();
         assert.equal(names[0], IMAGE_DISPLAY_NAME1);
-        // 4. Verify that options filter input is not displayed:
+        // 4. Verify that options filter input and uploader button are not displayed:
         // bug  Incorrect behavior in the selectors after item upload or deleted #10283
         await imageSelectorForm.waitForOptionsFilterInputNotDisplayed();
         await imageSelectorForm.waitForUploaderButtonNotDisplayed();
@@ -110,10 +110,11 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         // 6. Verify the workflow state:
         let iconState = await contentWizard.getContentWorkflowState();
         assert.equal(iconState, appConst.ICON_WORKFLOW_STATE.IN_PROGRESS, "The content gets 'in progress'");
+        // 7. Save the content:
         await contentWizard.waitAndClickOnSave();
     });
 
-    it('GIVEN existing content is opened WHEN selected image has been removed THEN the content remains valid', async () => {
+    it('GIVEN existing content with selected image is opened WHEN the selected image has been removed THEN the content remains valid AND the image should not be displayed in the selected options', async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         // 1. Open existing valid content with selected image:
@@ -128,13 +129,12 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         assert.ok(isInvalid === false, 'The content remains valid after removing the selected image');
         // 5. The item is not displayed in Selected options:
         await imageSelectorForm.waitForItemNotDisplayedInSelectedOptions(IMAGE_DISPLAY_NAME1);
-        // 6. Verify that Save button gets enabled:
+        // 6. Save the content:
         await contentWizard.waitAndClickOnSave();
         await contentWizard.waitForNotificationMessage();
     });
 
-    // TODO update tests for versions
-    it('GIVEN existing image content(0:1) is opened(image is not selected) WHEN the previous version has been reverted THEN image should appear in the selected options', async () => {
+    it('GIVEN existing Image Selector(0:1) content is opened(image is not selected) WHEN the previous version with selected image has been restored THEN the image should appear in the selected options', async () => {
         let imageSelectorForm = new ImageSelectorForm();
         let contentWizard = new ContentWizard();
         let wizardContextPanel = new WizardContextPanel();
@@ -146,7 +146,7 @@ describe('image.selector0_1.spec tests for not required image selector', functio
         await wizardContextPanel.openVersionHistory();
         await wizardVersionsWidget.waitForLoaded();
         await wizardVersionsWidget.clickOnVersionItemByHeader(appConst.VERSIONS_ITEM_HEADER.EDITED, 1);
-        // 3. revert the version with single selected image:
+        // 3. Restore the version with single selected image:
         await wizardVersionsWidget.clickOnRestoreButton();
         // 4. Verify the selected image:
         let result = await imageSelectorForm.getSelectedImagesDisplayNames();

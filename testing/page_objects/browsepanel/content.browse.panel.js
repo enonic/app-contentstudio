@@ -16,7 +16,6 @@ const HomePage = require('../home.page');
 const XPATH = {
     container: "//div[contains(@id,'ContentBrowsePanel')]",
     toolbarDiv: "//div[contains(@aria-label,'Browse view actions toolbar')]",
-    treeGridToolbar: "//div[contains(@id,'TreeListToolbarElement')",
     selectableListBoxPanelDiv: "//div[contains(@id,'SelectableListBoxPanel')]",
     contentsTreeListDiv: "//div[contains(@data-component,'ContentTreeList')]",
     appBar: "//div[contains(@id,'AppBar')]",
@@ -31,12 +30,9 @@ const XPATH = {
     showIssuesListButton: "//button[contains(@id,'ShowIssuesDialogButton')]/button", //'Assigned to Me' or 'Show Issues'
     showIssuesButton: BUTTONS.buttonAriaLabel('View project issues'),
     clearSelectionCheckbox: `//label[child::input[contains(@aria-label,'Clear selection')]]`,
-    numberInSelectionToggler: `//button[contains(@id,'SelectionPanelToggler')]/span`,
     publishMenuItemByName(name) {
         return `//div[@data-component='Menu.Item' and child::span[text()='${name}']]`;
     },
-    defaultActionByName: (name) => `//button[contains(@id, 'ActionButton') and child::span[contains(.,'${name}')]]`,
-    foldButtonByName: (name) => `//div[contains(@id,'ContentBrowseToolbar')]//span[text()='${name}']`,
     browseToolbarMenuItem: (optionName) => {
         return `//div[@role='menu']//div[@role='menuitem' and child::span[text()='${optionName}']]`;
     },
@@ -47,10 +43,6 @@ const toolbarButton = (ariaLabel) => XPATH.toolbarDiv + BUTTONS.toolbarButtonAri
 const toolbarTooltipButton = (ariaLabel) => XPATH.toolbarDiv + BUTTONS.toolbarTooltipButtonAriaLabel(ariaLabel);
 
 class ContentBrowsePanel extends BaseBrowsePanel {
-    get treeGridToolbar() {
-        return XPATH.treeGridToolbar;
-    }
-
     get clearSelectionCheckbox() {
         return XPATH.clearSelectionCheckbox;
     }
@@ -67,17 +59,18 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return toolbarButton('Preview');
     }
 
+    // 'Reload content' icon-button in the grid toolbar
+    get refreshButton() {
+        return XPATH.container + BUTTONS.buttonAriaLabel('Reload content');
+    }
+
     // expander icon in parent items
     get expanderButton() {
-        return "//button[contains(@type,'button') and contains(@aria-label,'Expand') or contains (@aria-label,'Collapse')]";
+        return "//button[@type='button' and (contains(@aria-label,'Expand') or contains(@aria-label,'Collapse'))]";
     }
 
     get deleteButton() {
         return toolbarButton('Delete');
-    }
-
-    get moreButton() {
-        return toolbarButton('More');
     }
 
     get moveButton() {
@@ -90,10 +83,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get sortButton() {
         return toolbarButton('Sort');
-    }
-
-    get localizeButton() {
-        return toolbarButton('Localize');
     }
 
     get openButton() {
@@ -147,10 +136,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     get editButton() {
         return toolbarButton('Edit');
-    }
-
-    get numberInSelectionToggler() {
-        return XPATH.treeGridToolbar + XPATH.numberInSelectionToggler;
     }
 
     get publishButton() {
@@ -252,6 +237,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
             await this.waitForElementEnabled(this.publishButton);
         } catch (err) {
             await this.handleError('Publish button should be displayed', 'err_publish_button', err);
+        }
+    }
+
+    // 'Publish' should not be the default action of the publish split button (e.g. the user has no 'Publish' permission):
+    async waitForPublishButtonNotDisplayed() {
+        try {
+            return await this.waitForElementNotDisplayed(this.publishButton);
+        } catch (err) {
+            await this.handleError('Publish button should not be displayed', 'err_publish_button_displayed', err);
         }
     }
 
@@ -411,7 +405,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForContentDisplayed(contentName, ms) {
         try {
             let timeout = ms ? ms : appConst.mediumTimeout;
-            console.log('waitForContentDisplayed, timeout is:' + timeout);
             return await this.waitForElementDisplayed(
                 XPATH.contentsTreeListDiv + TREE_GRID.itemByName(contentName),
                 timeout,
@@ -431,7 +424,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     }
 
     waitForSearchButtonDisplayed() {
-        return this.waitForElementDisplayed(this.searchButton, appConst.mediumTimeout);
+        return this.waitForElementDisplayed(this.searchButton);
     }
 
     // The 'Search Panel' toggle is backed by a tree-grid action, which gets enabled asynchronously after the app starts
@@ -439,7 +432,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
     async waitForSearchButtonEnabled() {
         try {
             await this.waitForSearchButtonDisplayed();
-            await this.waitForDisplayedElementEnabled(this.searchButton, appConst.mediumTimeout);
+            await this.waitForDisplayedElementEnabled(this.searchButton);
         } catch (err) {
             await this.handleError(
                 "Browse Panel: 'Search Panel' button should be enabled",
@@ -451,7 +444,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForContextWindowToggleButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.contextWindowToggleButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.contextWindowToggleButton);
         } catch (err) {
             await this.handleError(
                 'Context Window toggle button should be displayed',
@@ -476,19 +469,7 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForHideContextWindowButtonDisplayed() {
         try {
-            return await this.waitForElementDisplayed(this.hideContextWindowButton, appConst.mediumTimeout);
-        } catch (err) {
-            await this.handleError(
-                'Context Window toggle button should be displayed',
-                'err_context_window_toggle_button',
-                err,
-            );
-        }
-    }
-
-    async waitForShowContextWindowToggleButtonDisplayed() {
-        try {
-            return await this.waitForElementDisplayed(this.showContextWindowButton, appConst.mediumTimeout);
+            return await this.waitForElementDisplayed(this.hideContextWindowButton);
         } catch (err) {
             await this.handleError(
                 'Context Window toggle button should be displayed',
@@ -500,8 +481,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForSortButtonDisabled() {
         try {
-            await this.waitForElementDisplayed(this.sortButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.sortButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.sortButton);
+            return await this.waitForElementDisabled(this.sortButton);
         } catch (err) {
             await this.handleError('Sort button should be disabled', 'err_sort_disabled_button', err);
         }
@@ -509,8 +490,8 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForDuplicateButtonDisabled() {
         try {
-            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
-            return await this.waitForElementDisabled(this.duplicateButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.duplicateButton);
+            return await this.waitForElementDisabled(this.duplicateButton);
         } catch (err) {
             await this.handleError('Duplicate button should be disabled', 'err_duplicate_disabled_button', err);
         }
@@ -518,28 +499,10 @@ class ContentBrowsePanel extends BaseBrowsePanel {
 
     async waitForDuplicateButtonEnabled() {
         try {
-            await this.waitForElementDisplayed(this.duplicateButton, appConst.mediumTimeout);
-            return await this.waitForElementEnabled(this.duplicateButton, appConst.mediumTimeout);
+            await this.waitForElementDisplayed(this.duplicateButton);
+            return await this.waitForElementEnabled(this.duplicateButton);
         } catch (err) {
             await this.handleError('Duplicate button should be enabled', 'err_duplicate_enabled_button', err);
-        }
-    }
-
-    async waitForLocalizeButtonEnabled() {
-        try {
-            await this.waitForElementDisplayed(this.localizeButton);
-            return await this.waitForElementEnabled(this.localizeButton);
-        } catch (err) {
-            await this.handleError('Localize button should be enabled', 'err_localize_enabled_button', err);
-        }
-    }
-
-    async waitForLocalizeButtonDisabled() {
-        try {
-            await this.waitForElementDisplayed(this.localizeButton);
-            return await this.waitForElementDisabled(this.localizeButton);
-        } catch (err) {
-            await this.handleError('Localize button should be disabled', 'err_localize_disabled_button', err);
         }
     }
 
@@ -688,30 +651,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         } catch (err) {
             await this.handleError(`Row with the displayName ${displayName} was not checked`, 'err_check_item', err);
         }
-    }
-
-    // TODO
-    async getSortingIcon(contentName) {
-        let selector =
-            this.treeGrid + TREE_GRID.itemByName(contentName) + "//div[contains(@class,'content-tree-grid-sort')]";
-        let elems = await this.findElements(selector);
-        let sort;
-        if (elems.length === 0) {
-            return 'Default';
-        }
-        let classAttr = await elems[0].getAttribute('class');
-        if (classAttr.includes('num-asc')) {
-            sort = appConst.GRID_SORTING.DATE_ASC;
-        } else if (classAttr.includes('num-desc')) {
-            sort = appConst.GRID_SORTING.DATE_DESC;
-        } else if (classAttr.includes('alpha-asc')) {
-            sort = appConst.GRID_SORTING.NAME_ASC;
-        } else if (classAttr.includes('alpha-desc')) {
-            sort = appConst.GRID_SORTING.NAME_DESC;
-        } else if (classAttr.includes('icon-menu')) {
-            sort = appConst.SORT_DIALOG.MENU_ITEM.MANUALLY_SORTED;
-        }
-        return sort;
     }
 
     // returns number of rows with selected checkbox:
@@ -968,9 +907,17 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         }
     }
 
+    // Returns labels of the items in the opened publish menu (enabled and disabled ones).
+    // The default action of the split button is not listed in the menu.
     async getPublishMenuItems() {
-        let locator = "//ul[contains(@id,'Menu')]//li[contains(@id,'MenuItem')]";
-        return await this.getTextInDisplayedElements(locator);
+        try {
+            let locator = "//div[@role='menu']//div[@data-component='Menu.Item']";
+            await this.waitForElementDisplayed(locator, appConst.mediumTimeout);
+            let labels = await this.getTextInDisplayedElements(locator);
+            return labels.map((label) => label.trim());
+        } catch (err) {
+            await this.handleError('Tried to get items in the publish menu', 'err_publish_menu_items', err);
+        }
     }
 
     async openPublishMenuAndClickOnCreateIssue() {
@@ -985,60 +932,38 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await createRequestPublishDialog.waitForDialogLoaded();
     }
 
+    // Returns the workflow state ('In progress' or 'Ready for publishing') shown by the status icon in the row:
     async getWorkflowStateByDisplayName(displayName) {
-        try {
-            const treeItem = await this.findElements(
-                XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName),
-            );
-            const svgElement = await treeItem[0].$('svg[data-status]');
-            await svgElement.waitForDisplayed({ timeout: appConst.mediumTimeout });
-            let attrValue = await svgElement.getAttribute('data-status');
-
-            if (!attrValue) {
-                throw new Error(`No data-status attribute found for displayName: ${displayName}`);
-            }
-            if (attrValue === 'in-progress') {
-                return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
-            }
-            if (attrValue.includes('ready')) {
-                return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
-            }
-            if (attrValue.includes('published')) {
-                return appConst.WORKFLOW_STATE.PUBLISHED;
-            }
-            throw new Error(`Unknown workflow state for displayName: ${displayName}, data-status: ${attrValue}`);
-        } catch (err) {
-            await this.handleError(
-                `Workflow state by displayName: ${displayName}`,
-                'err_get_workflow_state_by_display_name',
-                err,
-            );
-            throw err;
-        }
+        let rowLocator = XPATH.contentsTreeListDiv + TREE_GRID.itemByDisplayName(displayName);
+        return await this.getWorkflowStateInRow(rowLocator, `displayName: ${displayName}`);
     }
 
+    // Returns the workflow state ('In progress' or 'Ready for publishing') shown by the status icon in the row:
     async getWorkflowStateByName(name) {
+        let rowLocator = XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name);
+        return await this.getWorkflowStateInRow(rowLocator, `name: ${name}`);
+    }
+
+    // Reads 'data-status' of the status icon in the content row and converts it to a workflow state.
+    // The icon has one more status - 'invalid', use isRedIconDisplayed()/waitForRedIconDisplayed() to check it.
+    async getWorkflowStateInRow(rowLocator, contentDescription) {
         try {
-            const treeItem = await this.findElements(XPATH.contentsTreeListDiv + TREE_GRID.itemByName(name));
-            const svgElement = await treeItem[0].$('svg[data-status]');
-            await svgElement.waitForDisplayed({ timeout: appConst.mediumTimeout });
-            let attrValue = await svgElement.getAttribute('data-status');
-            if (!attrValue) {
-                throw new Error(`No data-status attribute found for name: ${name}`);
-            }
-            if (attrValue === 'in-progress') {
+            let iconLocator = rowLocator + "//*[name()='svg' and @data-status]";
+            await this.waitForElementDisplayed(iconLocator, appConst.mediumTimeout);
+            let status = await this.getAttribute(iconLocator, 'data-status');
+            if (status === appConst.ICON_WORKFLOW_STATE.IN_PROGRESS) {
                 return appConst.WORKFLOW_STATE.WORK_IN_PROGRESS;
             }
-            if (attrValue.includes('ready')) {
+            if (status === appConst.ICON_WORKFLOW_STATE.READY_FOR_PUBLISHING) {
                 return appConst.WORKFLOW_STATE.READY_FOR_PUBLISHING;
             }
-            if (attrValue.includes('published')) {
-                return appConst.WORKFLOW_STATE.PUBLISHED;
-            }
-            throw new Error(`Unknown workflow state for name: ${name}, data-status: ${attrValue}`);
+            throw new Error(`Unexpected status of the workflow icon: '${status}'`);
         } catch (err) {
-            await this.handleError(`Workflow state by name: ${name}`, 'err_get_workflow_state_by_name', err);
-            throw err;
+            await this.handleError(
+                `Browse Panel: tried to get the workflow state of the content with ${contentDescription}`,
+                'err_get_workflow_state',
+                err,
+            );
         }
     }
 
@@ -1073,13 +998,14 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return lang;
     }
 
-    // Waits for the issues button to get the 'Assigned to me (N)' label (the user has open assigned issues):
+    // Returns true if the issues button gets the 'Assigned to me (N)' label (the user has open assigned issues),
+    // returns false if the label does not appear within the timeout:
     async hasAssignedIssues() {
         try {
             await this.waitForAssignedToMeButtonDisplayed();
             return true;
         } catch (err) {
-            await this.handleError(`'Assigned to me' button should be displayed`, 'err_assigned_to_me', err);
+            return false;
         }
     }
 
@@ -1205,11 +1131,6 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         return await this.pause(500);
     }
 
-    async getNumberInSelectionToggler() {
-        await this.waitForElementDisplayed(this.numberInSelectionToggler);
-        return await this.getText(this.numberInSelectionToggler);
-    }
-
     async getContentNamesInGrid() {
         return await this.getTextInDisplayedElements(this.contentNames);
     }
@@ -1297,12 +1218,15 @@ class ContentBrowsePanel extends BaseBrowsePanel {
         await this.waitForElementNotDisplayed(this.clearSelectionCheckbox);
     }
 
+    // Clicks on the 'Reload content' icon-button in the grid toolbar:
     async clickOnRefreshButton() {
-        let locator = "//div[contains(@id,'TreeListToolbarElement')]//button";
-        let btn = await this.findElement(locator);
-        const svgElement = await btn.$("//svg[@stroke-linecap='round']");
-        await this.clickOnElement(locator);
-        return await this.pause(1000);
+        try {
+            await this.waitForElementDisplayed(this.refreshButton, appConst.mediumTimeout);
+            await this.clickOnElement(this.refreshButton);
+            return await this.pause(1000);
+        } catch (err) {
+            await this.handleError(`Tried to click on 'Reload content' button`, 'err_click_refresh_button', err);
+        }
     }
 
     async clickOnShowXpMenuButton() {
