@@ -1,5 +1,6 @@
 import { notifyError, notifyInfo, notifySuccess } from '../../../shared/notifications';
 import { i18n } from '../../../shared/i18n';
+import type { WritableAtom } from 'nanostores';
 import { type ContentId } from '../../../../app/content/ContentId';
 import type { ContentSummary } from '../../../../app/content/ContentSummary';
 import { fetchContentSummaries, compareContent, hasUnpublishedChildren } from '../../../entities/content';
@@ -16,6 +17,7 @@ import {
     nextDependantExclusions,
     pruneExcludedDependantIds,
 } from '../../../shared/lib/cms/content/dependantsSelection';
+import { groupDescendantsByRoot } from '../../../shared/lib/cms/content/descendantGroups';
 import { hasContentById, hasContentIdInIds, isIdsEqual, uniqueIds } from '../../../shared/lib/cms/content/ids';
 import { createDebounce } from '../../../shared/lib/timing/createDebounce';
 import { $config } from '../../../shared/config/config.store';
@@ -24,6 +26,10 @@ import {
     $compareStatusesLoading,
     $dependantIds,
     $dependantWindow,
+    $dependencyIds,
+    $descendantIds,
+    $descendantIdsByRoot,
+    $descendantWindow,
     $draftPublishDialogSelection,
     $hasUnpublishedChildrenIds,
     $isPublishReady,
@@ -34,6 +40,7 @@ import {
     $publishDependantsSelection,
     $publishDialog,
     $publishDialogDependants,
+    $publishDialogDescendants,
     $publishDialogItemsWithChildren,
     $publishDialogPending,
     $publishScheduleErrors,
@@ -174,6 +181,7 @@ export const syncPublishDialogContext = async ({
     $publishDialog.set({
         open: false,
         failed: false,
+        tree: false,
         items,
         excludedItemsIds: [],
         excludedItemsWithChildrenIds: [...excludeChildrenIds],
@@ -211,6 +219,7 @@ export const openPublishDialog = (
     $publishDialog.set({
         open: true,
         failed: false,
+        tree: includeChildItems,
         items,
         excludedItemsIds: [...excludedIds],
         excludedItemsWithChildrenIds: [...excludedItemsWithChildrenIds],
@@ -327,7 +336,7 @@ export const setPublishDialogItemWithChildrenSelected = (id: ContentId, selected
 };
 
 export const setPublishDialogDependantItemSelected = (id: ContentId, selected: boolean) => {
-    const hasItem = hasContentById(id, $publishDialogDependants.get());
+    const hasItem = hasContentIdInIds(id, $dependantIds.get());
     if (!hasItem) return;
 
     const { excludedDependantItemsIds, ...rest } = $draftPublishDialogSelection.get();
@@ -437,7 +446,23 @@ export const removePublishDialogItem = (id: ContentId): void => {
 
 // DATA
 
-let loadingMore = false;
+type DependantWindow = {
+    $ids: { get: () => ContentId[] };
+    $summaries: WritableAtom<ContentSummary[]>;
+    $loaded: WritableAtom<number>;
+};
+
+const DEPENDENCIES_WINDOW: DependantWindow = {
+    $ids: $dependencyIds,
+    $summaries: $publishDialogDependants,
+    $loaded: $dependantWindow,
+};
+
+const DESCENDANTS_WINDOW: DependantWindow = {
+    $ids: $descendantIds,
+    $summaries: $publishDialogDescendants,
+    $loaded: $descendantWindow,
+};
 
 const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[]): ContentSummary[] => {
     const indexById = new Map<string, number>();
@@ -449,6 +474,7 @@ const orderSummariesByIds = (summaries: ContentSummary[], orderIds: ContentId[])
 // Loads the next slice into the window, preserving server order. Returns null if a
 // newer reload superseded this one (guardId no longer matches the current instanceId).
 async function loadDependantWindow(
+    { $summaries, $loaded }: DependantWindow,
     allIds: ContentId[],
     start: number,
     guardId: number,
@@ -459,34 +485,43 @@ async function loadDependantWindow(
     if (guardId !== instanceId) return null;
 
     if (sliceIds.length > 0 && summaries.length === 0) {
-        return $publishDialogDependants.get();
+        return $summaries.get();
     }
 
-    const base = start === 0 ? [] : $publishDialogDependants.get();
+    const base = start === 0 ? [] : $summaries.get();
     const merged = orderSummariesByIds([...base, ...summaries], allIds);
 
-    $publishDialogDependants.set(merged);
-    $dependantWindow.set(Math.min(start + DEPENDANT_LOAD_SIZE, allIds.length));
+    $summaries.set(merged);
+    $loaded.set(Math.min(start + DEPENDANT_LOAD_SIZE, allIds.length));
 
     return merged;
 }
 
-/** Lazy-load the next window of dependant summaries (triggered by list scroll). */
-export const loadMoreDependants = async (): Promise<void> => {
-    if (loadingMore) return;
+const createWindowLoader = (target: DependantWindow): (() => Promise<void>) => {
+    let loadingMore = false;
 
-    const allIds = $dependantIds.get();
-    const loaded = $dependantWindow.get();
-    if (loaded >= allIds.length) return;
+    return async () => {
+        if (loadingMore) return;
 
-    loadingMore = true;
-    const guardId = instanceId;
-    try {
-        await loadDependantWindow(allIds, loaded, guardId);
-    } finally {
-        loadingMore = false;
-    }
+        const allIds = target.$ids.get();
+        const loaded = target.$loaded.get();
+        if (loaded >= allIds.length) return;
+
+        loadingMore = true;
+        const guardId = instanceId;
+        try {
+            await loadDependantWindow(target, allIds, loaded, guardId);
+        } finally {
+            loadingMore = false;
+        }
+    };
 };
+
+/** Lazy-load the next window of dependency summaries (triggered by list scroll). */
+export const loadMoreDependants = createWindowLoader(DEPENDENCIES_WINDOW);
+
+/** Lazy-load the next window of descendant summaries (triggered by list scroll). */
+export const loadMoreDescendants = createWindowLoader(DESCENDANTS_WINDOW);
 
 const rebaseDependantExclusions = (
     previousApplied: ContentId[],
@@ -563,7 +598,7 @@ export async function reloadPublishDialogData(): Promise<void> {
         if (currentInstanceId !== instanceId) return;
 
         // Verify compare status for online+modified items (non-blocking)
-        void fetchCompareStatuses([...items, ...$publishDialogDependants.get()]);
+        void fetchCompareStatuses([...items, ...$publishDialogDescendants.get(), ...$publishDialogDependants.get()]);
     } catch (error) {
         if (currentInstanceId === instanceId) {
             $publishDialog.setKey('failed', true);
@@ -698,8 +733,12 @@ export const publishItems = async (
 /** Clears all dependant-related state (full IDs, loaded window, publishable set). */
 function resetDependantsState(): void {
     $publishDialogDependants.set([]);
+    $publishDialogDescendants.set([]);
     $dependantIds.set([]);
+    $descendantIds.set([]);
+    $descendantIdsByRoot.set(new Map());
     $dependantWindow.set(0);
+    $descendantWindow.set(0);
     $visibleDependantIds.set([]);
     $publishableContentIds.set([]);
 }
@@ -743,7 +782,7 @@ async function resolvePublishDependencies(
         })
         .map((item) => item.getContentId());
 
-    let childrenIds: ContentId[] = [];
+    let childrenIdsByParent = new Map<string, ContentId[]>();
     if (itemsWithChildrenIds.length > 0) {
         const childrenResult = await findIdsByParents(itemsWithChildrenIds);
         if (currentInstanceId !== instanceId) return;
@@ -751,8 +790,9 @@ async function resolvePublishDependencies(
             $publishDialog.setKey('failed', true);
             return;
         }
-        childrenIds = childrenResult.value;
+        childrenIdsByParent = childrenResult.value;
     }
+    const childrenIds = uniqueIds([...childrenIdsByParent.values()].flat());
 
     const maxResultResult = await resolvePublishDeps({
         ids: itemsIds,
@@ -834,10 +874,20 @@ async function resolvePublishDependencies(
         // TODO: notify 'dialog.publish.notAllExcluded'
     }
 
+    // Descendants of the main items are publish targets of their own, not dependencies.
+    const descendantIdsByRoot = groupDescendantsByRoot(itemsIds, childrenIdsByParent, allDependantIds);
+    const descendantIds = [...descendantIdsByRoot.values()].flat();
+    const dependencyIds = allDependantIds.filter((id) => !hasContentIdInIds(id, descendantIds));
+
     // Store all ids; load only the first window of summaries (rest load on scroll).
+    $descendantIdsByRoot.set(descendantIdsByRoot);
+    $descendantIds.set(descendantIds);
     $dependantIds.set(allDependantIds);
-    const loaded = await loadDependantWindow(allDependantIds, 0, currentInstanceId);
-    if (loaded == null) return;
+    const [loadedDependencies, loadedDescendants] = await Promise.all([
+        loadDependantWindow(DEPENDENCIES_WINDOW, dependencyIds, 0, currentInstanceId),
+        loadDependantWindow(DESCENDANTS_WINDOW, descendantIds, 0, currentInstanceId),
+    ]);
+    if (loadedDependencies == null || loadedDescendants == null) return;
 
     const newExcludedItemsIds = items
         .filter(
@@ -893,7 +943,7 @@ async function resolvePublishDependencies(
 
 const getPublishItemLabel = (id: ContentId): string => {
     const { items } = $publishDialog.get();
-    const dependants = $publishDialogDependants.get();
+    const dependants = [...$publishDialogDescendants.get(), ...$publishDialogDependants.get()];
     const item = [...items, ...dependants].find((summary) => summary.getContentId().equals(id));
     return item?.getDisplayName() || item?.getPath()?.toString() || id.toString();
 };

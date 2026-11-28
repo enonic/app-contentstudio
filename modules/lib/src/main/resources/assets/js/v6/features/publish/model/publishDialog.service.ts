@@ -28,11 +28,16 @@ import {
 import {
     $dependantIds,
     $dependantWindow,
+    $dependencyIds,
+    $descendantIds,
+    $descendantIdsByRoot,
+    $descendantWindow,
     $hasExcludedDependantItems,
     $publishableContentIds,
     $publishChecks,
     $publishDialog,
     $publishDialogDependants,
+    $publishDialogDescendants,
     $publishDialogPending,
     $showExcludedDependants,
 } from './publishDialog.store';
@@ -70,21 +75,35 @@ const removeItemsByIds = (idsToRemove: Set<string>): { removedMain: boolean; rem
 
     const nextItems = removeContentItemsById(items, idsToRemove);
     const nextDependantItems = removeContentItemsById(dependantItems, idsToRemove);
+    const nextDescendantItems = removeContentItemsById($publishDialogDescendants.get(), idsToRemove);
     const removedMain = nextItems.changed;
-    const removedDependant = nextDependantItems.changed;
+    const removedDependant = nextDependantItems.changed || nextDescendantItems.changed;
 
     if (removedMain) {
         $publishDialog.setKey('items', nextItems.items);
     }
-    if (removedDependant) {
+    if (nextDependantItems.changed) {
         $publishDialogDependants.set(nextDependantItems.items);
+    }
+    if (nextDescendantItems.changed) {
+        $publishDialogDescendants.set(nextDescendantItems.items);
     }
 
     // Keep the full ID list and publishable set in sync until the follow-up reload.
     const nextDependantIds = $dependantIds.get().filter((id) => !idsToRemove.has(id.toString()));
     if (nextDependantIds.length !== $dependantIds.get().length) {
+        $descendantIds.set($descendantIds.get().filter((id) => !idsToRemove.has(id.toString())));
+        $descendantIdsByRoot.set(
+            new Map(
+                [...$descendantIdsByRoot.get()].map(([rootId, ids]) => [
+                    rootId,
+                    ids.filter((id) => !idsToRemove.has(id.toString())),
+                ]),
+            ),
+        );
         $dependantIds.set(nextDependantIds);
-        $dependantWindow.set(Math.min($dependantWindow.get(), nextDependantIds.length));
+        $dependantWindow.set(Math.min($dependantWindow.get(), $dependencyIds.get().length));
+        $descendantWindow.set(Math.min($descendantWindow.get(), $descendantIds.get().length));
     }
     const nextPublishableIds = $publishableContentIds.get().filter((id) => !idsToRemove.has(id.toString()));
     if (nextPublishableIds.length !== $publishableContentIds.get().length) {
@@ -120,15 +139,20 @@ const patchTrackedPublishItems = (updates: ContentSummary[]): { updatedMain: boo
     const dependantItems = $publishDialogDependants.get();
     const patchedItems = patchContentItemsByContentId(items, updates);
     const patchedDependants = patchContentItemsByContentId(dependantItems, updates);
+    const patchedDescendants = patchContentItemsByContentId($publishDialogDescendants.get(), updates);
     const updatedMain = patchedItems.changed;
-    const updatedDependants = patchedDependants.changed;
+    const updatedDependants = patchedDependants.changed || patchedDescendants.changed;
 
     if (updatedMain) {
         $publishDialog.setKey('items', patchedItems.items);
     }
 
-    if (updatedDependants) {
+    if (patchedDependants.changed) {
         $publishDialogDependants.set(patchedDependants.items);
+    }
+
+    if (patchedDescendants.changed) {
+        $publishDialogDescendants.set(patchedDescendants.items);
     }
 
     return { updatedMain, updatedDependants };

@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -735,12 +736,18 @@ public final class ContentResource
     public FindIdsByParentsResultJson findIdsByParents( final ContentIdsJson ids )
     {
         final ArrayList<ContentId> childrenIds = new ArrayList<>();
+        final Map<ContentId, ContentIds> childrenIdsByParent = new LinkedHashMap<>();
         ids.getContentIds().stream().forEach( id -> {
             FindContentByParentParams params = FindContentByParentParams.create().parentId( id ).recursive( true ).size( -1 ).build();
-            childrenIds.addAll( this.contentService.findIdsByParent( params ).getContentIds().getSet() );
+            final ContentIds found = this.contentService.findIdsByParent( params ).getContentIds();
+            childrenIds.addAll( found.getSet() );
+            childrenIdsByParent.put( id, found );
         } );
 
-        return FindIdsByParentsResultJson.create().setRequestedContents( childrenIds.stream().collect( ContentIds.collector() ) ).build();
+        return FindIdsByParentsResultJson.create()
+            .setRequestedContents( childrenIds.stream().collect( ContentIds.collector() ) )
+            .setIdsByParent( childrenIdsByParent )
+            .build();
     }
 
     @POST

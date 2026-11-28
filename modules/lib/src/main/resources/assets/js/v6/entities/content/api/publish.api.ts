@@ -44,13 +44,18 @@ export type ResolvePublishParams = {
     excludeChildrenIds?: ContentId[];
 };
 
+type FindIdsByParentsJson = {
+    ids: ContentIdBaseItemJson[];
+    idsByParent?: Record<string, string[]>;
+};
+
 /**
- * Find all child content IDs for given parent content IDs.
+ * Find all descendant content IDs of the given parents, keyed by the parent ID.
  * Used by: features/publish/model/publishDialog.commands.
  */
-export function findIdsByParents(contentIds: ContentId[]): ResultAsync<ContentId[], AppError> {
+export function findIdsByParents(contentIds: ContentId[]): ResultAsync<Map<string, ContentId[]>, AppError> {
     if (contentIds.length === 0) {
-        return okAsync([]);
+        return okAsync(new Map());
     }
 
     const url = getCmsApiUrl('findIdsByParents');
@@ -59,8 +64,14 @@ export function findIdsByParents(contentIds: ContentId[]): ResultAsync<ContentId
         contentIds: contentIds.map((id) => id.toString()),
     };
 
-    return requestJson<{ ids: ContentIdBaseItemJson[] }>(url, { method: 'POST', body: payload }).map(
-        (json) => json.ids?.map((item) => new ContentId(item.id)) ?? [],
+    return requestJson<FindIdsByParentsJson>(url, { method: 'POST', body: payload }).map(
+        (json) =>
+            new Map(
+                Object.entries(json.idsByParent ?? {}).map(([parentId, ids]) => [
+                    parentId,
+                    ids.map((id) => new ContentId(id)),
+                ]),
+            ),
     );
 }
 

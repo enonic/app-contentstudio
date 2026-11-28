@@ -17,8 +17,13 @@ afterEach(() => {
 });
 
 describe('findIdsByParents', () => {
-    it('should POST parent ids to the findIdsByParents endpoint and parse the child ids', async () => {
-        mockFetch.mockResolvedValue(jsonResponse({ ids: [{ id: 'child-1' }, { id: 'child-2' }] }));
+    it('should POST parent ids to the findIdsByParents endpoint and parse the child ids by parent', async () => {
+        mockFetch.mockResolvedValue(
+            jsonResponse({
+                ids: [{ id: 'child-1' }, { id: 'child-2' }],
+                idsByParent: { 'parent-1': ['child-1', 'child-2'] },
+            }),
+        );
 
         const result = await findIdsByParents([contentId('parent-1')]);
 
@@ -29,7 +34,9 @@ describe('findIdsByParents', () => {
             body: JSON.stringify({ contentIds: ['parent-1'] }),
         });
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap().map((id) => id.toString())).toEqual(['child-1', 'child-2']);
+        const byParent = result._unsafeUnwrap();
+        expect([...byParent.keys()]).toEqual(['parent-1']);
+        expect(byParent.get('parent-1')?.map((id) => id.toString())).toEqual(['child-1', 'child-2']);
     });
 
     it('should short-circuit to an empty list without fetching for empty input', async () => {
@@ -37,7 +44,7 @@ describe('findIdsByParents', () => {
 
         expect(mockFetch).not.toHaveBeenCalled();
         expect(result.isOk()).toBe(true);
-        expect(result._unsafeUnwrap()).toEqual([]);
+        expect(result._unsafeUnwrap().size).toBe(0);
     });
 
     it('should return an AppError for non-ok responses', async () => {

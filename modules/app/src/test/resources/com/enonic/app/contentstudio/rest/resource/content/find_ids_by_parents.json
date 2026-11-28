@@ -6,5 +6,11 @@
     {
       "id": "child-id-2"
     }
-  ]
+  ],
+  "idsByParent": {
+    "parent-id": [
+      "child-id-1",
+      "child-id-2"
+    ]
+  }
 }

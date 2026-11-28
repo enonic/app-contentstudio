@@ -587,27 +587,6 @@ class ContentPublishDialog extends Page {
         return this.waitForElementNotClickable(this.publishNowButton);
     }
 
-    async isRemoveItemIconDisabled(name) {
-        try {
-            let locator = XPATH.container + XPATH.mainItemDivByName(name) + DIALOG_ITEMS.CONTENT_REMOVE_BUTTON;
-            await this.waitForElementDisplayed(locator);
-            let attr = await this.getAttribute(locator, 'aria-disabled');
-            return attr;
-        } catch (err) {
-            await this.handleError(
-                `Publish Dialog, tried to check the remove icon for item ${name} `,
-                'err_remove_item_icon',
-                err,
-            );
-        }
-    }
-
-    async clickOnRemoveItemIcon(name) {
-        let locator = XPATH.container + XPATH.mainItemDivByName(name) + DIALOG_ITEMS.CONTENT_REMOVE_BUTTON;
-        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
-        await this.clickOnElement(locator);
-    }
-
     async clickOnCloseButton() {
         await this.waitForElementDisplayed(this.closeButton);
         await this.clickOnElement(this.closeButton);
@@ -665,6 +644,66 @@ class ContentPublishDialog extends Page {
 
     async clickOnCheckboxInDependentItem(displayName) {
         return await this.dependantsControls.clickOnCheckboxInDependentItem(displayName);
+    }
+
+    // clicks on the checkbox of an item in the main list ('SplitList.Primary' grid): a selected item or its child
+    async clickOnCheckboxInMainItem(displayName) {
+        let locator =
+            XPATH.container +
+            DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
+        await this.waitForElementDisplayed(locator, appConst.shortTimeout);
+        await this.clickOnElement(locator);
+        return await this.pause(400);
+    }
+
+    // waits until the main list ('SplitList.Primary' grid) contains the expected number of items, returns their names
+    async waitForNumberOfMainItems(expectedNumber) {
+        let locator =
+            XPATH.container +
+            DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+            DIALOG_ITEMS.CONTENT_ROW +
+            DIALOG_ITEMS.ITEMS_NAME_SPAN;
+        try {
+            await this.getBrowser().waitUntil(
+                async () => {
+                    let names = await this.getTextInDisplayedElements(locator);
+                    return names.length === expectedNumber;
+                },
+                {
+                    timeout: appConst.mediumTimeout,
+                    timeoutMsg: `Expected number of main items: ${expectedNumber}`,
+                },
+            );
+            return await this.getTextInDisplayedElements(locator);
+        } catch (err) {
+            await this.handleError(
+                `Publish Dialog, ${expectedNumber} items should be displayed in the main list `,
+                'err_main_items_number',
+                err,
+            );
+        }
+    }
+
+    async isMainItemCheckboxSelected(displayName) {
+        try {
+            let labelLocator =
+                XPATH.container +
+                DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+                DIALOG_ITEMS.contentCheckboxLabelByName(displayName);
+            let inputLocator =
+                XPATH.container +
+                DIALOG_ITEMS.PRIMARY_DATA_COMPONENT +
+                DIALOG_ITEMS.contentCheckboxInputByName(displayName);
+            await this.waitForElementDisplayed(labelLocator, appConst.mediumTimeout);
+            return await this.isSelected(inputLocator);
+        } catch (err) {
+            await this.handleError(
+                `Publish Dialog, is checkbox selected for the main item ${displayName} `,
+                'err_main_item_checkbox',
+                err,
+            );
+        }
     }
 
     // returns display names of the main items in the Publishing Wizard ('SplitList.Primary' grid):

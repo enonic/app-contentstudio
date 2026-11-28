@@ -34,24 +34,38 @@ SplitListRoot.displayName = SPLIT_LIST_NAME;
 
 const SPLIT_LIST_PRIMARY_NAME = 'SplitList.Primary';
 
+const NOOP = (): void => undefined;
+
 function SplitListPrimary<T>({
     items,
     getItemId,
     renderRow,
     className,
     disabled = false,
+    loading = false,
+    hasMore = false,
+    onEndReached,
 }: SplitListPrimaryProps<T>): ReactElement {
     const contentItemsLabel = useI18n('field.split.primary');
 
+    const sentinelRef = useInfiniteScroll<HTMLDivElement>({
+        hasMore,
+        isLoading: loading,
+        onLoadMore: onEndReached ?? NOOP,
+    });
+
     return (
-        <GridList
-            data-component={SPLIT_LIST_PRIMARY_NAME}
-            className={cn('flex flex-col gap-y-2.5 py-2 rounded-md', className)}
-            label={contentItemsLabel}
-            disabled={disabled}
-        >
-            {items.map((item, index) => renderRow(item, index))}
-        </GridList>
+        <>
+            <GridList
+                data-component={SPLIT_LIST_PRIMARY_NAME}
+                className={cn('flex flex-col gap-y-2.5 py-2 rounded-md', className)}
+                label={contentItemsLabel}
+                disabled={disabled}
+            >
+                {items.map((item, index) => renderRow(item, index))}
+            </GridList>
+            {hasMore && <div ref={sentinelRef} aria-hidden className="h-px w-full" />}
+        </>
     );
 }
 
@@ -112,8 +126,6 @@ SplitListSeparatorButton.displayName = SPLIT_LIST_SEPARATOR_BUTTON_NAME;
 //
 
 const SPLIT_LIST_SECONDARY_NAME = 'SplitList.Secondary';
-
-const NOOP = (): void => undefined;
 
 function SplitListSecondary<T>({
     items,

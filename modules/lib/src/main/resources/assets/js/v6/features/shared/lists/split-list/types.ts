@@ -1,4 +1,4 @@
-import type {ReactNode} from 'react';
+import type { ReactNode } from 'react';
 
 //
 // * SplitList Props
@@ -15,6 +15,9 @@ export type SplitListPrimaryProps<T> = {
     renderRow: (item: T, index: number) => ReactNode;
     className?: string;
     disabled?: boolean;
+    loading?: boolean;
+    hasMore?: boolean;
+    onEndReached?: () => void;
 };
 
 export type SplitListSeparatorProps = {
